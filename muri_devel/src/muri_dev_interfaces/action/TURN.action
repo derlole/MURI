@@ -1,0 +1,8 @@
+# Request   (Goal)
+geometry_msgs/Pose2D target_angle
+---
+# Result
+bool success
+---
+# Feedback
+float32 moved_angle
