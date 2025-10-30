@@ -1,2 +1,74 @@
 import rclpy
+import math
 from rclpy.action import ActionServer
+from rclpy.node import Node
+from nav_msgs.msg import Odometry
+from geometry_msgs.msg import Twist
+from muri_dev_interfaces.action import DRIVE
+
+class DriveActionServer(Node):
+    def __init__(self):
+        super().__init__('muri_drive_action_server')
+        self._action_server = ActionServer(
+            self,
+            DRIVE,
+            'muri_drive',
+            execute_callback=self.execute_callback
+            goal_callback=self.goal_callback,
+            cancel_callback=self.cancel_callback
+        )
+
+        self.cmd_vel_pub = self.create_publisher(
+            Twist, 
+            '/cmd_vel',
+             10
+        )
+        self.picture_data_sub = self.create_subscription(
+            bool,  # Hier echten typ angeben, sobald existiert
+            '/muri_picture_data',  
+            self.listener_callback_picture_data_asd,
+            10
+        )
+        self.odom_sub = self.create_subscription(
+            Odometry,
+            '/odom',  
+            self.listener_callback_odom_asd,
+            10
+        )
+
+        self.timer = self.create_timer(0.1, self.timer_callback_asd)
+        self.goal_handler = None
+
+    def timer_callback_asd():
+        pass 
+
+    def execute_callback(self, goal_handle):
+        pass
+
+    def goal_callback(self, goal_request):
+        pass
+
+    def cancel_callback(self, goal_handle):
+        pass
+
+    def listener_callback_odom_asd(self, msg):
+        pass
+
+    def listener_callback_picture_data_asd(self, msg):
+        pass
+
+def main(args=None):
+    rclpy.init(args=args)
+
+    drive_action_server = DriveActionServer()
+    try:
+        rclpy.spin(drive_action_server)
+    except KeyboardInterrupt:
+        drive_action_server.get_logger().info('Interrupt receivedat DriveActionServer, shutting down.')
+        # hier mayeb noch nen /cmd_vel auf 0
+    finally:
+        drive_action_server.destroy_node()
+        rclpy.shutdown()
+
+if __name__ == '__main__':    
+    main()
