@@ -1,4 +1,4 @@
-<diagram program="umletino" version="15.1"><zoom_level>8</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>112</x><y>312</y><w>208</w><h>216</h></coordinates><panel_attributes>_ DriveActionServer _
+<diagram program="umletino" version="15.1"><zoom_level>17</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>0</x><y>663</y><w>442</w><h>459</h></coordinates><panel_attributes>_ DriveActionServer _
 --
 # action_server: rclpy.ActionServer
 + cmd_vel_pub: rclpy.node.Publisher
@@ -16,7 +16,7 @@ Responsibilities
 - working with DRIVE Goals
 - feedback ongoing DRIVE Goals
 - resulting finished DRIVE Goals
-- ros com</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>344</x><y>312</y><w>208</w><h>216</h></coordinates><panel_attributes>_InitActionServer _
+- ros com</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>493</x><y>663</y><w>442</w><h>459</h></coordinates><panel_attributes>_InitActionServer _
 --
 # action_server: rclpy.ActionServer
 + cmd_vel_pub: rclpy.node.Publisher
@@ -34,7 +34,7 @@ Responsibilities
 - working with INIT Goals
 - feedback ongoing INIT Goals
 - resulting finished INIT Goals
-- ros com</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>576</x><y>312</y><w>208</w><h>216</h></coordinates><panel_attributes>_ TurnActionServer _
+- ros com</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>986</x><y>663</y><w>442</w><h>459</h></coordinates><panel_attributes>_ TurnActionServer _
 --
 # action_server: rclpy.ActionServer
 + cmd_vel_pub: rclpy.node.Publisher
@@ -53,7 +53,7 @@ Responsibilities
 - feedback ongoing TURN Goals
 - resulting finished TURN Goals
 - ros com
-</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>112</x><y>568</y><w>208</w><h>152</h></coordinates><panel_attributes>_ DriveLogic_
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>0</x><y>1207</y><w>442</w><h>323</h></coordinates><panel_attributes>_ DriveLogic_
 --
 - state: DriveStates
 --
@@ -64,7 +64,7 @@ Responsibilities
 Responsibilities
 - implement logic for drive
 - gives info on request
-- accepts abstracted infos</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>344</x><y>568</y><w>208</w><h>152</h></coordinates><panel_attributes>_ InitLogic_
+- accepts abstracted infos</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>493</x><y>1207</y><w>442</w><h>323</h></coordinates><panel_attributes>_ InitLogic_
 --
 - state: InitStates
 --
@@ -76,7 +76,7 @@ Responsibilities
 Responsibilities
 - implement logic for init
 - gives info on request
-- accepts abstracted infos</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>576</x><y>568</y><w>208</w><h>152</h></coordinates><panel_attributes>_ TurnLogic_
+- accepts abstracted infos</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>986</x><y>1207</y><w>442</w><h>323</h></coordinates><panel_attributes>_ TurnLogic_
 --
 - state: TurnStates
 --
@@ -87,7 +87,7 @@ Responsibilities
 Responsibilities
 - implement logic for turn
 - gives info on request
-- accepts abstracted infos</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>208</x><y>520</y><w>24</w><h>64</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>432</x><y>520</y><w>24</w><h>64</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>672</x><y>520</y><w>24</w><h>64</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>UMLClass</id><coordinates><x>344</x><y>0</y><w>208</w><h>216</h></coordinates><panel_attributes>_ ActionHandler_
+- accepts abstracted infos</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>204</x><y>1105</y><w>51</w><h>136</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>680</x><y>1105</y><w>51</w><h>136</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>1190</x><y>1105</y><w>51</w><h>136</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>UMLClass</id><coordinates><x>493</x><y>0</y><w>442</w><h>459</h></coordinates><panel_attributes>_ ActionHandler_
 --
 
 --
@@ -97,10 +97,9 @@ Responsibilities
 --
 Responsibilities
 
-</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>200</x><y>208</y><w>200</w><h>120</h></coordinates><panel_attributes>lt=-
-requests &gt;</panel_attributes><additional_attributes>230;10;10;130</additional_attributes></element><element><id>Relation</id><coordinates><x>440</x><y>208</y><w>72</w><h>120</h></coordinates><panel_attributes>lt=-
-requests &gt;</panel_attributes><additional_attributes>10;10;10;130</additional_attributes></element><element><id>Relation</id><coordinates><x>544</x><y>208</y><w>168</w><h>120</h></coordinates><panel_attributes>lt=-
-calls &gt;</panel_attributes><additional_attributes>10;10;190;130</additional_attributes></element><element><id>UMLClass</id><coordinates><x>376</x><y>848</y><w>168</w><h>152</h></coordinates><panel_attributes>&lt;&lt;Interface&gt;&gt;
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>187</x><y>442</y><w>425</w><h>255</h></coordinates><panel_attributes>lt=-
+requests &gt;</panel_attributes><additional_attributes>230;10;10;130</additional_attributes></element><element><id>Relation</id><coordinates><x>697</x><y>442</y><w>153</w><h>255</h></coordinates><panel_attributes>lt=-
+requests &gt;</panel_attributes><additional_attributes>10;10;10;130</additional_attributes></element><element><id>UMLClass</id><coordinates><x>561</x><y>1802</y><w>357</w><h>323</h></coordinates><panel_attributes>&lt;&lt;Interface&gt;&gt;
 --
 - state
 --
@@ -110,5 +109,5 @@ calls &gt;</panel_attributes><additional_attributes>10;10;190;130</additional_at
 --
 Responsibilities
 - gives info on request
-- accepts abstracted infos</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>208</x><y>712</y><w>216</w><h>152</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>250;170;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>448</x><y>712</y><w>24</w><h>152</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>10;170;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>496</x><y>712</y><w>216</w><h>152</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>10;170;250;10</additional_attributes></element><element><id>Relation</id><coordinates><x>552</x><y>216</y><w>168</w><h>120</h></coordinates><panel_attributes>lt=-
-requests &gt;</panel_attributes><additional_attributes>10;10;190;130</additional_attributes></element></diagram>
+- accepts abstracted infos</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>204</x><y>1513</y><w>459</w><h>323</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>250;170;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>714</x><y>1513</y><w>51</w><h>323</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>10;170;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>816</x><y>1513</y><w>459</w><h>323</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>10;170;250;10</additional_attributes></element><element><id>Relation</id><coordinates><x>850</x><y>442</y><w>391</w><h>255</h></coordinates><panel_attributes>lt=-
+requests &gt;</panel_attributes><additional_attributes>10;10;210;130</additional_attributes></element></diagram>
