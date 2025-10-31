@@ -3,8 +3,8 @@
 <package format="3">
   <name>muri_dev</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="benjaaimnpekkler@gmail.com">benji</maintainer>
+  <description>muri_development package</description>
+  <maintainer email="wirhassenapple@gmail.com">muri_dev_team</maintainer>
   <license>MIT</license>
 
   <depend>rclpy</depend>

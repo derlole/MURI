@@ -1,16 +1,16 @@
 from enum import Enum
 from  muri_logics.logic_interface import LogicInterface, Out
 
-class InitStates(Enum):
+class MainStates(Enum):
     INIT = 0
     IDLE = 1
+    
 
+    FAILED = 3
+    SUCCESS = 4
 
-    FAILED = 2
-    SUCCESS = 3
-
-class InitOut(Out):
+class MainOut(Out):
     pass
 
-class InitLogic(LogicInterface):
+class MainController(LogicInterface):
     pass
