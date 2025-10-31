@@ -4,10 +4,15 @@ from rclpy.node import Node
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
 from muri_dev_interfaces.action import TURN
+from muri_logics.logic_action_server_turn import TurnLogic
+from muri_logics.logic_interface import LogicInterface
 
 class TurnActionServer(Node):
-    def __init__(self):
+    def __init__(self, locic: LogicInterface):
         super().__init__('muri_turn_action_server')
+
+        self.turn_logic: LogicInterface = locic
+
         self._action_server = ActionServer(
             self,
             TURN,
@@ -48,7 +53,7 @@ class TurnActionServer(Node):
 def main(args=None):
     rclpy.init(args=args)
 
-    turn_action_server = TurnActionServer()
+    turn_action_server = TurnActionServer(TurnLogic())
     try:
         rclpy.spin(turn_action_server)
     except KeyboardInterrupt:

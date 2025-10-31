@@ -1,19 +1,23 @@
 import rclpy
-import math
 from rclpy.action import ActionServer
 from rclpy.node import Node
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
 from muri_dev_interfaces.action import DRIVE
+from muri_logics.logic_action_server_drive import DriveLogic
+from muri_logics.logic_interface import LogicInterface
 
 class DriveActionServer(Node):
-    def __init__(self):
+    def __init__(self, logic: LogicInterface):
         super().__init__('muri_drive_action_server')
+
+        self.drive_logic: LogicInterface = logic
+
         self._action_server = ActionServer(
             self,
             DRIVE,
             'muri_drive',
-            execute_callback=self.execute_callback
+            execute_callback=self.execute_callback,
             goal_callback=self.goal_callback,
             cancel_callback=self.cancel_callback
         )
@@ -60,7 +64,7 @@ class DriveActionServer(Node):
 def main(args=None):
     rclpy.init(args=args)
 
-    drive_action_server = DriveActionServer()
+    drive_action_server = DriveActionServer(DriveLogic())
     try:
         rclpy.spin(drive_action_server)
     except KeyboardInterrupt:

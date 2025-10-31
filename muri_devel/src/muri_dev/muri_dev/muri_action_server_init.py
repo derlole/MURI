@@ -4,15 +4,20 @@ from rclpy.node import Node
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
 from muri_dev_interfaces.action import INIT
+from muri_logics.logic_action_server_init import InitLogic
+from muri_logics.logic_interface import LogicInterface
 
 class InitActionServer(Node):
-    def __init__(self):
+    def __init__(self, logic: LogicInterface):
         super().__init__('muri_init_action_server')
+
+        self.init_logic: LogicInterface = logic
+
         self._action_server = ActionServer(
             self,
             INIT,
             'muri_init',
-            execute_callback=self.execute_callback
+            execute_callback=self.execute_callback,
             goal_callback=self.goal_callback,
             cancel_callback=self.cancel_callback
         )
@@ -57,7 +62,7 @@ class InitActionServer(Node):
 def main(args=None):
     rclpy.init(args=args)
 
-    init_action_server = InitActionServer()
+    init_action_server = InitActionServer(InitLogic())
 
     try:
         rclpy.spin(init_action_server)
