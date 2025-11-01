@@ -1,5 +1,5 @@
 # Request   (Goal)
-geometry_msgs/Pose2D target_angle
+float32 target_angle
 ---
 # Result
 bool success

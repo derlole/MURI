@@ -28,7 +28,7 @@ class DriveActionServer(Node):
              10
         )
         self.picture_data_sub = self.create_subscription(
-            bool,  # Hier echten typ angeben, sobald existiert
+            bool,  # TODO Hier echten typ angeben, sobald existiert
             '/muri_picture_data',  
             self.listener_callback_picture_data_asd,
             10

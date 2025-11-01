@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum
+from typing import Optional
 
 class Out(ABC):
     @abstractmethod
@@ -7,13 +8,22 @@ class Out(ABC):
         """Retrieve the current state."""
         pass
 
+    @abstractmethod
     def resetOut(self):
         """Reset the output to its initial state."""
         pass
 
+    @abstractmethod
     def outValid(self) -> bool:
         """Check if the output is valid."""
         pass
+
+    @abstractmethod
+    def getError(self) -> Optional[Exception]:
+        """Retrieve any error state."""
+        pass
+    
+    
 
 class LogicInterface(ABC):
     @abstractmethod

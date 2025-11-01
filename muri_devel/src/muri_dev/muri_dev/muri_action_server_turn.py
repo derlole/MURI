@@ -32,6 +32,12 @@ class TurnActionServer(Node):
             self.listener_callback_odom_ast,
             10
         )
+        self.picture_data_sub = self.create_subscription(
+            bool,  # TODO Hier echten typ angeben, sobald existiert
+            '/muri_picture_data',  
+            self.listener_callback_picture_data_ast,
+            10
+        )
         self.timer = self.create_timer(0.1, self.timer_callback_ast)
         self.goal_handler = None
 
@@ -48,6 +54,9 @@ class TurnActionServer(Node):
         pass
 
     def listener_callback_odom_ast(self, msg):
+        pass
+
+    def listener_callback_picture_data_ast(self, msg):
         pass
 
 def main(args=None):
