@@ -1,4 +1,4 @@
-<diagram program="umletino" version="15.1"><zoom_level>6</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>228</x><y>234</y><w>156</w><h>162</h></coordinates><panel_attributes>_ DriveActionServer _
+<diagram program="umletino" version="15.1"><zoom_level>6</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>30</x><y>234</y><w>156</w><h>162</h></coordinates><panel_attributes>_ DriveActionServer _
 --
 # action_server: rclpy.ActionServer
 + cmd_vel_pub: rclpy.node.Publisher
@@ -16,7 +16,7 @@ Responsibilities
 - working with DRIVE Goals
 - feedback ongoing DRIVE Goals
 - resulting finished DRIVE Goals
-- ros com</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>402</x><y>234</y><w>156</w><h>162</h></coordinates><panel_attributes>_InitActionServer _
+- ros com</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>204</x><y>234</y><w>156</w><h>162</h></coordinates><panel_attributes>_InitActionServer _
 --
 # action_server: rclpy.ActionServer
 + cmd_vel_pub: rclpy.node.Publisher
@@ -34,7 +34,7 @@ Responsibilities
 - working with INIT Goals
 - feedback ongoing INIT Goals
 - resulting finished INIT Goals
-- ros com</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>576</x><y>234</y><w>156</w><h>162</h></coordinates><panel_attributes>_ TurnActionServer _
+- ros com</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>378</x><y>234</y><w>156</w><h>162</h></coordinates><panel_attributes>_ TurnActionServer _
 --
 # action_server: rclpy.ActionServer
 + cmd_vel_pub: rclpy.node.Publisher
@@ -53,7 +53,7 @@ Responsibilities
 - feedback ongoing TURN Goals
 - resulting finished TURN Goals
 - ros com
-</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>228</x><y>426</y><w>156</w><h>114</h></coordinates><panel_attributes>_ DriveLogic_
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>30</x><y>426</y><w>156</w><h>114</h></coordinates><panel_attributes>_ DriveLogic_
 --
 - state: DriveStates
 --
@@ -66,7 +66,7 @@ Responsibilities
 Responsibilities
 - implement logic for drive
 - gives info on request
-- accepts abstracted infos</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>402</x><y>426</y><w>156</w><h>114</h></coordinates><panel_attributes>_ InitLogic_
+- accepts abstracted infos</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>204</x><y>426</y><w>156</w><h>114</h></coordinates><panel_attributes>_ InitLogic_
 --
 - state: InitStates
 --
@@ -78,7 +78,7 @@ Responsibilities
 Responsibilities
 - implement logic for init
 - gives info on request
-- accepts abstracted infos</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>576</x><y>426</y><w>156</w><h>114</h></coordinates><panel_attributes>_ TurnLogic_
+- accepts abstracted infos</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>378</x><y>426</y><w>156</w><h>114</h></coordinates><panel_attributes>_ TurnLogic_
 --
 - state: TurnStates
 --
@@ -89,7 +89,7 @@ Responsibilities
 Responsibilities
 - implement logic for turn
 - gives info on request
-- accepts abstracted infos</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>300</x><y>390</y><w>18</w><h>48</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>468</x><y>390</y><w>18</w><h>48</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>648</x><y>390</y><w>18</w><h>48</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>UMLClass</id><coordinates><x>402</x><y>0</y><w>156</w><h>162</h></coordinates><panel_attributes>_ ActionHandler_
+- accepts abstracted infos</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>102</x><y>390</y><w>18</w><h>48</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>270</x><y>390</y><w>18</w><h>48</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>450</x><y>390</y><w>18</w><h>48</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>UMLClass</id><coordinates><x>204</x><y>0</y><w>156</w><h>162</h></coordinates><panel_attributes>_ ActionHandler_
 --
 - action_client_turn
 - action_client_init
@@ -106,9 +106,9 @@ Responsibilities
 - handling mit goals TURN, DRIVE, INIT
 - calling Action Servers
 - backchecking picture data
-</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>294</x><y>156</y><w>150</w><h>90</h></coordinates><panel_attributes>lt=-
-requests &gt;</panel_attributes><additional_attributes>230;10;10;130</additional_attributes></element><element><id>Relation</id><coordinates><x>474</x><y>156</y><w>54</w><h>90</h></coordinates><panel_attributes>lt=-
-requests &gt;</panel_attributes><additional_attributes>10;10;10;130</additional_attributes></element><element><id>UMLClass</id><coordinates><x>426</x><y>636</y><w>126</w><h>90</h></coordinates><panel_attributes>&lt;&lt;LogicInterface&gt;&gt;
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>96</x><y>156</y><w>150</w><h>90</h></coordinates><panel_attributes>lt=-
+requests &gt;</panel_attributes><additional_attributes>230;10;10;130</additional_attributes></element><element><id>Relation</id><coordinates><x>276</x><y>156</y><w>54</w><h>90</h></coordinates><panel_attributes>lt=-
+requests &gt;</panel_attributes><additional_attributes>10;10;10;130</additional_attributes></element><element><id>UMLClass</id><coordinates><x>228</x><y>636</y><w>126</w><h>90</h></coordinates><panel_attributes>&lt;&lt;LogicInterface&gt;&gt;
 --
 - state
 --
@@ -116,8 +116,8 @@ requests &gt;</panel_attributes><additional_attributes>10;10;10;130</additional_
 + setActive(boolean): boolean
 + state_machine(): void
 + getActiveState(): Enum
-</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>300</x><y>534</y><w>162</w><h>114</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>250;170;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>480</x><y>534</y><w>18</w><h>114</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>10;170;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>516</x><y>534</y><w>162</w><h>114</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>10;170;250;10</additional_attributes></element><element><id>Relation</id><coordinates><x>528</x><y>156</y><w>138</w><h>90</h></coordinates><panel_attributes>lt=-
-requests &gt;</panel_attributes><additional_attributes>10;10;210;130</additional_attributes></element><element><id>UMLClass</id><coordinates><x>864</x><y>18</y><w>132</w><h>114</h></coordinates><panel_attributes>_ MainController_
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>102</x><y>534</y><w>162</w><h>114</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>250;170;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>282</x><y>534</y><w>18</w><h>114</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>10;170;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>318</x><y>534</y><w>162</w><h>114</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>10;170;250;10</additional_attributes></element><element><id>Relation</id><coordinates><x>330</x><y>156</y><w>138</w><h>90</h></coordinates><panel_attributes>lt=-
+requests &gt;</panel_attributes><additional_attributes>10;10;210;130</additional_attributes></element><element><id>UMLClass</id><coordinates><x>666</x><y>18</y><w>132</w><h>114</h></coordinates><panel_attributes>_ MainController_
 --
 - state: MainStates
 --
@@ -128,4 +128,4 @@ requests &gt;</panel_attributes><additional_attributes>10;10;210;130</additional
 Responsibilities
 - implement logic for turn
 - gives info on request
-- accepts abstracted infos</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>552</x><y>72</y><w>324</w><h>18</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;520;10</additional_attributes></element><element><id>Relation</id><coordinates><x>546</x><y>126</y><w>396</w><h>558</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>10;910;640;910;640;10</additional_attributes></element></diagram>
+- accepts abstracted infos</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>354</x><y>72</y><w>324</w><h>18</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;520;10</additional_attributes></element><element><id>Relation</id><coordinates><x>348</x><y>126</y><w>396</w><h>558</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>10;910;640;910;640;10</additional_attributes></element></diagram>

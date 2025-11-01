@@ -40,3 +40,8 @@ class LogicInterface(ABC):
     def state_machine():
         """Access the state machine of the logic processing."""
         pass
+
+    @abstractmethod
+    def getActiveState() -> Enum:
+        """Retrieve the current active state."""
+        pass
