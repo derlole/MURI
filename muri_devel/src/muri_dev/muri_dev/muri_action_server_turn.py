@@ -1,8 +1,9 @@
 import rclpy
-from rclpy.action import ActionServer
+from rclpy.action import ActionServer, GoalResponse, CancelResponse
 from rclpy.node import Node
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
+from rclpy.executors import ExternalShutdownException
 from muri_dev_interfaces.action import TURN
 from muri_logics.logic_action_server_turn import TurnLogic
 from muri_logics.logic_interface import LogicInterface
@@ -19,7 +20,8 @@ class TurnActionServer(Node):
             'muri_turn',
             execute_callback=self.execute_callback,
             goal_callback=self.goal_callback,
-            cancel_callback=self.cancel_callback
+            cancel_callback=self.cancel_callback,
+            handle_accepted_callback=self.handle_acc_callback
         )
         self.cmd_vel_pub = self.create_publisher(
             Twist, 
@@ -38,26 +40,44 @@ class TurnActionServer(Node):
             self.listener_callback_picture_data_ast,
             10
         )
-        self.timer = self.create_timer(0.1, self.timer_callback_ast)
-        self.goal_handler = None
+        # self.timer = self.create_timer(0.1, self.timer_callback_ast)
+        self._goal_handle = None
+        self._last_picture_data = None
+        self._last_odom = None
 
     def timer_callback_ast(self):
         pass
 
     def execute_callback(self, goal_handle):
-        pass
+        self.get_logger().info('Exec: turn-goal')
+        self._timer = self.create_timer(0.1, self.timer_callback_ast)
+
+        return TURN.Result()
 
     def goal_callback(self, goal_request):
-        pass
+        self.get_logger().info('Rec: turn-goal')
+
+        if self._goal_handle is not None and self._goal_handle.is_active:
+            self.get_logger().info('Rej: turn-goal')
+            return GoalResponse.REJECT
+        
+        self.get_logger().info('Acc: turn-goal')
+        return GoalResponse.ACCEPT
+
+    def handle_acc_callback(self, goal_handle):
+        self._goal_handle = goal_handle
+        self.turn_logic.resetOut()
+        goal_handle.execute()
 
     def cancel_callback(self, goal_handle):
-        pass
+        self.get_logger().info('Rec: cancel turn-goal')
+        return CancelResponse.ACCEPT
 
     def listener_callback_odom_ast(self, msg):
-        pass
+        self._last_odom = msg
 
     def listener_callback_picture_data_ast(self, msg):
-        pass
+        self._last_picture_data = msg
 
 def main(args=None):
     rclpy.init(args=args)
@@ -65,9 +85,9 @@ def main(args=None):
     turn_action_server = TurnActionServer(TurnLogic())
     try:
         rclpy.spin(turn_action_server)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, ExternalShutdownException):
         turn_action_server.get_logger().info('Interrupt received at TurnActionServer, shutting down.')
-        # hier mayeb noch nen /cmd_vel auf 0
+        # TODO hier mayeb noch nen /cmd_vel auf 0
     finally:
         turn_action_server.destroy_node()
         rclpy.shutdown()

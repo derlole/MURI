@@ -1,8 +1,9 @@
 import rclpy
-from rclpy.action import ActionServer
+from rclpy.action import ActionServer, CancelResponse, GoalResponse
 from rclpy.node import Node
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
+from rclpy.executors import ExternalShutdownException
 from muri_dev_interfaces.action import INIT
 from muri_logics.logic_action_server_init import InitLogic
 from muri_logics.logic_interface import LogicInterface
@@ -19,7 +20,8 @@ class InitActionServer(Node):
             'muri_init',
             execute_callback=self.execute_callback,
             goal_callback=self.goal_callback,
-            cancel_callback=self.cancel_callback
+            cancel_callback=self.cancel_callback,
+            handle_accepted_callback=self.handle_acc_callback
         )
         self.cmd_vel_pub = self.create_publisher(
             Twist, 
@@ -38,26 +40,44 @@ class InitActionServer(Node):
             self.listener_callback_odom_asi,
             10
         )
-        self.timer = self.create_timer(0.1, self.timer_callback)
-        self.goal_handler = None
+        # self.timer = self.create_timer(0.1, self.timer_callback)
+        self._goal_handle = None
+        self._last_picture_data = None
+        self._last_odom = None
 
-    def timer_callback(self):
+    def timer_callback_asi(self):
         pass
 
     def execute_callback(self, goal_handle):
-        pass
+        self.get_logger().info('Exec: init-goal')
+        self._timer = self.create_timer(0.1, self.timer_callback_asi)
+
+        return INIT.Result() 
 
     def goal_callback(self, goal_request):
-        pass
+        self.get_logger().info('Rec: init-goal')
+
+        if self._goal_handle is not None and self._goal_handle.is_active:
+            self.get_logger().info('Rej: init-goal')
+            return GoalResponse.REJECT
+        
+        self.get_logger().info('Acc: init-goal')
+        return GoalResponse.ACCEPT
+
+    def handle_acc_callback(self, goal_handle):
+        self._goal_handle = goal_handle
+        self.init_logic.reset()
+        goal_handle.execute()
 
     def cancel_callback(self, goal_handle):
-        pass
+        self.get_logger().info('Rec: cancel init-goal')
+        return CancelResponse.ACCEPT
 
     def listener_callback_odom_asi(self, msg):
-        pass
+        self._last_odom = msg
 
     def listener_callback_picture_data_asi(self, msg):
-        pass
+        self._last_picture_data = msg
 
 def main(args=None):
     rclpy.init(args=args)
@@ -66,9 +86,9 @@ def main(args=None):
 
     try:
         rclpy.spin(init_action_server)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, ExternalShutdownException):
         init_action_server.get_logger().info('Interrupt received at InitActionServer, shutting down.')
-        # hier mayeb noch nen /cmd_vel auf 0
+        # TODO hier mayeb noch nen /cmd_vel auf 0
     finally:
         init_action_server.destroy_node()
         rclpy.shutdown()

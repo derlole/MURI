@@ -1,8 +1,9 @@
 import rclpy
-from rclpy.action import ActionServer
+from rclpy.action import ActionServer, GoalResponse, CancelResponse
 from rclpy.node import Node
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
+from rclpy.executors import ExternalShutdownException
 from muri_dev_interfaces.action import DRIVE
 from muri_logics.logic_action_server_drive import DriveLogic
 from muri_logics.logic_interface import LogicInterface
@@ -19,7 +20,8 @@ class DriveActionServer(Node):
             'muri_drive',
             execute_callback=self.execute_callback,
             goal_callback=self.goal_callback,
-            cancel_callback=self.cancel_callback
+            cancel_callback=self.cancel_callback,
+            handle_accepted_callback=self.handle_acc_callback
         )
 
         self.cmd_vel_pub = self.create_publisher(
@@ -40,26 +42,99 @@ class DriveActionServer(Node):
             10
         )
 
-        self.timer = self.create_timer(0.1, self.timer_callback_asd)
-        self.goal_handler = None
+        # self.timer = self.create_timer(0.1, self.timer_callback_asd) # TODO not needed anymore?
+        self._goal_handle = None
+        self._last_picture_data = None
+        self._last_odom = None
 
-    def timer_callback_asd():
-        pass 
+    def timer_callback_asd(self):
+        if self._goal_handle is None or not self._goal_handle.is_active:
+            return
+        
+        if self._goal_handle.is_cancel_requested:
+            self.get_logger().info('Canc: drive-goal.')
+            self._goal_handle.canceled()
+
+            result = DRIVE.Result()
+            result.success = False
+
+            self._goal_handle.publish_result(result)
+            self._timer.cancel()
+            self._goal_handle = None
+            return # TOOO handle canc here?
+
+        self.drive_logic.state_machine()
+        out = self.drive_logic.getOut()
+
+        if not out.outValid():
+            out.resetOut()
+            return # TODO handle err here?
+        
+        cmd_vel = Twist()
+        cmd_vel.linear.x = float(out.values['linear_velocity_x']) # TODO communicate to Louis that to put there
+        cmd_vel.linear.y = float(out.values['linear_velocity_y']) # TODO communicate to Louis that to put there
+        cmd_vel.angular.z = float(out.values['angular_velocity_z']) # TODO communicate to Louis that to put there
+        self.cmd_vel_pub.publish(cmd_vel)
+
+        feedback_msg = DRIVE.Feedback()
+        feedback_msg.distance_remaining = float(out.values['distance_remaining'])  # TODO communicate to Louis that to put there
+
+        self._goal_handle.publish_feedback(feedback_msg)
+
+        if out.getState() == DriveLogic.State.SUCCESS:
+            self.get_logger().info('comp: drive-goal.')
+            self._goal_handle.succeed()
+
+            result = DRIVE.Result()
+            result.success = True
+
+            self._goal_handle.publish_result(result)
+            self._timer.cancel()
+            self._goal_handle = None
+
+        elif out.getState() == DriveLogic.State.FAILED:
+            self.get_logger().info('fail: drive-goal.')
+            self._goal_handle.abort()
+
+            result = DRIVE.Result()
+            result.success = False
+
+            self._goal_handle.publish_result(result)
+            self._timer.cancel()
+            self._goal_handle = None
+
+        out.resetOut()
 
     def execute_callback(self, goal_handle):
-        pass
+        self.get_logger().info('Exe: drive goal')
+        self._timer = self.create_timer(0.1, self.timer_callback_asd)
+
+        return DRIVE.Result() # TODO Prove that this works / (zwei stimmen dafür), mein kopf dagegen
 
     def goal_callback(self, goal_request):
-        pass
+        self.get_logger().info('Rec: drive-goal')
+
+        if self._goal_handle is not None and self._goal_handle.is_active: # TODO do i need the second condition?
+            self.get_logger().info('Rej: drive-goal')
+            return GoalResponse.REJECT
+        
+        self.get_logger().info('Acc: drive-goal')
+        return GoalResponse.ACCEPT
+    
+    def handle_acc_callback(self, goal_handle):
+        self._goal_handle = goal_handle
+        self.drive_logic.reset()
+        goal_handle.execute()
 
     def cancel_callback(self, goal_handle):
-        pass
+        self.get_logger().info('Rec: cancel drive-goal')
+        return CancelResponse.ACCEPT
 
     def listener_callback_odom_asd(self, msg):
-        pass
+        self._last_odom = msg
 
     def listener_callback_picture_data_asd(self, msg):
-        pass
+        self._last_picture_data = msg
 
 def main(args=None):
     rclpy.init(args=args)
@@ -67,9 +142,9 @@ def main(args=None):
     drive_action_server = DriveActionServer(DriveLogic())
     try:
         rclpy.spin(drive_action_server)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, ExternalShutdownException):
         drive_action_server.get_logger().info('Interrupt receivedat DriveActionServer, shutting down.')
-        # hier mayeb noch nen /cmd_vel auf 0
+        # TODO hier mayeb noch nen /cmd_vel auf 0
     finally:
         drive_action_server.destroy_node()
         rclpy.shutdown()

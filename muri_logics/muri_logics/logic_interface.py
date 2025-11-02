@@ -3,6 +3,19 @@ from enum import Enum
 from typing import Optional
 
 class Out(ABC):
+
+    @property
+    @abstractmethod
+    def values(self):
+        """Get the value."""
+        pass
+
+    @values.setter
+    @abstractmethod
+    def values(self, val):
+        """Set the value."""
+        pass
+
     @abstractmethod
     def getState(self) -> Enum:
         """Retrieve the current state."""
@@ -38,10 +51,15 @@ class LogicInterface(ABC):
 
     @abstractmethod
     def state_machine():
-        """Access the state machine of the logic processing."""
+        """Execute the state machine of the logic processing."""
         pass
 
     @abstractmethod
     def getActiveState() -> Enum:
         """Retrieve the current active state."""
+        pass
+
+    @abstractmethod
+    def reset():
+        """Reset the logic processing to its initial state."""
         pass
