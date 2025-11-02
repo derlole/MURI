@@ -13,9 +13,9 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='benji',
-    maintainer_email='benjaaimnpekkler@gmail.com',
-    description='TODO: Package description',
+    maintainer='muri dev-team',
+    maintainer_email='wirhassenapple@gmail.com',
+    description='vision processing package for MURI robot',
     license='MIT',
     extras_require={
         'test': [

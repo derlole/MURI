@@ -4,7 +4,7 @@
   <name>vision_proccessing</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
-  <maintainer email="benjaaimnpekkler@gmail.com">benji</maintainer>
+  <maintainer email="wirhassenapple@gmail.com">muri dev-team</maintainer>
   <license>MIT</license>
 
   <depend>rclpy</depend>

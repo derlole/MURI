@@ -5,6 +5,7 @@ from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
 from rclpy.executors import ExternalShutdownException
 from muri_dev_interfaces.action import INIT
+from muri_dev_interfaces.msg import PictureData
 from muri_logics.logic_action_server_init import InitLogic
 from muri_logics.logic_interface import LogicInterface
 
@@ -29,7 +30,7 @@ class InitActionServer(Node):
              10
         )
         self.picture_data_sub = self.create_subscription(
-            bool,  # TODO Hier echten typ angeben, sobald existiert
+            PictureData,
             '/muri_picture_data',  
             self.listener_callback_picture_data_asi,
             10
@@ -46,7 +47,61 @@ class InitActionServer(Node):
         self._last_odom = None
 
     def timer_callback_asi(self):
-        pass
+        if self._goal_handle is None or not self._goal_handle.is_active:
+            return
+        
+        if self._goal_handle.is_cancel_requested:
+            self.get_logger().info('Canc: init-goal.')
+            self._goal_handle.canceled()
+
+            result = INIT.Result()
+            result.success = False
+
+            self._goal_handle.publish_result(result)
+            self._timer.cancel()
+            self._goal_handle = None
+            return # TODO handle canc here?
+
+        self.init_logic.state_machine()
+        out = self.init_logic.getOut()
+
+        if not out.outValid():
+            out.resetOut()
+            return
+        
+        cmd_vel = Twist()
+        cmd_vel.linear.x = float(out.values['linear_velocity_x']) # TODO communicate to Louis that to put there
+        cmd_vel.linear.y = float(out.values['linear_velocity_y']) # TODO communicate to Louis that to put there
+        cmd_vel.angular.z = float(out.values['angular_velocity_z']) # TODO communicate to Louis that to put there
+        self.cmd_vel_pub.publish(cmd_vel)
+
+        feedback_msg = INIT.Feedback()
+        feedback_msg.turned_angle = float(out.values['turned_angle'])  # TODO communicate to Louis that to put there
+        self._goal_handle.publish_feedback(feedback_msg)
+
+        if out.getState() == InitLogic.State.SUCCESS:
+            self.get_logger().info('succ: init-goal.')
+            self._goal_handle.succeed()
+
+            result = INIT.Result()
+            result.success = True
+
+            self._goal_handle.publish_result(result)
+            self._timer.cancel()
+            self._goal_handle = None
+
+        elif out.getState() == InitLogic.State.FAILURE:
+            self.get_logger().info('fail: init-goal.')
+            self._goal_handle.abort()
+
+            result = INIT.Result()
+            result.success = False
+
+            self._goal_handle.publish_result(result)
+            self._timer.cancel()
+            self._goal_handle = None
+
+        out.resetOut()
 
     def execute_callback(self, goal_handle):
         self.get_logger().info('Exec: init-goal')

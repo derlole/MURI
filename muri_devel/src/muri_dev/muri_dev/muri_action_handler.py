@@ -4,7 +4,8 @@ from rclpy.node import Node
 from nav_msgs.msg import Odometry
 # from geometry_msgs.msg import Twist
 from muri_dev_interfaces.action import DRIVE, TURN, INIT
-
+from muri_dev_interfaces.msg import PictureData
+from rclpy.executors import ExternalShutdownException
 from muri_logics.main_controller import MainController
 from muri_logics.logic_interface import LogicInterface
 
@@ -22,7 +23,7 @@ class MuriActionHandler(Node):
         self.main_controller: LogicInterface = logic
 
         self.picture_sub = self.create_subscription(
-            bool,   # TODO Hier echten typ angeben, sobald existiert
+            PictureData,   # TODO Hier echten typ angeben, sobald existiert
             '/muri_picture_data',
             self.listener_callback_picture_data_ah,
             10
@@ -88,16 +89,50 @@ class MuriActionHandler(Node):
         self.get_logger().info('Init: ' + str(feedback_msg))
 
     def drive_goal_response_callback(self, promise):
-        pass # TODO
+        goal_handle = promise.result()
+        if not goal_handle.accepted:
+            self.get_logger().info('Rej: drive-goal')
+            return
+        
+        self.get_logger().info('Acc: drive-goal')
+
+        self._drive_result_promise = goal_handle.get_result_async()
+        self._drive_result_promise.add_done_callback(self.drive_result_callback)
 
     def turn_goal_response_callback(self, promise):
-        pass # TODO
+        goal_handle = promise.result()
+        if not goal_handle.accepted:
+            self.get_logger().info('Rej: turn-goal')
+            return
+        
+        self.get_logger().info('Acc: turn-goal')
+
+        self._turn_result_promise = goal_handle.get_result_async()
+        self._turn_result_promise.add_done_callback(self.turn_result_callback)
 
     def init_goal_response_callback(self, promise):
-        pass # TODO
+        goal_handle = promise.result()
+        if not goal_handle.accepted:
+            self.get_logger().info('Rej: init-goal')
+            return
+        
+        self.get_logger().info('Acc: init-goal')
 
-    
+        self._init_result_promise = goal_handle.get_result_async()
+        self._init_result_promise.add_done_callback(self.init_result_callback)
 
+    # TODO BETTER PRINTING
+    def drive_result_callback(self, promise):
+        result = promise.result().result
+        self.get_logger().info('Drive result: {0}'.format(result))
+
+    def turn_result_callback(self, promise):
+        result = promise.result().result
+        self.get_logger().info('Turn result: {0}'.format(result))
+
+    def init_result_callback(self, promise):
+        result = promise.result().result
+        self.get_logger().info('Init result: {0}'.format(result))
 
 def main(args=None):
     rclpy.init(args=args)
@@ -106,7 +141,7 @@ def main(args=None):
     muri_action_handler = MuriActionHandler(logic)
     try:
         rclpy.spin(muri_action_handler)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, ExternalShutdownException):
         muri_action_handler.get_logger().info('Interrupt received at MuriActionHandler, shutting down.')
     finally:
         muri_action_handler.destroy_node()

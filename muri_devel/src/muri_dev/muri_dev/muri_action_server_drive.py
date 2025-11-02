@@ -5,6 +5,7 @@ from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
 from rclpy.executors import ExternalShutdownException
 from muri_dev_interfaces.action import DRIVE
+from muri_dev_interfaces.msg import PictureData
 from muri_logics.logic_action_server_drive import DriveLogic
 from muri_logics.logic_interface import LogicInterface
 
@@ -30,7 +31,7 @@ class DriveActionServer(Node):
              10
         )
         self.picture_data_sub = self.create_subscription(
-            bool,  # TODO Hier echten typ angeben, sobald existiert
+            PictureData,
             '/muri_picture_data',  
             self.listener_callback_picture_data_asd,
             10
@@ -61,7 +62,7 @@ class DriveActionServer(Node):
             self._goal_handle.publish_result(result)
             self._timer.cancel()
             self._goal_handle = None
-            return # TOOO handle canc here?
+            return # TODO handle canc here?
 
         self.drive_logic.state_machine()
         out = self.drive_logic.getOut()
@@ -82,7 +83,7 @@ class DriveActionServer(Node):
         self._goal_handle.publish_feedback(feedback_msg)
 
         if out.getState() == DriveLogic.State.SUCCESS:
-            self.get_logger().info('comp: drive-goal.')
+            self.get_logger().info('succ: drive-goal.')
             self._goal_handle.succeed()
 
             result = DRIVE.Result()

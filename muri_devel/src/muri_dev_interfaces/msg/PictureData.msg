@@ -1,0 +1,9 @@
+# PictureData.msg
+std_msgs/Header header
+bool success
+string camera_name
+uint32 width
+uint32 height
+float64 fps
+float32[] histogram
+string description
