@@ -11,7 +11,6 @@ class ImageProcessing(Node):
     def __init__(self):
         super().__init__('image_processing')
 
-        self.cv_raw_image = None
         self.bridge = CvBridge()
 
         self.subscription = self.create_subscription(
@@ -22,18 +21,23 @@ class ImageProcessing(Node):
         self.subscription
         self.publisher = self.create_publisher(
             PictureData,
-            '/muri_image_raw',
-            10) 
-        timer_time = 0.1  
-        self.data = self.create_timer(timer_time, self.timer_callback)
-        
-    def timer_callback(self):
-        pass
+            '/muri_picture_data',
+            10)
 
     def listener_calback(self, msg):
         self.data = msg
-        self.cv_raw_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+        cv_raw_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
         self.get_logger().info('Bild empfangen!')
+        final_data = self.krasseBerechnungen(cv_raw_image)
+        pub_pic_data = PictureData()
 
-    def krasseBerechnungen():
+        # TODO Daten in pub_pic_data füllen 
+        pub_pic_data.success = bool(None)
+        pub_pic_data.excenter = float(None)
+        # weitere Daten folgen
+
+        self.publisher.publish(pub_pic_data)
+        self.get_logger().info('OpenCV-Daten werden gepublished...')
+
+    def krasseBerechnungen(self, data_img):
         pass

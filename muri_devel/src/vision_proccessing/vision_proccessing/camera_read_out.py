@@ -9,10 +9,8 @@ class CameraReadOut(Node):
     def __init__(self):
         super().__init__('camera_read_out')
         self.publisher = self.create_publisher(Image, '/muri_image_raw', 10)
-        timer_time = 0.1
+        timer_time = 0.1 # sek
         self.data = self.create_timer(timer_time, self.timer_callback)
-
-
 
     def timer_callback(self):
         bridge = CvBridge()
