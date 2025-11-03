@@ -63,3 +63,13 @@ class LogicInterface(ABC):
     def reset():
         """Reset the logic processing to its initial state."""
         pass
+
+    @abstractmethod
+    def setOdomData(x: float, z:float, t: float):
+        """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
+        pass
+
+    @abstractmethod
+    def setCameraData(data): #TODO
+        """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
+        pass 
