@@ -24,7 +24,7 @@ class ImageProcessing(Node):
             '/muri_picture_data',
             10)
 
-    def listener_calback(self, msg):
+    def listener_callback(self, msg):
         self.data = msg
         cv_raw_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
         self.get_logger().info('Bild empfangen!')
