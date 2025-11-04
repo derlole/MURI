@@ -12,9 +12,9 @@ class InitStates(Enum):
 
 
 class InitOut(Out):
-    def __init__(): 
+    def __init__(self): 
         self.__values = None
-        pass #TODO
+        self.__error = None
 
     @property
     def values(self):
@@ -45,15 +45,15 @@ class InitOut(Out):
     
     def outValid(self):
         """Check if the output is valid."""
-        pass #TODO
+        pass #TODO function Valid
 
     def getError(self):
         """Retrieve any error state."""
-        pass #TODO
+        return self.__error 
 
 
 class InitLogic(LogicInterface):
-    def __init__():
+    def __init__(self):
         self.__output = InitOut()
         self.__state = InitStates.INIT
 
@@ -62,7 +62,7 @@ class InitLogic(LogicInterface):
         """Retrieve the output of the logic processing."""
         return self.__output
 
-    def setActive(active): # TODO
+    def setActive(self, active): # TODO function ser Active
         """Set the active state of the logic processing."""
         self.__state = InitStates.RUN
         return True
@@ -71,7 +71,7 @@ class InitLogic(LogicInterface):
         """Retrieve the current active state."""
         return self.__state
 
-    def reset():
+    def reset(self):
         """Reset the logic processing to its initial state."""
         self.__positionX = 0.0
         self.__positionY = 0.0
@@ -97,24 +97,24 @@ class InitLogic(LogicInterface):
     def calculate(self):
         
         PIXELTOLLERANCE = 5
-        angularVelocityZ = 0
+        angularVelocityZ = 0.0
 
         if self.__pixelToMid > 0 and abs(self.__pixelToMid) > PIXELTOLLERANCE:
-            angularVelocityZ = 1
+            angularVelocityZ = 1.0 #TODO Auswahl Geschwindigkeit
 
         elif self.__pixelToMid < 0 and abs(self.__pixelToMid) > PIXELTOLLERANCE:
-            angularVelocityZ = -1
+            angularVelocityZ = -1.0
         
         else:
-            angularVelocityZ = 0
+            angularVelocityZ = 0.0
         
         return angularVelocityZ
 
 
     
     def state_machine(self):
-            """Execute the state machine of the logic processing."""
-        
+        """Execute the state machine of the logic processing."""
+
         match self.__state:
 
             case InitStates.INIT:
@@ -134,17 +134,14 @@ class InitLogic(LogicInterface):
             case InitStates.INITMOVE:
                 avz, ta = self.calculate()
                 self.__output.values = (None, None, avz, ta)
-                if avz = 0:
+                if avz == 0.0:
                     self.__state = InitStates.SUCCESS
-                
-                
-
 
             case InitStates.FAILED:
-                pass #TODO
+                pass #TODO switch case Faild
 
             case InitStates.SUCCESS:
-                pass #TODO
+                pass #TODO switch case success
 
 
                 
