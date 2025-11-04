@@ -1,0 +1,24 @@
+Wichtige OpenCV-Funktionen für Kreis-Detektion
+
+Die Hauptfunktionen, die du verwenden wirst:
+
+    cv2.VideoCapture() - Kamera oder Video öffnen
+    cv2.cvtColor() - Farbraum konvertieren (z.B. BGR zu Graustufen)
+    cv2.GaussianBlur() - Bild weichzeichnen (reduziert Rauschen)
+    cv2.HoughCircles() - Die Hauptfunktion für Kreis-Erkennung
+    cv2.circle() - Erkannte Kreise visualisieren
+    cv2.imshow() - Bild/Video anzeigen
+    cv2.waitKey() - Auf Tastendruck warten
+    cv2.destroyAllWindows() - Fenster schließen
+
+Workflow
+
+Der typische Ablauf ist:
+
+    Bild einlesen → Graustufen konvertieren → Weichzeichnen → HoughCircles() anwenden → Kreise zeichnen → Anzeigen
+
+Die Hough-Transformation (cv2.HoughCircles()) ist speziell für Kreiserkennung entwickelt und funktioniert sehr gut für Rohröffnungen!
+
+Viel Erfolg beim Ausprobieren! 🎯
+
+
