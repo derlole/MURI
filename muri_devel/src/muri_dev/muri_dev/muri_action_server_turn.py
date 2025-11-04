@@ -6,7 +6,7 @@ from geometry_msgs.msg import Twist
 from rclpy.executors import ExternalShutdownException
 from muri_dev_interfaces.action import TURN
 from muri_dev_interfaces.msg import PictureData
-from muri_logics.logic_action_server_turn import TurnLogic
+from muri_logics.logic_action_server_turn import TurnLogic, TurnStates
 from muri_logics.logic_interface import LogicInterface
 
 class TurnActionServer(Node):
@@ -78,7 +78,7 @@ class TurnActionServer(Node):
 
         self._goal_handle.publish_feedback(feedback_msg)
 
-        if out.getState() == TurnLogic.State.SUCCESS:
+        if self.turn_logic.getActiveState() == TurnStates.SUCCESS:
             self.get_logger().info('succ: turn-goal.')
             self._goal_handle.succeed()
 
@@ -89,7 +89,7 @@ class TurnActionServer(Node):
             self._timer.cancel()
             self._goal_handle = None
 
-        elif out.getState() == TurnLogic.State.FAILED:
+        elif self.turn_logic.getActiveState() == TurnStates.FAILED:
             self.get_logger().info('fail: turn-goal.')
             self._goal_handle.abort()
 
@@ -129,9 +129,11 @@ class TurnActionServer(Node):
 
     def listener_callback_odom_ast(self, msg):
         self._last_odom = msg
+        self.turn_logic.setOdomData(msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.orientation)
 
     def listener_callback_picture_data_ast(self, msg):
         self._last_picture_data = msg
+        self.turn_logic.setCameraData(msg.pixel_to_mid, msg.pixel_to_mid_prev, msg.pixel_height, msg.pixel_height_prev, msg.pic_width)
 
 def main(args=None):
     rclpy.init(args=args)
@@ -141,7 +143,7 @@ def main(args=None):
         rclpy.spin(turn_action_server)
     except (KeyboardInterrupt, ExternalShutdownException):
         turn_action_server.get_logger().info('Interrupt received at TurnActionServer, shutting down.')
-        # TODO hier mayeb noch nen /cmd_vel auf 0
+        # cmd_vel wird vom main controller auf null gesetzt
     finally:
         turn_action_server.destroy_node()
         rclpy.shutdown()

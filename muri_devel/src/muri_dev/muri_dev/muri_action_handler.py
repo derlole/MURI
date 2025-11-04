@@ -23,7 +23,7 @@ class MuriActionHandler(Node):
         self.main_controller: LogicInterface = logic
 
         self.picture_sub = self.create_subscription(
-            PictureData,   # TODO Hier echten typ angeben, sobald existiert
+            PictureData,
             '/muri_picture_data',
             self.listener_callback_picture_data_ah,
             10
@@ -37,13 +37,16 @@ class MuriActionHandler(Node):
         self.timer = self.create_timer(0.1, self.main_loop_ah)
 
     def main_loop_ah(self):
-        pass # TODO
+        self.main_controller
+        #TODO alles halt
 
     def listener_callback_picture_data_ah(self, msg):
         self.last_picture_data = msg
+        self.main_controller.setCameraData(msg.pixel_to_mid, msg.pixel_to_mid_prev, msg.pixel_height, msg.pixel_height_prev, msg.pic_width)
 
     def listener_callback_odom_ah(self, msg):
         self.last_odom = msg
+        self.main_controller.setOdomData(msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.orientation)
 
     def send_drive_goal(self):
         self.get_logger().info('Sending drive goal...')
@@ -121,7 +124,6 @@ class MuriActionHandler(Node):
         self._init_result_promise = goal_handle.get_result_async()
         self._init_result_promise.add_done_callback(self.init_result_callback)
 
-    # TODO BETTER PRINTING
     def drive_result_callback(self, promise):
         result = promise.result().result
         self.get_logger().info('Drive result: {0}'.format(result))

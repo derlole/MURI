@@ -6,9 +6,11 @@ from geometry_msgs.msg import Twist
 from rclpy.executors import ExternalShutdownException
 from muri_dev_interfaces.action import DRIVE
 from muri_dev_interfaces.msg import PictureData
-from muri_logics.logic_action_server_drive import DriveLogic
+from muri_logics.logic_action_server_drive import DriveLogic, DriveStates
 from muri_logics.logic_interface import LogicInterface
+
 ERR_THRESHOLD = 5
+
 class DriveActionServer(Node):
     def __init__(self, logic: LogicInterface):
         super().__init__('muri_drive_action_server')
@@ -19,10 +21,10 @@ class DriveActionServer(Node):
             self,
             DRIVE,
             'muri_drive',
-            execute_callback=self.execute_callback,
-            goal_callback=self.goal_callback,
-            cancel_callback=self.cancel_callback,
-            handle_accepted_callback=self.handle_acc_callback
+            execute_callback = self.execute_callback,
+            goal_callback = self.goal_callback,
+            cancel_callback = self.cancel_callback,
+            handle_accepted_callback = self.handle_acc_callback
         )
 
         self.cmd_vel_pub = self.create_publisher(
@@ -89,7 +91,7 @@ class DriveActionServer(Node):
 
         self._goal_handle.publish_feedback(feedback_msg)
 
-        if out.getState() == DriveLogic.State.SUCCESS:
+        if out.getState() == DriveStates.SUCCESS:
             self.get_logger().info('succ: drive-goal.')
             self._goal_handle.succeed()
 
@@ -100,7 +102,7 @@ class DriveActionServer(Node):
             self._timer.cancel()
             self._goal_handle = None
 
-        elif out.getState() == DriveLogic.State.FAILED:
+        elif out.getState() == DriveStates.FAILED:
             self.get_logger().info('fail: drive-goal.')
             self._goal_handle.abort()
 
@@ -140,9 +142,11 @@ class DriveActionServer(Node):
 
     def listener_callback_odom_asd(self, msg):
         self._last_odom = msg
+        self.drive_logic.setOdomData(msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.orientation)
 
     def listener_callback_picture_data_asd(self, msg):
         self._last_picture_data = msg
+        self.drive_logic.setCameraData(msg.pixel_to_mid, msg.pixel_to_mid_prev, msg.pixel_height, msg.pixel_height_prev, msg.pic_width)
 
 def main(args=None):
     rclpy.init(args=args)
@@ -152,7 +156,7 @@ def main(args=None):
         rclpy.spin(drive_action_server)
     except (KeyboardInterrupt, ExternalShutdownException):
         drive_action_server.get_logger().info('Interrupt receivedat DriveActionServer, shutting down.')
-        # TODO hier mayeb noch nen /cmd_vel auf 0
+        # cmd_vel wird vom main controller auf null gesetzt
     finally:
         drive_action_server.destroy_node()
         rclpy.shutdown()

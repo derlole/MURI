@@ -6,7 +6,7 @@ from geometry_msgs.msg import Twist
 from rclpy.executors import ExternalShutdownException
 from muri_dev_interfaces.action import INIT
 from muri_dev_interfaces.msg import PictureData
-from muri_logics.logic_action_server_init import InitLogic
+from muri_logics.logic_action_server_init import InitLogic, InitStates
 from muri_logics.logic_interface import LogicInterface
 
 class InitActionServer(Node):
@@ -69,16 +69,16 @@ class InitActionServer(Node):
             return
         
         cmd_vel = Twist()
-        cmd_vel.linear.x = float(out.values['linear_velocity_x']) # TODO communicate to Louis that to put there
-        cmd_vel.linear.y = float(out.values['linear_velocity_y']) # TODO communicate to Louis that to put there
-        cmd_vel.angular.z = float(out.values['angular_velocity_z']) # TODO communicate to Louis that to put there
+        cmd_vel.linear.x = float(out.values['linear_velocity_x'])
+        cmd_vel.linear.y = float(out.values['linear_velocity_y'])
+        cmd_vel.angular.z = float(out.values['angular_velocity_z'])
         self.cmd_vel_pub.publish(cmd_vel)
 
         feedback_msg = INIT.Feedback()
-        feedback_msg.turned_angle = float(out.values['turned_angle'])  # TODO communicate to Louis that to put there
+        feedback_msg.turned_angle = float(out.values['turned_angle'])
         self._goal_handle.publish_feedback(feedback_msg)
 
-        if out.getState() == InitLogic.State.SUCCESS:
+        if out.getState() == InitStates.SUCCESS:
             self.get_logger().info('succ: init-goal.')
             self._goal_handle.succeed()
 
@@ -89,7 +89,7 @@ class InitActionServer(Node):
             self._timer.cancel()
             self._goal_handle = None
 
-        elif out.getState() == InitLogic.State.FAILURE:
+        elif out.getState() == InitStates.FAILED:
             self.get_logger().info('fail: init-goal.')
             self._goal_handle.abort()
 
@@ -129,9 +129,11 @@ class InitActionServer(Node):
 
     def listener_callback_odom_asi(self, msg):
         self._last_odom = msg
+        self.init_logic.setOdomData(msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.orientation)
 
     def listener_callback_picture_data_asi(self, msg):
         self._last_picture_data = msg
+        self.init_logic.setCameraData(msg.pixel_to_mid, msg.pixel_to_mid_prev, msg.pixel_height, msg.pixel_height_prev, msg.pic_width)
 
 def main(args=None):
     rclpy.init(args=args)
@@ -142,7 +144,7 @@ def main(args=None):
         rclpy.spin(init_action_server)
     except (KeyboardInterrupt, ExternalShutdownException):
         init_action_server.get_logger().info('Interrupt received at InitActionServer, shutting down.')
-        # TODO hier mayeb noch nen /cmd_vel auf 0
+        # cmd_vel wird vom main controller auf null gesetzt
     finally:
         init_action_server.destroy_node()
         rclpy.shutdown()
