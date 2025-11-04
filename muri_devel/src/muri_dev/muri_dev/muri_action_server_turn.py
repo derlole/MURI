@@ -75,7 +75,7 @@ class TurnActionServer(Node):
         self.cmd_vel_pub.publish(cmd_vel)
 
         feedback_msg = TURN.Feedback()
-        feedback_msg.moved_angle = float(out.values['moved_angle'])  # TODO communicate to Louis that to put there
+        feedback_msg.moved_angle = float(out.values['turned_angle'])  # TODO communicate to Louis that to put there
 
         self._goal_handle.publish_feedback(feedback_msg)
 

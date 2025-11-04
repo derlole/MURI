@@ -8,7 +8,7 @@ from muri_dev_interfaces.action import DRIVE
 from muri_dev_interfaces.msg import PictureData
 from muri_logics.logic_action_server_drive import DriveLogic
 from muri_logics.logic_interface import LogicInterface
-
+ERR_THRESHOLD = 5
 class DriveActionServer(Node):
     def __init__(self, logic: LogicInterface):
         super().__init__('muri_drive_action_server')
@@ -47,6 +47,7 @@ class DriveActionServer(Node):
         self._goal_handle = None
         self._last_picture_data = None
         self._last_odom = None
+        self.__err_out_counter = 0
 
     def timer_callback_asd(self):
         if self._goal_handle is None or not self._goal_handle.is_active:
@@ -69,13 +70,21 @@ class DriveActionServer(Node):
 
         if not out.outValid():
             out.resetOut()
-            return # TODO handle err here?
+            self.__err_out_counter += 1
         
         cmd_vel = Twist()
         cmd_vel.linear.x = float(out.values['linear_velocity_x']) # TODO communicate to Louis that to put there
         cmd_vel.linear.y = float(out.values['linear_velocity_y']) # TODO communicate to Louis that to put there
         cmd_vel.angular.z = float(out.values['angular_velocity_z']) # TODO communicate to Louis that to put there
-        self.cmd_vel_pub.publish(cmd_vel)
+
+        if self.__err_out_counter >= ERR_THRESHOLD:
+            cmd_vel.linear.x = 0.0
+            cmd_vel.linear.y = 0.0
+            cmd_vel.angular.z = 0.0
+            self.cmd_vel_pub.publish(cmd_vel)
+            return
+        else:
+            self.cmd_vel_pub.publish(cmd_vel)
 
         feedback_msg = DRIVE.Feedback()
         feedback_msg.distance_remaining = float(out.values['distance_remaining'])  # TODO communicate to Louis that to put there
