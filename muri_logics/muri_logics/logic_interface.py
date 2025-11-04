@@ -40,7 +40,7 @@ class LogicInterface(ABC):
         pass
 
     @abstractmethod
-    def setActive(active: bool) -> bool:
+    def setActive() -> bool:
         """Set the active state of the logic processing."""
         pass
 
