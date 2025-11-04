@@ -1,6 +1,6 @@
 from enum import Enum
-from  muri_logics.logic_interface import LogicInterface, Out
-
+from muri_logics.logic_interface import LogicInterface, Out
+from general_funcs import quaternion_to_yaw
 
 class InitStates(Enum):
     INIT = 0
@@ -15,6 +15,17 @@ class InitOut(Out):
     def __init__(self): 
         self.__values = None
         self.__error = None
+        self.__isValid = False
+
+    @property
+    def isValid(self):
+        """Get the isValid"""
+        return self.__isValid
+
+    @isValid.setter
+    def isValid(self, hiV):
+        """Set the isValid"""
+        self.__isValid = hiV
 
     @property
     def values(self):
@@ -38,34 +49,44 @@ class InitOut(Out):
         if ta is not None:
             self.__values['turned_angle'] = ta
 
-       
+    
     def resetOut(self):
         """Reset the output to its initial state."""
         self.__values = None
+        self.__isValid = False
     
     def outValid(self):
         """Check if the output is valid."""
-        pass #TODO function Valid
+        return self.__isValid
 
     def getError(self):
         """Retrieve any error state."""
         return self.__error 
+    
+    def setError(self, er):
+        """Set the error"""
+        self.__error = er
 
 
 class InitLogic(LogicInterface):
     def __init__(self):
         self.__output = InitOut()
         self.__state = InitStates.INIT
+        self.__firstTheta = None
+        self.state_machine()
+        
 
 
     def getOut(self):
         """Retrieve the output of the logic processing."""
         return self.__output
 
-    def setActive(self, active): # TODO function ser Active
+    def setActive(self):
         """Set the active state of the logic processing."""
-        self.__state = InitStates.RUN
-        return True
+        if self.__state == InitStates.IDLE:
+            self.__state = InitStates.RAEDY
+            return True
+        return False
 
     def getActiveState(self):
         """Retrieve the current active state."""
@@ -76,14 +97,15 @@ class InitLogic(LogicInterface):
         self.__positionX = 0.0
         self.__positionY = 0.0
         self.__positionTheta = 0.0
+        self.__firstTheta = None
         self.__output.resetOut()
         self.__state = InitStates.IDLE
 
-    def setOdomData(self, x, z, t):
+    def setOdomData(self, x, y, t):
         """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
         self.__positionX = x
         self.__positionY = y
-        self.__positionTheta = t
+        self.__positionTheta = quaternion_to_yaw(t)
 
 
     def setCameraData(self, pToMid, pToMidPrev, pHeight, pHeightPrev, picWidth):
@@ -98,17 +120,18 @@ class InitLogic(LogicInterface):
         
         PIXELTOLLERANCE = 5
         angularVelocityZ = 0.0
+        tuerndAngle = self.__positionTheta - self.__firstTheta
 
         if self.__pixelToMid > 0 and abs(self.__pixelToMid) > PIXELTOLLERANCE:
-            angularVelocityZ = 1.0 #TODO Auswahl Geschwindigkeit
+            angularVelocityZ = 0.4 #TODO Auswahl Geschwindigkeit
 
         elif self.__pixelToMid < 0 and abs(self.__pixelToMid) > PIXELTOLLERANCE:
-            angularVelocityZ = -1.0
+            angularVelocityZ = -0.4
         
         else:
             angularVelocityZ = 0.0
         
-        return angularVelocityZ
+        return angularVelocityZ, tuerndAngle
 
 
     
@@ -129,19 +152,24 @@ class InitLogic(LogicInterface):
                 pass
 
             case InitStates.RAEDY:
+                if self.__firstTheta is None:
+                    self.__firstTheta = self.__positionTheta
                 self.__state = InitStates.INITMOVE
 
             case InitStates.INITMOVE:
                 avz, ta = self.calculate()
                 self.__output.values = (None, None, avz, ta)
+                self.__output.isValid = True
                 if avz == 0.0:
                     self.__state = InitStates.SUCCESS
+                
+                #TODO wenn zu weit gedreht gehe in FAILED
 
             case InitStates.FAILED:
-                pass #TODO switch case Faild
+                self.__output.setError(True)
 
             case InitStates.SUCCESS:
-                pass #TODO switch case success
+                pass
 
 
                 

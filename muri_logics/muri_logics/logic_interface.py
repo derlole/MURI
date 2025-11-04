@@ -60,7 +60,7 @@ class LogicInterface(ABC):
         pass
 
     @abstractmethod
-    def setOdomData(x: float, z:float, t: float):
+    def setOdomData(x: float, y:float, t: float):
         """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
         pass
 
