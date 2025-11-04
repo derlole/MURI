@@ -11,8 +11,6 @@ cv2.rectangle(img, (50, 50), (750, 750), (0, 0, 255), 7)
 center_x = img.shape[1] // 2
 cv2.line(img, (center_x, 25), (center_x, 775), (0, 255, 0), 7)
 
-# Anzeigen und speichern
-cv2.imshow("Red Square with Line", img)
+# Nur speichern
 cv2.imwrite("red_square_with_line.png", img)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+print("Bild gespeichert als red_square_with_line.png")
