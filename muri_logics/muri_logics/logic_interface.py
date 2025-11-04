@@ -17,11 +17,6 @@ class Out(ABC):
         pass
 
     @abstractmethod
-    def getState(self) -> Enum:
-        """Retrieve the current state."""
-        pass
-
-    @abstractmethod
     def resetOut(self):
         """Reset the output to its initial state."""
         pass

@@ -41,7 +41,6 @@ class TurnActionServer(Node):
             self.listener_callback_picture_data_ast,
             10
         )
-        # self.timer = self.create_timer(0.1, self.timer_callback_ast)
         self._goal_handle = None
         self._last_picture_data = None
         self._last_odom = None

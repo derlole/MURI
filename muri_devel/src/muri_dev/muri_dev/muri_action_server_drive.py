@@ -42,8 +42,6 @@ class DriveActionServer(Node):
             self.listener_callback_odom_asd,
             10
         )
-
-        # self.timer = self.create_timer(0.1, self.timer_callback_asd) # TODO not needed anymore?
         self._goal_handle = None
         self._last_picture_data = None
         self._last_odom = None
@@ -124,7 +122,7 @@ class DriveActionServer(Node):
     def goal_callback(self, goal_request):
         self.get_logger().info('Rec: drive-goal')
 
-        if self._goal_handle is not None and self._goal_handle.is_active: # TODO do i need the second condition?
+        if self._goal_handle is not None and self._goal_handle.is_active:
             self.get_logger().info('Rej: drive-goal')
             return GoalResponse.REJECT
         

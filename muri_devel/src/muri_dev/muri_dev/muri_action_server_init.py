@@ -41,7 +41,6 @@ class InitActionServer(Node):
             self.listener_callback_odom_asi,
             10
         )
-        # self.timer = self.create_timer(0.1, self.timer_callback)
         self._goal_handle = None
         self._last_picture_data = None
         self._last_odom = None
