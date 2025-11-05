@@ -1,100 +1,48 @@
-#!/usr/bin/env python3
-"""
-Live‑Video‑Red‑Marker‑Detection
-
-- Liest Frames von /dev/video0 (Linux) oder dem ersten angeschlossenen Web‑Camera.
-- Detectiert rote Quadrate/Vierecke (ähnlich dem vorherigen Skript).
-- Zeigt das Video mit Bounding‑Box, Mittelpunkt und einigen Messwerten an.
-- Beendet sich, wenn 'q' oder ESC gedrückt wird.
-"""
-
 import cv2 as cv
 import numpy as np
-import sys
 
-def main():
-    # --- 1) Video‑Capture initialisieren -----------------------------------
-    # Für Linux: "/dev/video0"
-    # Für Windows/anderes OS: 0
-    device = 0
-    # Falls du Linux benutzt und ausdrücklich den Pfad willst, verwende:
-    # device = "/dev/video0"
-    cap = cv.VideoCapture(device)
+cam = cv.VideoCapture(0)
 
-    if not cap.isOpened():
-        print(f"❌  Kamera konnte nicht geöffnet werden ({device})", file=sys.stderr)
-        return
+while True:
+    img = cam.read()
 
-    # Optional: Bildgröße reduzieren, um die Rechenlast zu senken
-    # cap.set(cv.CAP_PROP_FRAME_WIDTH, 640)
-    # cap.set(cv.CAP_PROP_FRAME_HEIGHT, 480)
+    img_hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
 
-    # --- 2) HSV‑Farbbereich für Rot -------------------------------------------------
-    lower_red = np.array([0, 50, 50])
-    upper_red = np.array([10, 255, 255])
-    lower_red_2 = np.array([170, 50, 50])
-    upper_red_2 = np.array([180, 255, 255])
+    # Maskenerstellung
+    lower_red = cv.inRange(img_hsv, np.array([  0, 50, 50]), np.array([ 10,255,255]))
+    upper_red = cv.inRange(img_hsv, np.array([170, 50, 50]), np.array([180,255,255]))
+    mask_red = lower_red | upper_red
 
-    # --- 3) Loop -------------------------------------------------------------------
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            print("❌  Kein Frame mehr verfügbar", file=sys.stderr)
-            break
+    # Konturen finden
+    contours_red, _ = cv.findContours(mask_red, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
+    print(f"Rote Konturen gefunden: {len(contours_red)}")
 
-        # Farbraumwechsel BGR → HSV
-        hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
+    if len(contours_red) > 0:
+        largest_red = max(contours_red, key=cv.contourArea)
 
-        # Masken für Rot erzeugen (wegen HSV‑Wertspitzen)
-        mask1 = cv.inRange(hsv, lower_red, upper_red)
-        mask2 = cv.inRange(hsv, lower_red_2, upper_red_2)
-        mask_red = cv.bitwise_or(mask1, mask2)
+        x_r, y_r, w_r, h_r = cv.boundingRect(largest_red)
+        
+        print(f"Rotes Quadrat gefunden: ")
+        print(f"Position: x={x_r}, y={y_r}")
+        print(f"Größe: width={w_r}, height={h_r}")
 
-        # Konturen finden
-        contours, _ = cv.findContours(mask_red, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
 
-        # --- 4) Größtes Viereck suchen und Infos ausgeben -------------------------
-        if contours:
-            largest = max(contours, key=cv.contourArea)
-            x, y, w, h = cv.boundingRect(largest)
+    center_x = x_r + w_r // 2 
+    center_y = y_r + h_r // 2
+    print(f"Mitte des roten Markers ({center_x}, {center_y})")
 
-            # Infos auf der Konsole (optional, kann rausgenommen werden)
-            print(f"Rotes Viereck: Pos=({x},{y})  Grz={w}x{h}")
+    picture_height, picture_width = img.shape[:2]
+    pixel_to_mid = x_r - (picture_width)
+    print(f"pixel_to_mid: {pixel_to_mid}")
 
-            # Mittelpunkt berechnen
-            center_x = x + w // 2
-            center_y = y + h // 2
+    print(f"Höhe des roten Vierecks: {h_r}")
 
-            # Distanz vom Bildmittelpunkt zur roten Fläche (horizontal)
-            picture_height, picture_width = frame.shape[:2]
-            pixel_to_mid = (picture_width // 2) - center_x  # positive = Marker links vom Bildmittelpunkt
+    cv.rectangle(img, (x_r, y_r), (x_r + w_r, y_r + h_r), (0, 255, 0), 2)
+    cv.circle(img, (center_x, center_y), 4, (255, 0, 0), -1)
 
-            # --- 5) Visualisierung ------------------------------------------------
-            # Box zeichnen
-            cv.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-            # Mittelpunkt als Kreis
-            cv.circle(frame, (center_x, center_y), 5, (255, 0, 0), -1)
+    cv.imshow(winname="rectangle", mat=img)
+    if cv.waitKey(1) & 0xFF == ord('q'):
+        break
 
-            # Textinfos
-            cv.putText(frame, f"Center: ({center_x},{center_y})", (10, 20),
-                       cv.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
-            cv.putText(frame, f"pixel_to_mid: {pixel_to_mid}", (10, 50),
-                       cv.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
-            cv.putText(frame, f"Height: {h}", (10, 80),
-                       cv.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
-
-        # --- 6) Ausgabe anzeigen --------------------------------------------------
-        cv.imshow("Red Marker Live", frame)
-
-        # --- 7) Abbruchbedingung --------------------------------------------------
-        key = cv.waitKey(1)
-        if key == 27 or key == ord('q'):  # ESC oder q
-            print("🛑  Beenden …")
-            break
-
-    # --- 8) Aufräumen ----------------------------------------------------------
-    cap.release()
-    cv.destroyAllWindows()
-
-if __name__ == "__main__":
-    main()
+cam.release()
+cv.destroyAllWindows()
