@@ -11,10 +11,15 @@ while True:
 
     img_hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
 
+    lower_green = np.array([35, 50, 50])      # untere Grenze
+    upper_green = np.array([85, 255, 255])    # obere Grenze
+
+    mask_red = cv.inRange(img_hsv, lower_green, upper_green)
+
     # Maskenerstellung
-    lower_red = cv.inRange(img_hsv, np.array([  0, 50, 50]), np.array([ 10,255,255]))
-    upper_red = cv.inRange(img_hsv, np.array([170, 50, 50]), np.array([180,255,255]))
-    mask_red = lower_red | upper_red
+    #lower_red = cv.inRange(img_hsv, np.array([  0, 50, 50]), np.array([ 10,255,255]))
+    #upper_red = cv.inRange(img_hsv, np.array([170, 50, 50]), np.array([180,255,255]))
+    #mask_red = lower_red | upper_red
 
     # Konturen finden
 
