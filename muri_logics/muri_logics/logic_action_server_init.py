@@ -2,6 +2,8 @@ from enum import Enum
 from muri_logics.logic_interface import LogicInterface, Out
 from general_funcs import quaternion_to_yaw
 
+
+
 class InitStates(Enum):
     INIT = 0
     IDLE = 1
@@ -9,6 +11,7 @@ class InitStates(Enum):
     SUCCESS = 3
     RAEDY = 4 
     INITMOVE = 5
+
 
 
 class InitOut(Out):
@@ -48,11 +51,10 @@ class InitOut(Out):
 
         if ta is not None:
             self.__values['turned_angle'] = ta
-
     
     def resetOut(self):
         """Reset the output to its initial state."""
-        self.__values = None
+        self.__values = None #TODO Rückseteźen None oder 0 ?
         self.__isValid = False
     
     def outValid(self):
@@ -68,14 +70,13 @@ class InitOut(Out):
         self.__error = er
 
 
+
 class InitLogic(LogicInterface):
     def __init__(self):
         self.__output = InitOut()
         self.__state = InitStates.INIT
         self.__firstTheta = None
         self.state_machine()
-        
-
 
     def getOut(self):
         """Retrieve the output of the logic processing."""
@@ -141,11 +142,11 @@ class InitLogic(LogicInterface):
         match self.__state:
 
             case InitStates.INIT:
-                self.__.output.values = (0.0, 0.0, 0.0, 0.0)
+                self.__output.values = (0.0, 0.0, 0.0, 0.0)
                 self.__positionX = 0.0
                 self.__positionY = 0.0
                 self.__positionTheta = 0.0
-                self.__camaeraData = None
+                self.__camaeraData = None #TODO setze ich die camaradaten so richtig zurück?
                 self.__state = InitStates.IDLE
             
             case InitStates.IDLE:
