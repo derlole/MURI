@@ -15,6 +15,8 @@ class TurnStates(Enum):
 
 class Constants(): #TODO für eine sinfolle Regelung
     MAXANGLEVELOSETY = 0.4
+    MAXPIXELWIDTH = 800
+    HALFPIXELWIDHTH = MAXPIXELWIDTH / 2
 
 
 
@@ -106,8 +108,23 @@ class TurnLogic(LogicInterface):
         self.__picture_Widht = picWidth
 
 
-    def calculate(slef):
-        pass #TODO Calculate
+    def calculate(self): #TODO gute Regelung
+        # Info Viedo breite ist 800 x 420 pixel
+        PIXELTOLERANCE = 5
+        angular_Velocity_Z = 0
+        turned_Angle = self.__position_Theta - self.__first_Theta
+
+
+        if self.__pixel_To_Mid > 0 and abs(self.__pixel_To_Mid) > PIXELTOLERANCE:
+            angular_Velocity_Z = (self.__pixel_To_Mid / Constants.MAXPIXELWIDTH) * Constants.MAXANGLEVELOSETY
+
+        elif self.__pixel_To_Mid < 0 and abs(self.__pixel_To_Mid) > PIXELTOLERANCE:
+            angular_Velocity_Z = (self.__pixel_To_Mid / Constants.MAXPIXELWIDTH) * Constants.MAXANGLEVELOSETY
+
+        else:
+            angular_Velocity_Z = 0.0
+
+        return angular_Velocity_Z,
 
 
     def state_machine(self):
