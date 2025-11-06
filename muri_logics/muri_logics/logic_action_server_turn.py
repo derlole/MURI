@@ -116,10 +116,10 @@ class TurnLogic(LogicInterface):
 
 
         if self.__pixel_To_Mid > 0 and abs(self.__pixel_To_Mid) > PIXELTOLERANCE:
-            angular_Velocity_Z = (self.__pixel_To_Mid / Constants.MAXPIXELWIDTH) * Constants.MAXANGLEVELOSETY
+            angular_Velocity_Z = (self.__pixel_To_Mid / Constants.HALFPIXELWIDHTH) * Constants.MAXANGLEVELOSETY
 
         elif self.__pixel_To_Mid < 0 and abs(self.__pixel_To_Mid) > PIXELTOLERANCE:
-            angular_Velocity_Z = (self.__pixel_To_Mid / Constants.MAXPIXELWIDTH) * Constants.MAXANGLEVELOSETY
+            angular_Velocity_Z = (self.__pixel_To_Mid / Constants.HALFPIXELWIDHTH) * Constants.MAXANGLEVELOSETY
 
         else:
             angular_Velocity_Z = 0.0
