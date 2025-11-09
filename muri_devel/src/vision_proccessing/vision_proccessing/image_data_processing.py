@@ -6,6 +6,8 @@ import cv2 as cv
 import rclpy
 from rclpy.node import Node
 
+from muri_logics.vision.aruco_marker_detection import AMD
+
 class ImageProcessing(Node):
 
     def __init__(self):
@@ -40,4 +42,9 @@ class ImageProcessing(Node):
         self.get_logger().info('OpenCV-Daten werden gepublished...')
 
     def krasseBerechnungen(self, data_img):
-        pass
+        proc_AMD = AMD()
+        self.rvec, self.tvec = proc_AMD.aruco_detection(data_img)
+
+        
+
+        
