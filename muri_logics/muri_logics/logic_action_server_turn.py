@@ -1,5 +1,5 @@
 from enum import Enum
-from  muri_logics.logic_interface import LogicInterface, Out
+from muri_logics.logic_interface import LogicInterface, Out
 from general_funcs import quaternion_to_yaw
 
 
@@ -14,6 +14,7 @@ class TurnStates(Enum):
 
 
 class Constants(): #TODO für eine sinfolle Regelung
+    PIXELTOLERANCE = 5
     MAXANGLEVELOSETY = 0.4
     MAXPIXELWIDTH = 800
     HALFPIXELWIDHTH = MAXPIXELWIDTH / 2
@@ -48,7 +49,7 @@ class TurnOut(Out):
 
     def resetOut(self):
         """Reset the output to its initial state."""
-        self.__valeus = None #TODO Rückseteźen None oder 0 ?
+        self.__valeus = None 
         self.__is_Valid = False
 
     def outValid(self):
@@ -59,6 +60,9 @@ class TurnOut(Out):
         """Retrieve any error state."""
         return self.__error
     
+    def setError(self, er):
+        """Set the error"""
+        self.__error = er
 
 
 class TurnLogic(LogicInterface):
@@ -87,9 +91,14 @@ class TurnLogic(LogicInterface):
         return self.__state
 
     
-    def reset(slef):
+    def reset(self):
         """Reset the logic processing to its initial state."""
-        pass #TODO reset logic processing
+        self.__position_X = 0.0
+        self.__position_Y = 0.0
+        self.__position_Theta = 0.0
+        self.__first_Theta = None
+        self.__output.resetOut()
+        self.__state = TurnStates.INIT
 
     
     def setOdomData(self, x, y, t,):
@@ -109,16 +118,16 @@ class TurnLogic(LogicInterface):
 
 
     def calculate(self): #TODO gute Regelung
+        """Calculate the Angle to Turn and set die Angelvelosity"""
         # Info Viedo breite ist 800 x 420 pixel
-        PIXELTOLERANCE = 5
         angular_Velocity_Z = 0
         turned_Angle = self.__position_Theta - self.__first_Theta
 
 
-        if self.__pixel_To_Mid > 0 and abs(self.__pixel_To_Mid) > PIXELTOLERANCE:
+        if self.__pixel_To_Mid > 0 and abs(self.__pixel_To_Mid) > Constants.PIXELTOLERANCE:
             angular_Velocity_Z = (self.__pixel_To_Mid / Constants.HALFPIXELWIDHTH) * Constants.MAXANGLEVELOSETY
 
-        elif self.__pixel_To_Mid < 0 and abs(self.__pixel_To_Mid) > PIXELTOLERANCE:
+        elif self.__pixel_To_Mid < 0 and abs(self.__pixel_To_Mid) > Constants.PIXELTOLERANCE:
             angular_Velocity_Z = (self.__pixel_To_Mid / Constants.HALFPIXELWIDHTH) * Constants.MAXANGLEVELOSETY
 
         else:
@@ -150,9 +159,12 @@ class TurnLogic(LogicInterface):
 
             case TurnStates.TURNMOVE:
                 avz, ta = self.calculate()
+                self.__output.values = (None, None, avz, ta)
+                if avz == 0.0:
+                    self.__state = TurnStates.SUCCESS
 
             case TurnStates.FAILED:
-                pass #TODO FAILED
+                self.__output.setError(True)
 
             case TurnStates.SUCCESS:
-                pass #TODO SUCCESS
+                pass 

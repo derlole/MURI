@@ -14,6 +14,11 @@ class InitStates(Enum):
 
 
 
+class Constants():
+    PIXELTOLLERANCE = 5
+
+
+
 class InitOut(Out):
     def __init__(self): 
         self.__values = None
@@ -54,14 +59,14 @@ class InitOut(Out):
     
     def resetOut(self):
         """Reset the output to its initial state."""
-        self.__values = None #TODO Rückseteźen None oder 0 ?
+        self.__values = None 
         self.__isValid = False
     
     def outValid(self):
         """Check if the output is valid."""
         return self.__isValid
 
-    def getError(self):
+    def getError(self): #TODO Exeption?
         """Retrieve any error state."""
         return self.__error 
     
@@ -118,15 +123,14 @@ class InitLogic(LogicInterface):
         self.__pictureWidth = picWidth
     
     def calculate(self):
-        
-        PIXELTOLLERANCE = 5
+        """Calculate the Angle to Turn and set die Angelvelosity"""
         angularVelocityZ = 0.0
         tuerndAngle = self.__positionTheta - self.__firstTheta
 
-        if self.__pixelToMid > 0 and abs(self.__pixelToMid) > PIXELTOLLERANCE:
-            angularVelocityZ = 0.4 #TODO Auswahl Geschwindigkeit
+        if self.__pixelToMid > 0 and abs(self.__pixelToMid) > Constants.PIXELTOLLERANCE:
+            angularVelocityZ = 0.4 #TODO Auswahl Geschwindigkeit / Regelung
 
-        elif self.__pixelToMid < 0 and abs(self.__pixelToMid) > PIXELTOLLERANCE:
+        elif self.__pixelToMid < 0 and abs(self.__pixelToMid) > Constants.PIXELTOLLERANCE:
             angularVelocityZ = -0.4
         
         else:
