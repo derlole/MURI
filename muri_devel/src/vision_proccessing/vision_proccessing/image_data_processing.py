@@ -15,6 +15,9 @@ class ImageProcessing(Node):
 
         self.bridge = CvBridge()
 
+        self.distance_in_meters, self.distance_in_milimeters, self.angle_in_rad, self.error = None
+
+
         self.subscription = self.create_subscription(
             Image,
             '/muri_image_raw',
@@ -30,21 +33,25 @@ class ImageProcessing(Node):
         self.data = msg
         cv_raw_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
         self.get_logger().info('Bild empfangen!')
-        final_data = self.krasseBerechnungen(cv_raw_image)
+        # Einfach aufrufen da es in globale Variablen schreibt
+        self.krasseBerechnungen(cv_raw_image)
         pub_pic_data = PictureData()
 
+        # PictureData.msg
+            #std_msgs/Header header
+            #bool error
+            #float32 angle_in_rad
+            #float32 distance_in_meters
+
         # TODO Daten in pub_pic_data füllen 
-        pub_pic_data.success = bool(None)
-        pub_pic_data.excenter = float(None)
-        # weitere Daten folgen
+        pub_pic_data.error = self.error
+        pub_pic_data.angle_in_rad = self.angle_in_rad
+        pub_pic_data.distance_in_meters = self.distance_in_meters
 
         self.publisher.publish(pub_pic_data)
         self.get_logger().info('OpenCV-Daten werden gepublished...')
 
     def krasseBerechnungen(self, data_img):
         proc_AMD = AMD()
-        self.rvec, self.tvec = proc_AMD.aruco_detection(data_img)
-
-        
-
-        
+        self.distance_in_milimeters, self.angle_in_rad, self.error= proc_AMD.aruco_detection(data_img)
+        self.distance_in_meters = self.distance_in_milimeters/100
