@@ -113,6 +113,11 @@ class MainController(LogicInterface):
 
     def calculateEstimatedProblems(self):
         pass #TODO
+    
+    def postInit(self):
+        self.state_machine()
+        self.setActive()
+        self.state_machine()
 
     def state_machine(self):
         """Execute the state machine of the logic processing."""
@@ -123,9 +128,9 @@ class MainController(LogicInterface):
 
             case MainStates.IDLE:
                 print('mainstate idle')
-                self.__state = MainStates.INIT_ROBOT #remove this later
-                self.__output.values = 0 #remove this later
-                self.__output.isValid = True # remove this later
+                #self.__state = MainStates.INIT_ROBOT #remove this later
+                #self.__output.values = 0 #remove this later
+                #self.__output.isValid = True # remove this later
                 pass
 
             case MainStates.INIT_ROBOT:
@@ -140,7 +145,7 @@ class MainController(LogicInterface):
             case MainStates.DRIVE:
                 print('mainstate drive')
                 self.__output.isValid = True
-
+                self.calculateEstimatedProblems()
                 if self._goal_status_fin and self._goal_success:
                     self.__state = MainStates.TURN
                     self._goal_status_fin = False

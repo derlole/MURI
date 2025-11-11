@@ -62,7 +62,7 @@ class InitOut(Out):
     
     def resetOut(self):
         """Reset the output to its initial state."""
-        self.__values = None 
+        self.__values = {}
         self.__isValid = False
     
     def outValid(self):

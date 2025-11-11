@@ -55,7 +55,7 @@ class DriveOut(Out):
 
     def resetOut(self):
         """Reset the output to its initial state."""
-        self.__values = None
+        self.__values = {}
         self.__error = None
         self.__is_Valid = False
 

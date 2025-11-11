@@ -51,7 +51,7 @@ class TurnOut(Out):
 
     def resetOut(self):
         """Reset the output to its initial state."""
-        self.__values = None 
+        self.__values = {}
         self.__is_Valid = False
 
     def outValid(self):

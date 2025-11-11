@@ -35,6 +35,7 @@ class MuriActionHandler(Node):
             10
         )
         self.timer = self.create_timer(0.1, self.main_loop_ah)
+        self.main_controller.postInit()
 
     def main_loop_ah(self):
         self.main_controller.state_machine()
