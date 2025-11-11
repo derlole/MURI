@@ -34,7 +34,7 @@ class ImageProcessing(Node):
         self.data = msg
         cv_raw_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
         self.get_logger().info('Bild empfangen!')
-        self.krasseBerechnungen(cv_raw_image)
+        self.pic_to_data(cv_raw_image)
         pub_pic_data = PictureData()
 
         # PictureData.msg
@@ -50,7 +50,7 @@ class ImageProcessing(Node):
         self.publisher.publish(pub_pic_data)
         self.get_logger().info('OpenCV-Daten werden gepublished...')
 
-    def krasseBerechnungen(self, data_img):
+    def pic_to_data(self, data_img):
         if data_img is None:
             self.get_logger().info('Kein Frame erhalten!')
             self.error_counter += 1

@@ -4,7 +4,7 @@ import numpy as np
 import pickle
 import math
 class AMD():
-    def __init__(self, data_img=None, calibration_file='camera_calibration.pkl'):
+    def __init__(self):
         self.marker_size = 100  # mm
         
         aruco_dict = aruco.getPredefinedDictionary(aruco.DICT_5X5_1000)
@@ -22,8 +22,9 @@ class AMD():
             30.0,        # mm Marker
             aruco_dict
         )
+        self.calibrate_from_image()
         
-    def calibrate_from_image(self, image_path):
+    def calibrate_from_image(self, image_path = None):
         pass #TODO Kalibrierung einfügen
         
     def aruco_detection(self, img):
