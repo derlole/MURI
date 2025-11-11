@@ -1,6 +1,7 @@
 from enum import Enum
 from muri_logics.logic_interface import LogicInterface, Out
 from muri_logics.general_funcs import quaternion_to_yaw
+import math
 
 class DriveStates(Enum):
     INIT = 0
@@ -13,7 +14,13 @@ class DriveStates(Enum):
 
 
 class Constants():
+    ANGLETOLLERANCE = 0.1
     MAXVELOSETY = 0.4
+    MAXANGLEVELOSETY = 0.1
+    MAXANGLE = 2 * math.pi #TODO maximalen winkel anpassen 
+    GOALDICTANCE = 0.15
+
+
 
 
 
@@ -31,9 +38,19 @@ class DriveOut(Out):
 
 
     @values.setter
-    def values(self, val):
+    def values(self, lvx, lvy, avz, dr):
         """Set the value."""
-        self.__valeus = val
+        if lvx is not None:
+            self.__valeus['linear_velocity_x'] = lvx
+        
+        if lvy is not None:
+            self.__valeus['linear_velocity_y'] = lvy
+
+        if avz is not None:
+            self.__valeus['angular_velocity_Z'] = avz
+
+        if dr is not None:
+            self.__values['distance_remaining'] = dr
 
 
     def resetOut(self):
@@ -43,7 +60,7 @@ class DriveOut(Out):
         self.__is_Valid = False
 
 
-    def outValid(self) -> bool:
+    def outValid(self):
         """Check if the output is valid."""
         return self.__is_Valid
 
@@ -51,6 +68,10 @@ class DriveOut(Out):
     def getError(self):
         """Retrieve any error state."""
         return self.__error
+    
+    def setError(self, er):
+        """Set the error"""
+        self.__error = er
 
 
 
@@ -58,6 +79,7 @@ class DriveLogic(LogicInterface):
     def __init__(self):
         self.__output = DriveOut()
         self.__state = DriveStates.INIT
+        self.__first_Theta = None
         self.state_machine()
 
 
@@ -96,25 +118,31 @@ class DriveLogic(LogicInterface):
         self.__position_Theta = quaternion_to_yaw(t)
 
 
-    def setCameraData(self, pToMid, pToMidPrev, pHeight, pHeightPrev, picWidth): 
+    def setCameraData(self, angleIR, distanceIM): 
         """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
-        self.__pixel_To_Mid = pToMid
-        self.__pixel_To_Mid_Prev = pToMidPrev
-        self.__pixel_Heigth = pHeight
-        self.__pixel_Heigth_Prev = pHeightPrev
-        self.__picture_Widht = picWidth
+        self.__angle_to_Mid_in_Rad = angleIR
+        self.__distance_in_Meter = distanceIM
 
 
-    def clculate(self): #TODO
+
+    def calculate(self): #TODO
         """Calculate the Angle to Turn and set die Angelvelosity"""
-        velocity = 0.0
-        if self.__pixel_To_Mid < 5:
-            velocity = Constants.MAXVELOSETY
-        else: 
-            velocity = 0.0
-        return velocity
+        self.__angular_Velocety = 0.0
+        self.__linear_Velocety = 0.0
 
+        if self.__angle_to_Mid_in_Rad > 0 and abs(self.__angle_to_Mid_in_Rad) > Constants.ANGLETOLLERANCE and self.__distance_in_Meter > Constants.GOALDICTANCE:
+            self.__angular_Velocety = (self.__angle_to_Mid_in_Rad / Constants.MAXANGLE) * Constants.MAXANGLEVELOSETY
+            self.__linear_Velocety = Constants.MAXVELOSETY
+        
+        elif self.__angle_to_Mid_in_Rad < 0 and abs(self.__angle_to_Mid_in_Rad) > Constants.ANGLETOLLERANCE and self.__distance_in_Meter > Constants.GOALDICTANCE:
+            self.__angular_Velocety = (self.__angle_to_Mid_in_Rad / Constants.MAXANGLE) * Constants.MAXANGLEVELOSETY
+            self.__linear_Velocety = Constants.MAXVELOSETY
 
+        else:
+            self.__angular_Velocety = 0
+            self.__linear_Velocety = 0
+
+        return self.__angular_Velocety, self.__linear_Velocety
 
     def state_machine(self):
             """Execute the state machine of the logic processing."""
@@ -127,14 +155,23 @@ class DriveLogic(LogicInterface):
                     self.__position_Y = 0.0
                     self.__position_Theta = 0.0
 
+                case DriveStates.IDLE:
+                    pass
+
                 case DriveStates.RAEDY:
-                    pass #TODO 
+                    if self.__first_Theta is None:
+                        self.__first_Theta = self.__position_Theta
+                    self.__state = DriveStates.DRIVEMOVE
 
                 case DriveStates.DRIVEMOVE:
-                    pass #TODO 
+                    avz, lv = self.calculate()
+                    self.__output.values = (lv, None, avz, self.__distance_in_Meter)
+                    self.__output.__is_Valid = True
+                    if self.__distance_in_Meter < 0.10: #TODO
+                        self.__state = DriveStates.SUCCESS
 
                 case DriveStates.FAILED:
-                    pass #TODO 
+                    self.__output.setError(True)
 
                 case DriveStates.SUCCESS:
-                    pass #TODO 
+                    pass 

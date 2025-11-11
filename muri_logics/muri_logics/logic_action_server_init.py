@@ -1,6 +1,7 @@
 from enum import Enum
 from muri_logics.logic_interface import LogicInterface, Out
 from muri_logics.general_funcs import quaternion_to_yaw
+import math
 
 
 
@@ -15,7 +16,9 @@ class InitStates(Enum):
 
 
 class Constants():
-    PIXELTOLLERANCE = 5
+    ANGLETOLLERAMCE = 0.1
+    MAXANGLEVELOSETY = 0.1
+    MAXANGLE = 2 * math.pi #TODO maximalen winkel anpassen 
 
 
 
@@ -104,6 +107,8 @@ class InitLogic(LogicInterface):
         self.__positionY = 0.0
         self.__positionTheta = 0.0
         self.__firstTheta = None
+        self.__angle_to_Mid_in_Rad = 0.0
+        self.__distance_in_Meter = 0.0
         self.__output.resetOut()
         self.__state = InitStates.IDLE
 
@@ -114,24 +119,22 @@ class InitLogic(LogicInterface):
         self.__positionTheta = quaternion_to_yaw(t)
 
 
-    def setCameraData(self, pToMid, pToMidPrev, pHeight, pHeightPrev, picWidth):
+    def setCameraData(self, angleIR, distanceIM):
         """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
-        self.__pixelToMid = pToMid
-        self.__picelToMidPrev = pToMidPrev
-        self.__pixelHeight = pHeight
-        self.__pixelHeightPrev = pHeightPrev
-        self.__pictureWidth = picWidth
+        self.__angle_to_Mid_in_Rad = angleIR
+        self.__distance_in_Meter = distanceIM
+
     
     def calculate(self):
         """Calculate the Angle to Turn and set die Angelvelosity"""
         angularVelocityZ = 0.0
         tuerndAngle = self.__positionTheta - self.__firstTheta
 
-        if self.__pixelToMid > 0 and abs(self.__pixelToMid) > Constants.PIXELTOLLERANCE:
-            angularVelocityZ = 0.4 #TODO Auswahl Geschwindigkeit / Regelung
+        if self.__angle_to_Mid_in_Rad > 0 and abs(self.__angle_to_Mid_in_Rad) > Constants.ANGLETOLLERAMCE:
+            angularVelocityZ = (self.__angle_to_Mid_in_Rad / Constants.MAXANGLE) * Constants.MAXANGLEVELOSETY
 
-        elif self.__pixelToMid < 0 and abs(self.__pixelToMid) > Constants.PIXELTOLLERANCE:
-            angularVelocityZ = -0.4
+        elif self.__angle_to_Mid_in_Rad < 0 and abs(self.__angle_to_Mid_in_Rad) > Constants.ANGLETOLLERAMCE:
+            angularVelocityZ = (self.__angle_to_Mid_in_Rad / Constants.MAXANGLE) * Constants.MAXANGLEVELOSETY
         
         else:
             angularVelocityZ = 0.0
@@ -150,7 +153,8 @@ class InitLogic(LogicInterface):
                 self.__positionX = 0.0
                 self.__positionY = 0.0
                 self.__positionTheta = 0.0
-                self.__camaeraData = None #TODO setze ich die camaradaten so richtig zurück?
+                self.__angle_to_Mid_in_Rad = None
+                self.__distance_in_Meter = None
                 self.__state = InitStates.IDLE
             
             case InitStates.IDLE:
