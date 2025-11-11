@@ -38,6 +38,21 @@ class MuriActionHandler(Node):
 
     def main_loop_ah(self):
         self.main_controller.state_machine()
+        out = self.main_controller.getOut()
+
+        if not out.outValid():
+            return #TODO
+        if out.values is not None:
+            if out.values['ASToCall'] == 0:
+                self.send_init_goal()
+
+            if out.values['ASToCall'] == 1:
+                self.send_drive_goal()
+
+            if out.values['ASToCall'] == 2:
+                self.send_turn_goal()
+
+        
         #TODO alles halt
 
     def listener_callback_picture_data_ah(self, msg):
@@ -125,14 +140,17 @@ class MuriActionHandler(Node):
 
     def drive_result_callback(self, promise):
         result = promise.result().result
+        self.main_controller.setGoalStautusFinished(True)
         self.get_logger().info('Drive result: {0}'.format(result))
 
     def turn_result_callback(self, promise):
         result = promise.result().result
+        self.main_controller.setGoalStautusFinished(True)
         self.get_logger().info('Turn result: {0}'.format(result))
 
     def init_result_callback(self, promise):
         result = promise.result().result
+        self.main_controller.setGoalStautusFinished(True)
         self.get_logger().info('Init result: {0}'.format(result))
 
 def main(args=None):

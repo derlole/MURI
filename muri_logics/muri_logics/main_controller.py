@@ -19,9 +19,8 @@ class MainStates(Enum):
 class MainOut(Out):
     def __init__(self):
         self.__values
-        self.__error
-        self.__isValid = False
-        self._ASToCall = None
+        self.__error = False
+        self.isValid = False
 
     @property
     def values(self):
@@ -29,19 +28,19 @@ class MainOut(Out):
         return self.__values
 
     @values.setter
-    def values(self, val):
+    def values(self, ASToCall):
         """Set the value."""
-        self.__values = val
+        self.__values['ASToCall'] = ASToCall
 
     def resetOut(self):
         """Reset the output to its initial state."""
         self.__values = None
         self.__error = None 
-        self.__isValid = False
+        self.isValid = False
 
     def outValid(self):
         """Check if the output is valid."""
-        return self.__isValid
+        return self.isValid
 
     def getError(self):
         """Retrieve any error state."""
@@ -71,12 +70,19 @@ class MainController(LogicInterface):
         """Set the active state of the logic processing."""
         if self.__state == MainStates.IDLE:
             self.__state = MainStates.INIT_ROBOT
+            self.__output.values(0)
             return True
         return False
 
     def getActiveState(self):
         """Retrieve the current active state."""
         return self.__state
+
+    def setGoalStautusFinished(self, gsf):
+        self._goal_status_fin = gsf
+
+    def setGoalSuccess(self, suc):
+        self._goal_success = suc
 
     def reset(self):
         """Reset the logic processing to its initial state."""
@@ -98,8 +104,16 @@ class MainController(LogicInterface):
         """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
         self._angle_in_rad = angle_in_rad
         self._distance_in_meters = distance_in_meters
+
+    def setPaused(self):
+        self.__state = MainStates.PAUSE
+
+    def calculateEstimatedProblems(self):
+        pass #TODO
+
     def state_machine(self):
         """Execute the state machine of the logic processing."""
+        self.__output.resetOut()
         match self.__state:
             case MainStates.INIT:
                 self.__state = MainStates.IDLE
@@ -108,13 +122,29 @@ class MainController(LogicInterface):
                 pass
 
             case MainStates.INIT_ROBOT:
-                pass # TODO
+                
+                self.__output.isValid = True
+
+                if self._goal_status_fin and self._goal_success:
+                    self.__state = MainStates.DRIVE
+                    self._goal_status_fin = False
+                    self.__output.values(1)
 
             case MainStates.DRIVE:
-                pass # TODO
+                self.__output.isValid = True
 
+                if self._goal_status_fin and self._goal_success:
+                    self.__state = MainStates.TURN
+                    self._goal_status_fin = False
+                    self.__output.values(2)
+                
             case MainStates.TURN:
-                pass # TODO
+                self.__output.isValid = True
+                
+                if self._goal_status_fin and self._goal_success:
+                    self.__state = MainStates.DRIVE
+                    self._goal_status_fin = False
+                    self.__output.values(1)
 
             case MainStates.PAUSE:
                 pass # TODO
