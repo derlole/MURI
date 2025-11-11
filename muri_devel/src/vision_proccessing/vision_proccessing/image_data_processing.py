@@ -25,6 +25,9 @@ class ImageProcessing(Node):
             self.listener_callback,
             10)
         self.subscription
+
+        self.get_logger().info('Subscription getätigt')
+        
         self.publisher = self.create_publisher(
             PictureData,
             '/muri_picture_data',

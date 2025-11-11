@@ -22,7 +22,9 @@ class AMD():
             30.0,        # mm Marker
             aruco_dict
         )
+        print('Alle Parameter gesetzt...')
         self.calibrate_from_image()
+        print('Kalibrierung durchgeführt...')
         
     def calibrate_from_image(self, image_path = None):
         pass #TODO Kalibrierung einfügen
@@ -30,7 +32,7 @@ class AMD():
     def aruco_detection(self, img):
         # frame = cv.imread(img)
         frame = img
-
+        print('Bild eingelesen')
         frame_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
         corners, ids, _ = self.detector.detectMarkers(frame_gray)
 
@@ -52,5 +54,6 @@ class AMD():
                 )
                 if success:
                     return tvec[2], rvec[2]
-
-        return -1.0, math.pi
+                    print('Marker Daten returned...')
+        print('Detection fehlgeschlagen')
+        return -1000.0, math.pi
