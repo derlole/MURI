@@ -107,7 +107,13 @@ class DriveLogic(LogicInterface):
 
     def clculate(self): #TODO
         """Calculate the Angle to Turn and set die Angelvelosity"""
-        pass
+        velocity = 0.0
+        if self.__pixel_To_Mid < 5:
+            velocity = Constants.MAXVELOSETY
+        else: 
+            velocity = 0.0
+        return velocity
+
 
 
     def state_machine(self):
@@ -116,7 +122,10 @@ class DriveLogic(LogicInterface):
             match self.__state:
 
                 case DriveStates.INIT:
-                    pass #TODO 
+                    self.__output.values = (0.0, 0.0, 0.0, 0.0)
+                    self.__position_X = 0.0
+                    self.__position_Y = 0.0
+                    self.__position_Theta = 0.0
 
                 case DriveStates.RAEDY:
                     pass #TODO 
