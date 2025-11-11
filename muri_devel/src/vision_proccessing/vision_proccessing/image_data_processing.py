@@ -15,8 +15,9 @@ class ImageProcessing(Node):
 
         self.bridge = CvBridge()
 
-        self.distance_in_meters, self.distance_in_milimeters, self.angle_in_rad, self.error = None
-
+        self.distance_in_meters, self.distance_in_milimeters, self.angle_in_rad, self.error = None, None, False
+        self.error_counter = 0
+        self.proc_AMD = AMD()
 
         self.subscription = self.create_subscription(
             Image,
@@ -33,7 +34,6 @@ class ImageProcessing(Node):
         self.data = msg
         cv_raw_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
         self.get_logger().info('Bild empfangen!')
-        # Einfach aufrufen da es in globale Variablen schreibt
         self.krasseBerechnungen(cv_raw_image)
         pub_pic_data = PictureData()
 
@@ -43,7 +43,6 @@ class ImageProcessing(Node):
             #float32 angle_in_rad
             #float32 distance_in_meters
 
-        # TODO Daten in pub_pic_data füllen 
         pub_pic_data.error = self.error
         pub_pic_data.angle_in_rad = self.angle_in_rad
         pub_pic_data.distance_in_meters = self.distance_in_meters
@@ -52,6 +51,12 @@ class ImageProcessing(Node):
         self.get_logger().info('OpenCV-Daten werden gepublished...')
 
     def krasseBerechnungen(self, data_img):
-        proc_AMD = AMD()
-        self.distance_in_milimeters, self.angle_in_rad, self.error= proc_AMD.aruco_detection(data_img)
-        self.distance_in_meters = self.distance_in_milimeters/100
+        if data_img is None:
+            self.get_logger().info('Kein Frame erhalten!')
+            self.error_counter += 1
+
+        if self.error_counter > 10:
+            self.error = True
+
+        self.distance_in_milimeters, self.angle_in_rad = self.proc_AMD.aruco_detection(data_img)
+        self.distance_in_meters = self.distance_in_milimeters/1000

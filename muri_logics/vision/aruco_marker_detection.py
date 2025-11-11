@@ -2,7 +2,7 @@ import cv2 as cv
 import cv2.aruco as aruco
 import numpy as np
 import pickle
-
+import math
 class AMD():
     def __init__(self, data_img=None, calibration_file='camera_calibration.pkl'):
         self.marker_size = 100  # mm
@@ -15,6 +15,7 @@ class AMD():
         self.camera_matrix = np.array([[1000, 0, 320], [0, 1000, 240], [0, 0, 1]], dtype=np.float32)
         self.dist_coeffs = np.zeros((4, 1), dtype=np.float32)
 
+        # Feld das für die Kalibrierung verwendet wird
         self.charuco_board = aruco.CharucoBoard(
             (7, 5),      # 7x5 Felder
             40.0,        # mm Feldgröße
@@ -23,15 +24,11 @@ class AMD():
         )
         
     def calibrate_from_image(self, image_path):
-        pass
+        pass #TODO Kalibrierung einfügen
         
     def aruco_detection(self, img):
-        error = True                                            # <‑ Initialisierung
         frame = cv.imread(img)
-        if frame is None:
-            print("Fehler beim Lesen des Frames")
-            return None, None, error
-
+        
         frame_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
         corners, ids, _ = self.detector.detectMarkers(frame_gray)
 
@@ -52,8 +49,6 @@ class AMD():
                     flags=cv.SOLVEPNP_IPPE_SQUARE
                 )
                 if success:
-                    error = False
-                    return tvec[2], rvec[2], error
+                    return tvec[2], rvec[2]
 
-        # Keine Marker gefunden oder solvePnP fehlgeschlagen
-        return None, None, error
+        return -1.0, math.pi
