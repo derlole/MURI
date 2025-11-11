@@ -137,6 +137,7 @@ class TurnActionServer(Node):
     def listener_callback_picture_data_ast(self, msg):
         self._last_picture_data = msg
         self.turn_logic.setCameraData(msg.angle_in_rad, msg.distance_in_meters)
+        
 def main(args=None):
     rclpy.init(args=args)
 
