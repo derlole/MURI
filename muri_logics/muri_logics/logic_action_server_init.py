@@ -126,19 +126,15 @@ class InitLogic(LogicInterface):
 
     
     def calculate(self):
-        """Calculate the Angle to Turn and set die Angelvelosity"""
+        """Calculate the Angle to Turn and set die Angle velocity"""
         angularVelocityZ = 0.0
         tuerndAngle = self.__positionTheta - self.__firstTheta
 
-        if self.__angle_to_Mid_in_Rad > 0 and abs(self.__angle_to_Mid_in_Rad) > Constants.ANGLETOLLERAMCE:
+        angularVelocityZ = Constants.MAXANGLEVELOSETY # TODO Vollgas, bis er halt einen erkennt
+
+        if abs(self.__angle_to_Mid_in_Rad) > Constants.ANGLETOLLERAMCE and self.__distance_in_Meter > 1.0:
             angularVelocityZ = (self.__angle_to_Mid_in_Rad / Constants.MAXANGLE) * Constants.MAXANGLEVELOSETY
 
-        elif self.__angle_to_Mid_in_Rad < 0 and abs(self.__angle_to_Mid_in_Rad) > Constants.ANGLETOLLERAMCE:
-            angularVelocityZ = (self.__angle_to_Mid_in_Rad / Constants.MAXANGLE) * Constants.MAXANGLEVELOSETY
-        
-        else:
-            angularVelocityZ = 0.0
-        
         return angularVelocityZ, tuerndAngle
 
 

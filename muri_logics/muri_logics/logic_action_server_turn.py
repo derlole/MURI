@@ -102,26 +102,27 @@ class TurnLogic(LogicInterface):
 
     
     def setOdomData(self, x, y, t,):
-        """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
+        """Sets the Data of the actual Position of the Robot, for the Processing Logic"""
         self.__position_X = x
         self.__position_Y = y
         self.__position_Theta = quaternion_to_yaw(t)
 
     
     def setCameraData(self, angleTM, distanceIM): 
-        """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
+        """Sets the Data of the actual Position of the Robot, for the Processing Logic"""
         self.__angle_to_Mid_in_Rad = angleTM
         self.__distance_in_meter = distanceIM
 
 
     def calculate(self): 
-        """Calculate the Angle to Turn and set die Angelvelosity"""
-        angular_Velocity_Z = 0
+        """Calculate the Angle to Turn and set die Angle velocity"""
+        angular_Velocity_Z = 0.0
         turned_Angle = self.__position_Theta - self.__first_Theta
 
-        
+        if abs(self.__angle_to_Mid_in_Rad) > Constants.ANGLETOLLERANCE:
+            angular_Velocity_Z = (self.__angle_to_Mid_in_Rad / Constants.MAXANGLE) * Constants.MAXANGLEVELOSETY
 
-        if self.__position_Theta < self.__position_Theta + math.pi:
+        if turned_Angle < math.pi / 2 or self.__distance_in_meter == -1.0:
             angular_Velocity_Z = Constants.MAXANGLEVELOSETY
 
         return angular_Velocity_Z, turned_Angle

@@ -18,9 +18,7 @@ class Constants():
     MAXVELOSETY = 0.4
     MAXANGLEVELOSETY = 0.1
     MAXANGLE = 2 * math.pi #TODO maximalen winkel anpassen
-    GOALDICTANCE = 0.15
-
-
+    GOALDISTANCE = 0.15
 
 
 
@@ -127,22 +125,20 @@ class DriveLogic(LogicInterface):
 
     def calculate(self):
         """Calculate the Angle to Turn and set die Angelvelosity"""
-        self.__angular_Velocety = 0.0
-        self.__linear_Velocety = 0.0
+        angular_Velocity = 0.0
+        linear_Velocity = 0.0
 
-        if self.__angle_to_Mid_in_Rad > 0 and abs(self.__angle_to_Mid_in_Rad) > Constants.ANGLETOLLERANCE and self.__distance_in_Meter > Constants.GOALDICTANCE:
-            self.__angular_Velocety = (self.__angle_to_Mid_in_Rad / Constants.MAXANGLE) * Constants.MAXANGLEVELOSETY
-            self.__linear_Velocety = Constants.MAXVELOSETY
-        
-        elif self.__angle_to_Mid_in_Rad < 0 and abs(self.__angle_to_Mid_in_Rad) > Constants.ANGLETOLLERANCE and self.__distance_in_Meter > Constants.GOALDICTANCE:
-            self.__angular_Velocety = (self.__angle_to_Mid_in_Rad / Constants.MAXANGLE) * Constants.MAXANGLEVELOSETY
-            self.__linear_Velocety = Constants.MAXVELOSETY
+        if abs(self.__angle_to_Mid_in_Rad) > Constants.ANGLETOLLERANCE and self.__distance_in_Meter > Constants.GOALDISTANCE:
+            angular_Velocity = (self.__angle_to_Mid_in_Rad / Constants.MAXANGLE) * Constants.MAXANGLEVELOSETY
+
+        if True or False: # TODO TODO TODO TODO TODO TODO TODO TODO 
+            linear_Velocity = Constants.MAXVELOSETY
 
         else:
-            self.__angular_Velocety = 0
-            self.__linear_Velocety = 0
+            linear_Velocity = 0.0
 
-        return self.__angular_Velocety, self.__linear_Velocety
+        return angular_Velocity, linear_Velocity
+    
 
     def state_machine(self):
             """Execute the state machine of the logic processing."""
@@ -167,7 +163,7 @@ class DriveLogic(LogicInterface):
                     avz, lv = self.calculate()
                     self.__output.values = (lv, None, avz, self.__distance_in_Meter)
                     self.__output.__is_Valid = True
-                    if self.__distance_in_Meter < 0.10: #TODO Sinfolle distanz
+                    if self.__distance_in_Meter < 0.10: #TODO Sinvolle distanz
                         self.__state = DriveStates.SUCCESS
 
                 case DriveStates.FAILED:
