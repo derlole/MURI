@@ -41,7 +41,6 @@ class InitActionServer(Node):
             self.listener_callback_odom_asi,
             10
         )
-        self._timer = self.create_timer(0.1, self.timer_callback_asi)
         self._goal_handle = None
         self._last_picture_data = None
         self._last_odom = None
@@ -54,12 +53,13 @@ class InitActionServer(Node):
             self.get_logger().info('Canc: init-goal.')
             self._goal_handle.canceled()
 
-            self._goal_result = INIT.Result()
-            self._goal_result.success = False
-            self._goal_exiting = True
+            result = INIT.Result()
+            result.success = False
 
+            self._goal_handle.publish_result(result)
+            self._timer.cancel()
             self._goal_handle = None
-            return 
+            return # TODO handle canc here?
 
         self.init_logic.state_machine()
         out = self.init_logic.getOut()
@@ -82,34 +82,31 @@ class InitActionServer(Node):
             self.get_logger().info('succ: init-goal.')
             self._goal_handle.succeed()
 
-            self._goal_result = INIT.Result()
-            self._goal_result.success = True
-            self._goal_exiting = True
+            result = INIT.Result()
+            result.success = True
 
+            self._goal_handle.publish_result(result)
+            self._timer.cancel()
             self._goal_handle = None
 
         elif out.getState() == InitStates.FAILED:
             self.get_logger().info('fail: init-goal.')
             self._goal_handle.abort()
 
-            self._goal_result = INIT.Result()
-            self._goal_result.success = False
-            self._goal_exiting = True
+            result = INIT.Result()
+            result.success = False
 
+            self._goal_handle.publish_result(result)
+            self._timer.cancel()
             self._goal_handle = None
 
         out.resetOut()
 
     def execute_callback(self, goal_handle):
         self.get_logger().info('Exec: init-goal')
-        
-        self._goal_exiting = False
-        self._goal_result = None
+        self._timer = self.create_timer(0.1, self.timer_callback_asi)
 
-        while not self._goal_result:
-            rclpy.spin_once(self, timeout_sec=0.1)
-
-        return self._goal_result
+        return INIT.Result() 
 
     def goal_callback(self, goal_request):
         self.get_logger().info('Rec: init-goal')

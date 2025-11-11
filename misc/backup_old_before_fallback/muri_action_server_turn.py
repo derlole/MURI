@@ -44,7 +44,6 @@ class TurnActionServer(Node):
         self._goal_handle = None
         self._last_picture_data = None
         self._last_odom = None
-        self._timer = self.create_timer(0.1, self.timer_callback_ast)
 
     def timer_callback_ast(self):
         if self._goal_handle is None or not self._goal_handle.is_active:
@@ -54,11 +53,12 @@ class TurnActionServer(Node):
             self.get_logger().info('Canc: turn-goal.')
             self._goal_handle.canceled()
 
-            self._goal_result = TURN.Result()
-            self._goal_result.success = False
-            self._goal_exiting = True
+            result = TURN.Result()
+            result.success = False
 
-            return 
+            self._goal_handle.publish_result(result)
+            self._timer.cancel()
+            return # TODO handle canc here?
         
         self.turn_logic.state_machine()
         out = self.turn_logic.getOut()
@@ -68,13 +68,13 @@ class TurnActionServer(Node):
             return
         
         cmd_vel = Twist()
-        cmd_vel.linear.x = float(out.values['linear_velocity_x'])
-        cmd_vel.linear.y = float(out.values['linear_velocity_y'])
-        cmd_vel.angular.z = float(out.values['angular_velocity_z'])
+        cmd_vel.linear.x = float(out.values['linear_velocity_x']) # TODO communicate to Louis that to put there
+        cmd_vel.linear.y = float(out.values['linear_velocity_y']) # TODO communicate to Louis that to put there
+        cmd_vel.angular.z = float(out.values['angular_velocity_z']) # TODO communicate to Louis that to put there
         self.cmd_vel_pub.publish(cmd_vel)
 
         feedback_msg = TURN.Feedback()
-        feedback_msg.moved_angle = float(out.values['turned_angle'])
+        feedback_msg.moved_angle = float(out.values['turned_angle'])  # TODO communicate to Louis that to put there
 
         self._goal_handle.publish_feedback(feedback_msg)
 
@@ -82,34 +82,31 @@ class TurnActionServer(Node):
             self.get_logger().info('succ: turn-goal.')
             self._goal_handle.succeed()
 
-            self._goal_result = TURN.Result()
-            self._goal_result.success = True
-            self._goal_exiting = True
+            result = TURN.Result()
+            result.success = True
 
+            self._goal_handle.publish_result(result)
+            self._timer.cancel()
             self._goal_handle = None
 
         elif self.turn_logic.getActiveState() == TurnStates.FAILED:
             self.get_logger().info('fail: turn-goal.')
             self._goal_handle.abort()
 
-            self._goal_result = TURN.Result()
-            self._goal_result.success = False
-            self._goal_exiting = True
+            result = TURN.Result()
+            result.success = False
 
+            self._goal_handle.publish_result(result)
+            self._timer.cancel()
             self._goal_handle = None
 
         out.resetOut()
 
     def execute_callback(self, goal_handle):
         self.get_logger().info('Exec: turn-goal')
-        
-        self._goal_exiting = False
-        self._goal_result = None
+        self._timer = self.create_timer(0.1, self.timer_callback_ast)
 
-        while not self._goal_exiting:
-            rclpy.spin_once(self, timeout_sec=0.1)
-
-        return self._goal_result
+        return TURN.Result()
 
     def goal_callback(self, goal_request):
         self.get_logger().info('Rec: turn-goal')

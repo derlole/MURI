@@ -34,6 +34,7 @@ class ImageProcessing(Node):
         self.data = msg
         cv_raw_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
         self.get_logger().info('Bild empfangen!')
+        self.get_logger().info(f'data: {cv_raw_image[0][0]}')
         self.pic_to_data(cv_raw_image)
         pub_pic_data = PictureData()
 
@@ -44,8 +45,8 @@ class ImageProcessing(Node):
             #float32 distance_in_meters
 
         pub_pic_data.error = self.error
-        pub_pic_data.angle_in_rad = self.angle_in_rad
-        pub_pic_data.distance_in_meters = self.distance_in_meters
+        pub_pic_data.angle_in_rad = float(self.angle_in_rad)
+        pub_pic_data.distance_in_meters = float(self.distance_in_meters)
 
         self.publisher.publish(pub_pic_data)
         self.get_logger().info('OpenCV-Daten werden gepublished...')

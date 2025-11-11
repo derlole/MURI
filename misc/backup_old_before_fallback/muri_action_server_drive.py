@@ -44,7 +44,6 @@ class DriveActionServer(Node):
             self.listener_callback_odom_asd,
             10
         )
-        self._timer = self.create_timer(0.1, self.timer_callback_asd)
         self._goal_handle = None
         self._last_picture_data = None
         self._last_odom = None
@@ -58,11 +57,13 @@ class DriveActionServer(Node):
             self.get_logger().info('Canc: drive-goal.')
             self._goal_handle.canceled()
 
-            self._goal_result = DRIVE.Result()
-            self._goal_result.success = False
-            self._goal_exiting = True
+            result = DRIVE.Result()
+            result.success = False
+
+            self._goal_handle.publish_result(result)
+            self._timer.cancel()
             self._goal_handle = None
-            return
+            return # TODO handle canc here?
 
         self.drive_logic.state_machine()
         out = self.drive_logic.getOut()
@@ -72,9 +73,9 @@ class DriveActionServer(Node):
             self.__err_out_counter += 1
         
         cmd_vel = Twist()
-        cmd_vel.linear.x = float(out.values['linear_velocity_x'])
-        cmd_vel.linear.y = float(out.values['linear_velocity_y'])
-        cmd_vel.angular.z = float(out.values['angular_velocity_z'])
+        cmd_vel.linear.x = float(out.values['linear_velocity_x']) # TODO communicate to Louis that to put there
+        cmd_vel.linear.y = float(out.values['linear_velocity_y']) # TODO communicate to Louis that to put there
+        cmd_vel.angular.z = float(out.values['angular_velocity_z']) # TODO communicate to Louis that to put there
 
         if self.__err_out_counter >= ERR_THRESHOLD:
             cmd_vel.linear.x = 0.0
@@ -86,7 +87,7 @@ class DriveActionServer(Node):
             self.cmd_vel_pub.publish(cmd_vel)
 
         feedback_msg = DRIVE.Feedback()
-        feedback_msg.distance_remaining = float(out.values['distance_remaining'])
+        feedback_msg.distance_remaining = float(out.values['distance_remaining'])  # TODO communicate to Louis that to put there
 
         self._goal_handle.publish_feedback(feedback_msg)
 
@@ -94,35 +95,31 @@ class DriveActionServer(Node):
             self.get_logger().info('succ: drive-goal.')
             self._goal_handle.succeed()
 
-            self._goal_result = DRIVE.Result()
-            self._goal_result.success = True
-            self._goal_exiting = True
+            result = DRIVE.Result()
+            result.success = True
 
+            self._goal_handle.publish_result(result)
+            self._timer.cancel()
             self._goal_handle = None
 
         elif out.getState() == DriveStates.FAILED:
             self.get_logger().info('fail: drive-goal.')
             self._goal_handle.abort()
 
-            self._goal_result = DRIVE.Result()
-            self._goal_result.success = False
-            self._goal_exiting = True
+            result = DRIVE.Result()
+            result.success = False
 
+            self._goal_handle.publish_result(result)
+            self._timer.cancel()
             self._goal_handle = None
 
         out.resetOut()
 
     def execute_callback(self, goal_handle):
         self.get_logger().info('Exe: drive goal')
+        self._timer = self.create_timer(0.1, self.timer_callback_asd)
 
-        self._goal_exiting = False
-        self._goal_result = None
-
-        while not self._goal_exiting:
-            rclpy.spin_once(self, timeout_sec=0.1)
-
-        return self._goal_result
-        # return DRIVE.Result() 
+        return DRIVE.Result() # TODO Prove that this works / (zwei stimmen dafür), mein kopf dagegen
 
     def goal_callback(self, goal_request):
         self.get_logger().info('Rec: drive-goal')
@@ -149,7 +146,7 @@ class DriveActionServer(Node):
 
     def listener_callback_picture_data_asd(self, msg):
         self._last_picture_data = msg
-        self.drive_logic.setCameraData(msg.pixel_to_mid, msg.pixel_to_mid_prev, msg.pixel_height, msg.pixel_height_prev, msg.pic_width)
+        self.drive_logic.setCameraData(msg.angle_in_rad, msg.distance_in_meters)
 
 def main(args=None):
     rclpy.init(args=args)

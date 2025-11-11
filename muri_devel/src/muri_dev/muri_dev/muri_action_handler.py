@@ -41,8 +41,11 @@ class MuriActionHandler(Node):
         out = self.main_controller.getOut()
 
         if not out.outValid():
-            return #TODO
-        if out.values is not None:
+            print('mainout not valid')
+            return 
+        print('mainout valid')
+        if not out.values == {}:
+            print(out.values)
             if out.values['ASToCall'] == 0:
                 self.send_init_goal()
 

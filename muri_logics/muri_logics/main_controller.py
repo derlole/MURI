@@ -34,7 +34,7 @@ class MainOut(Out):
 
     def resetOut(self):
         """Reset the output to its initial state."""
-        self.__values = None
+        self.__values = {}
         self.__error = None 
         self.isValid = False
 
@@ -55,6 +55,8 @@ class MainController(LogicInterface):
         self._o_t = 0.0
         self._angle_in_rad = 0.0
         self._distance_in_meters = 0.0
+        self._goal_status_fin = False
+        self._goal_success = False
 
     def calculate_estimated_goal_pose(self, last_odom_x: float, last_odom_y: float, last_odom_quaternion):
         cur_yaw = quaternion_to_yaw(last_odom_quaternion)
@@ -71,6 +73,7 @@ class MainController(LogicInterface):
         if self.__state == MainStates.IDLE:
             self.__state = MainStates.INIT_ROBOT
             self.__output.values(0)
+            self.__output.isValid = True
             return True
         return False
 
@@ -119,24 +122,29 @@ class MainController(LogicInterface):
                 self.__state = MainStates.IDLE
 
             case MainStates.IDLE:
+                print('mainstate idle')
+                self.__state = MainStates.INIT_ROBOT #remove this later
+                self.__output.values = 0 #remove this later
+                self.__output.isValid = True # remove this later
                 pass
 
             case MainStates.INIT_ROBOT:
-                
+                print('mainstate init_robot')
                 self.__output.isValid = True
-
+                
                 if self._goal_status_fin and self._goal_success:
                     self.__state = MainStates.DRIVE
                     self._goal_status_fin = False
-                    self.__output.values(1)
+                    self.__output.values = 1
 
             case MainStates.DRIVE:
+                print('mainstate drive')
                 self.__output.isValid = True
 
                 if self._goal_status_fin and self._goal_success:
                     self.__state = MainStates.TURN
                     self._goal_status_fin = False
-                    self.__output.values(2)
+                    self.__output.values = 2
                 
             case MainStates.TURN:
                 self.__output.isValid = True
@@ -144,7 +152,7 @@ class MainController(LogicInterface):
                 if self._goal_status_fin and self._goal_success:
                     self.__state = MainStates.DRIVE
                     self._goal_status_fin = False
-                    self.__output.values(1)
+                    self.__output.values = 1
 
             case MainStates.PAUSE:
                 pass # TODO
