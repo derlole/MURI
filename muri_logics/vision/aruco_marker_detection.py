@@ -28,8 +28,9 @@ class AMD():
         pass #TODO Kalibrierung einfügen
         
     def aruco_detection(self, img):
-        frame = cv.imread(img)
-        
+        # frame = cv.imread(img)
+        frame = img
+
         frame_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
         corners, ids, _ = self.detector.detectMarkers(frame_gray)
 

@@ -6,7 +6,7 @@ import cv2 as cv
 import rclpy
 from rclpy.node import Node
 
-from muri_logics.vision.aruco_marker_detection import AMD
+from vision.aruco_marker_detection import AMD
 
 class ImageProcessing(Node):
 
@@ -15,7 +15,7 @@ class ImageProcessing(Node):
 
         self.bridge = CvBridge()
 
-        self.distance_in_meters, self.distance_in_milimeters, self.angle_in_rad, self.error = None, None, False
+        self.distance_in_meters, self.distance_in_milimeters, self.angle_in_rad, self.error = None, None, None, False
         self.error_counter = 0
         self.proc_AMD = AMD()
 
@@ -60,3 +60,14 @@ class ImageProcessing(Node):
 
         self.distance_in_milimeters, self.angle_in_rad = self.proc_AMD.aruco_detection(data_img)
         self.distance_in_meters = self.distance_in_milimeters/1000
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    camera_read_out = ImageProcessing()
+    rclpy.spin(camera_read_out)
+    camera_read_out.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()

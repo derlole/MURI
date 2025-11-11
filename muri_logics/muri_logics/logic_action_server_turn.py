@@ -23,33 +23,35 @@ class Constants():
 
 class TurnOut(Out):
     def __init__(self): 
-        self.__valeus = None
+        self.__values = {}
         self.__error = None
         self.__is_Valid = False
 
     @property
     def values(self):
         """Get the value."""
-        return self.__valeus
+        return self.__values
 
     @values.setter 
-    def values(self, lvx, lvy, avz, ta):
+    def values(self, data):
         """Set the value."""
+        lvx, lvy, avz, ta = data
+
         if lvx is not None:
-            self.__valeus['linear_velocity_x'] = lvx
+            self.__values['linear_velocity_x'] = lvx
         
         if lvy is not None:
-            self.__valeus['linear_velocity_y'] = lvy
+            self.__values['linear_velocity_y'] = lvy
 
         if avz is not None:
-            self.__valeus['angular_velocity_Z'] = avz
+            self.__values['angular_velocity_Z'] = avz
 
         if ta is not None:
             self.__values['turened_angele'] = ta
 
     def resetOut(self):
         """Reset the output to its initial state."""
-        self.__valeus = None 
+        self.__values = None 
         self.__is_Valid = False
 
     def outValid(self):

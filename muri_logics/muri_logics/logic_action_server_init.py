@@ -24,7 +24,7 @@ class Constants():
 
 class InitOut(Out):
     def __init__(self): 
-        self.__values = None
+        self.__values = {}
         self.__error = None
         self.__isValid = False
 

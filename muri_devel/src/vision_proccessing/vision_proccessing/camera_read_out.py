@@ -3,7 +3,7 @@ from cv_bridge import CvBridge
 import numpy as np
 import cv2 as cv
 import rclpy
-from rlcpy.node import Node
+from rclpy.node import Node
 
 class CameraReadOut(Node):
     def __init__(self):

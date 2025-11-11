@@ -18,7 +18,7 @@ class MainStates(Enum):
 
 class MainOut(Out):
     def __init__(self):
-        self.__values
+        self.__values = {}
         self.__error = False
         self.isValid = False
 
