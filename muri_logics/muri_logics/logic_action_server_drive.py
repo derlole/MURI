@@ -17,7 +17,7 @@ class Constants():
     ANGLETOLLERANCE = 0.1
     MAXVELOSETY = 0.4
     MAXANGLEVELOSETY = 0.1
-    MAXANGLE = 2 * math.pi #TODO maximalen winkel anpassen 
+    MAXANGLE = 2 * math.pi #TODO maximalen winkel anpassen
     GOALDICTANCE = 0.15
 
 
@@ -65,7 +65,7 @@ class DriveOut(Out):
         return self.__is_Valid
 
 
-    def getError(self):
+    def getError(self): #TODO Exeption?
         """Retrieve any error state."""
         return self.__error
     
@@ -125,7 +125,7 @@ class DriveLogic(LogicInterface):
 
 
 
-    def calculate(self): #TODO
+    def calculate(self):
         """Calculate the Angle to Turn and set die Angelvelosity"""
         self.__angular_Velocety = 0.0
         self.__linear_Velocety = 0.0
@@ -167,7 +167,7 @@ class DriveLogic(LogicInterface):
                     avz, lv = self.calculate()
                     self.__output.values = (lv, None, avz, self.__distance_in_Meter)
                     self.__output.__is_Valid = True
-                    if self.__distance_in_Meter < 0.10: #TODO
+                    if self.__distance_in_Meter < 0.10: #TODO Sinfolle distanz
                         self.__state = DriveStates.SUCCESS
 
                 case DriveStates.FAILED:

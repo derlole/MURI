@@ -119,6 +119,8 @@ class TurnLogic(LogicInterface):
         angular_Velocity_Z = 0
         turned_Angle = self.__position_Theta - self.__first_Theta
 
+        
+
         if self.__position_Theta < self.__position_Theta + math.pi:
             angular_Velocity_Z = Constants.MAXANGLEVELOSETY
 
