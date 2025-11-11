@@ -146,7 +146,7 @@ class DriveActionServer(Node):
 
     def listener_callback_picture_data_asd(self, msg):
         self._last_picture_data = msg
-        self.drive_logic.setCameraData(msg.pixel_to_mid, msg.pixel_to_mid_prev, msg.pixel_height, msg.pixel_height_prev, msg.pic_width)
+        self.drive_logic.setCameraData(msg.angle_in_rad, msg.distance_in_meters)
 
 def main(args=None):
     rclpy.init(args=args)

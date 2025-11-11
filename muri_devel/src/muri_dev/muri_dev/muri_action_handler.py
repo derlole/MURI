@@ -37,13 +37,12 @@ class MuriActionHandler(Node):
         self.timer = self.create_timer(0.1, self.main_loop_ah)
 
     def main_loop_ah(self):
-        self.main_controller
+        self.main_controller.state_machine()
         #TODO alles halt
 
     def listener_callback_picture_data_ah(self, msg):
         self.last_picture_data = msg
-        self.main_controller.setCameraData(msg.pixel_to_mid, msg.pixel_to_mid_prev, msg.pixel_height, msg.pixel_height_prev, msg.pic_width)
-
+        self.main_controller.setCameraData(msg.angle_in_rad, msg.distance_in_meters)
     def listener_callback_odom_ah(self, msg):
         self.last_odom = msg
         self.main_controller.setOdomData(msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.orientation)

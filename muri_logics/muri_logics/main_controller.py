@@ -21,6 +21,7 @@ class MainOut(Out):
         self.__values
         self.__error
         self.__isValid = False
+        self._ASToCall = None
 
     @property
     def values(self):
@@ -51,13 +52,10 @@ class MainController(LogicInterface):
         self.__state = MainStates.INIT
         self.__output = MainOut()
         self._o_l_x = 0.0
-        self._o_l_z = 0.0
+        self._o_l_y = 0.0
         self._o_t = 0.0
-        self._pixel_to_mid_prev = 0.0
-        self._pixel_height_prev = 0.0
-        self._pic_width = 0.0
-        self._picel_to_mid = 0.0
-        self._pixel_height = 0.0
+        self._angle_in_rad = 0.0
+        self._distance_in_meters = 0.0
 
     def calculate_estimated_goal_pose(self, last_odom_x: float, last_odom_y: float, last_odom_quaternion):
         cur_yaw = quaternion_to_yaw(last_odom_quaternion)
@@ -85,28 +83,21 @@ class MainController(LogicInterface):
         self.__state = MainStates.IDLE
         self.__output.resetOut()
         self._o_l_x = 0.0
-        self._o_l_z = 0.0
+        self._o_l_y = 0.0
         self._o_t = 0.0
-        self._pixel_to_mid_prev = 0.0
-        self._pixel_height_prev = 0.0
-        self._pic_width = 0.0
-        self._pixel_to_mid = 0.0
-        self._pixel_height = 0.0
+        self._angle_in_rad = 0.0
+        self._distance_in_meters = 0.0
 
-    def setOdomData(self, x, z, t):
+    def setOdomData(self, x, y, t):
         """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
         self._o_l_x = x
-        self._o_l_z = z
+        self._o_l_y = y
         self._o_t = t
 
-    def setCameraData(self, pToMid, pToMidPrev, pHeight, pHeightPrev, picWidth): 
+    def setCameraData(self, angle_in_rad, distance_in_meters): 
         """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
-        self._picel_to_mid = pToMid
-        self._pixel_to_mid_prev = pToMidPrev
-        self._pixel_height = pHeight
-        self._pixel_height_prev = pHeightPrev
-        self._pic_width = picWidth
-
+        self._angle_in_rad = angle_in_rad
+        self._distance_in_meters = distance_in_meters
     def state_machine(self):
         """Execute the state machine of the logic processing."""
         match self.__state:
@@ -114,7 +105,7 @@ class MainController(LogicInterface):
                 self.__state = MainStates.IDLE
 
             case MainStates.IDLE:
-                pass # TODO
+                pass
 
             case MainStates.INIT_ROBOT:
                 pass # TODO
