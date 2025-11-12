@@ -16,8 +16,8 @@ class InitStates(Enum):
 
 
 class Constants():
-    ANGLETOLLERAMCE = 0.1
-    MAXANGLEVELOSETY = 0.1
+    ANGLETOLLERAMCE = 0.05
+    MAXANGLEVELOSETY = 0.20
     MAXANGLE = 2 * math.pi #TODO maximalen winkel anpassen 
 
 
