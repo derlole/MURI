@@ -135,6 +135,9 @@ class InitLogic(LogicInterface):
         if abs(self.__angle_to_Mid_in_Rad) > Constants.ANGLETOLLERAMCE and self.__distance_in_Meter > 1.0:
             angularVelocityZ = (self.__angle_to_Mid_in_Rad / Constants.MAXANGLE) * Constants.MAXANGLEVELOSETY
 
+        if abs(self.__angle_to_Mid_in_Rad) < Constants.ANGLETOLLERAMCE and self.__distance_in_Meter > 1.0:
+            angularVelocityZ = 0.0
+            
         return angularVelocityZ, tuerndAngle
 
 
@@ -165,7 +168,7 @@ class InitLogic(LogicInterface):
                 avz, ta = self.calculate()
                 self.__output.values = (None, None, avz, ta)
                 self.__output.isValid = True
-                if avz == 0.0:
+                if abs(self.__angle_to_Mid_in_Rad) < Constants.ANGLETOLLERAMCE and self.__distance_in_Meter > 1.0:
                     self.__state = InitStates.SUCCESS
                 
                 #TODO wenn zu weit gedreht gehe in FAILED

@@ -100,7 +100,7 @@ class TurnLogic(LogicInterface):
         self.__position_Theta = 0.0
         self.__first_Theta = None
         self.__output.resetOut()
-        self.__state = TurnStates.INIT
+        self.__state = TurnStates.IDLE
 
     
     def setOdomData(self, x, y, t,):

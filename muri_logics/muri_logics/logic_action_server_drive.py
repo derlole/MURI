@@ -18,7 +18,7 @@ class Constants():
     MAXVELOSETY = 0.4
     MAXANGLEVELOSETY = 0.1
     MAXANGLE = 2 * math.pi #TODO maximalen winkel anpassen
-    GOALDISTANCE = 0.15
+    GOALDISTANCE = 0.25 #TODO Sinvolle distanz
 
 
 
@@ -108,7 +108,7 @@ class DriveLogic(LogicInterface):
         self.__position_Theta = 0.0
         self.__first_Theta = None
         self.__output.resetOut()
-        self.__state = DriveStates.INIT
+        self.__state = DriveStates.IDLE
 
 
     def setOdomData(self, x, y, t):
@@ -133,7 +133,7 @@ class DriveLogic(LogicInterface):
         if abs(self.__angle_to_Mid_in_Rad) > Constants.ANGLETOLLERANCE and self.__distance_in_Meter > Constants.GOALDISTANCE:
             angular_Velocity = (self.__angle_to_Mid_in_Rad / Constants.MAXANGLE) * Constants.MAXANGLEVELOSETY
 
-        if True or False: # TODO TODO TODO TODO TODO TODO TODO TODO 
+        if self.__distance_in_Meter > Constants.GOALDISTANCE: 
             linear_Velocity = Constants.MAXVELOSETY
 
         else:
@@ -165,7 +165,7 @@ class DriveLogic(LogicInterface):
                     avz, lv = self.calculate()
                     self.__output.values = (lv, None, avz, self.__distance_in_Meter)
                     self.__output.__is_Valid = True
-                    if self.__distance_in_Meter < 0.10: #TODO Sinvolle distanz
+                    if self.__distance_in_Meter < Constants.GOALDISTANCE:
                         self.__state = DriveStates.SUCCESS
 
                 case DriveStates.FAILED:
