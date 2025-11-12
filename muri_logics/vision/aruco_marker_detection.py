@@ -24,18 +24,6 @@ class AMD():
                               [0.006275358413548046],
                               [-0.0008178156020032578],
                               [7.176765962359053]], dtype=np.float32)
-
-        # Feld das für die Kalibrierung verwendet wird
-        self.charuco_board = aruco.CharucoBoard(237.6933460968677
-            (7, 5),      # 7x5 Felder
-            40.0,        # mm Feldgröße
-            30.0,        # mm Marker
-            aruco_dict
-        )
-        self.calibrate_from_image()
-        
-    def calibrate_from_image(self, image_path = None):
-        pass #TODO Kalibrierung einfügen
         
     def aruco_detection(self, img):
         frame = img
