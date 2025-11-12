@@ -13,7 +13,12 @@ class AMD():
         self.detector = aruco.ArucoDetector(aruco_dict, aruco_params)
         self.aruco_dict = aruco_dict
         
-        self.camera_matrix = np.array([[604.1946504636386, 0.0, 311.1787729991119], [0.0, 604.2044268889094, 237.6933460968677], [0, 0, 1]], dtype=np.float32)
+        self.camera_matrix = np.array([[604.1946504636386, 
+                                        0.0, 311.1787729991119], 
+                                        [0.0, 604.2044268889094, 
+                                         237.6933460968677], 
+                                         [0, 0, 1]], dtype=np.float32)
+        
         self.dist_coeffs = np.array([[0.19090119661845203],
                               [-1.8264546666600625],
                               [0.006275358413548046],
