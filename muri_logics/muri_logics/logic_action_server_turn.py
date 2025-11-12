@@ -124,7 +124,7 @@ class TurnLogic(LogicInterface):
         if abs(self.__angle_to_Mid_in_Rad) > Constants.ANGLETOLLERANCE:
             angular_Velocity_Z = (self.__angle_to_Mid_in_Rad / Constants.MAXANGLE) * Constants.MAXANGLEVELOSETY
 
-        if turned_Angle < math.pi / 2 or self.__distance_in_meter == -1.0:
+        if turned_Angle < 2 * math.pi / 3 or self.__distance_in_meter == -1.0:
             angular_Velocity_Z = Constants.MAXANGLEVELOSETY
 
         return angular_Velocity_Z, turned_Angle
@@ -156,7 +156,7 @@ class TurnLogic(LogicInterface):
                 avz, ta = self.calculate()
                 self.__output.values = (None, None, avz, ta)
                 self.__output.__is_Valid = True
-                if avz == 0.0:
+                if abs(self.__angle_to_Mid_in_Rad) < Constants.ANGLETOLLERANCE and self.__distance_in_meter > 1.0:
                     self.__state = TurnStates.SUCCESS
 
             case TurnStates.FAILED:
