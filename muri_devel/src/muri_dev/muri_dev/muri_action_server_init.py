@@ -67,7 +67,7 @@ class InitActionServer(Node):
         if not out.outValid():
             out.resetOut()
             return
-        
+        print(str(out.values))
         cmd_vel = Twist()
         cmd_vel.linear.x = float(out.values['linear_velocity_x'])
         cmd_vel.linear.y = float(out.values['linear_velocity_y'])
@@ -78,7 +78,7 @@ class InitActionServer(Node):
         feedback_msg.turned_angle = float(out.values['turned_angle'])
         self._goal_handle.publish_feedback(feedback_msg)
 
-        if out.getState() == InitStates.SUCCESS:
+        if self.init_logic.getActiveState() == InitStates.SUCCESS:
             self.get_logger().info('succ: init-goal.')
             self._goal_handle.succeed()
 
@@ -88,7 +88,7 @@ class InitActionServer(Node):
 
             self._goal_handle = None
 
-        elif out.getState() == InitStates.FAILED:
+        elif self.init_logic.getActiveState() == InitStates.FAILED:
             self.get_logger().info('fail: init-goal.')
             self._goal_handle.abort()
 

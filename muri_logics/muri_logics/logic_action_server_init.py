@@ -52,17 +52,23 @@ class InitOut(Out):
             self.__values['linear_velocity_x'] = lvx
         
         if lvy is not None:
-            self.__values['lineat_velocity_y'] = lvy
+            self.__values['linear_velocity_y'] = lvy
 
         if avz is not None:
             self.__values['angular_velocity_z'] = avz
 
         if ta is not None:
             self.__values['turned_angle'] = ta
+        print(self.__values)
     
     def resetOut(self):
         """Reset the output to its initial state."""
-        self.__values = {}
+
+        self.__values['linear_velocity_x'] = 0.0
+        self.__values['linear_velocity_y'] = 0.0
+        self.__values['angular_velocity_z'] = 0.0
+        self.__values['turned_angle'] = 0.0
+
         self.__isValid = False
     
     def outValid(self):
@@ -127,9 +133,12 @@ class InitLogic(LogicInterface):
     
     def calculate(self):
         """Calculate the Angle to Turn and set die Angle velocity"""
+        print('positionTh and firstTh' + str(self.__positionTheta) + str(self.__firstTheta))
         angularVelocityZ = 0.0
         tuerndAngle = self.__positionTheta - self.__firstTheta
-
+        if abs(tuerndAngle) > math.pi:
+            tuerndAngle = tuerndAngle + 2 * math.pi
+        
         angularVelocityZ = Constants.MAXANGLEVELOSETY # TODO Vollgas, bis er halt einen erkennt
 
         if abs(self.__angle_to_Mid_in_Rad) > Constants.ANGLETOLLERAMCE and self.__distance_in_Meter > 1.0:
@@ -151,7 +160,7 @@ class InitLogic(LogicInterface):
                 self.__output.values = (0.0, 0.0, 0.0, 0.0)
                 self.__positionX = 0.0
                 self.__positionY = 0.0
-                self.__positionTheta = 0.0
+                self.__positionTheta = None
                 self.__angle_to_Mid_in_Rad = None
                 self.__distance_in_Meter = None
                 self.__state = InitStates.IDLE

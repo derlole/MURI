@@ -72,7 +72,7 @@ class MainController(LogicInterface):
         """Set the active state of the logic processing."""
         if self.__state == MainStates.IDLE:
             self.__state = MainStates.INIT_ROBOT
-            self.__output.values(0)
+            self.__output.values = 0
             self.__output.isValid = True
             return True
         return False
@@ -115,9 +115,9 @@ class MainController(LogicInterface):
         pass #TODO
     
     def postInit(self):
+        print('postInit')
         self.state_machine()
         self.setActive()
-        self.state_machine()
 
     def state_machine(self):
         """Execute the state machine of the logic processing."""

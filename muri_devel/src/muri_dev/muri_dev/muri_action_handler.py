@@ -6,7 +6,7 @@ from nav_msgs.msg import Odometry
 from muri_dev_interfaces.action import DRIVE, TURN, INIT
 from muri_dev_interfaces.msg import PictureData
 from rclpy.executors import ExternalShutdownException
-from muri_logics.main_controller import MainController
+from muri_logics.main_controller import MainController, MainStates
 from muri_logics.logic_interface import LogicInterface
 
 
@@ -35,16 +35,20 @@ class MuriActionHandler(Node):
             10
         )
         self.timer = self.create_timer(0.1, self.main_loop_ah)
-        self.main_controller.postInit()
 
     def main_loop_ah(self):
         self.main_controller.state_machine()
         out = self.main_controller.getOut()
 
+        if self.main_controller.getActiveState() == MainStates.IDLE:
+            self.main_controller.postInit()
+            out = self.main_controller.getOut()
+
         if not out.outValid():
             print('mainout not valid')
             return 
-        print('mainout valid')
+        
+        print('mainout valid' + str(out.values))
         if not out.values == {}:
             print(out.values)
             if out.values['ASToCall'] == 0:

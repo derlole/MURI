@@ -90,7 +90,7 @@ class DriveActionServer(Node):
 
         self._goal_handle.publish_feedback(feedback_msg)
 
-        if out.getState() == DriveStates.SUCCESS:
+        if self.drive_logic.getActiveState() == DriveStates.SUCCESS:
             self.get_logger().info('succ: drive-goal.')
             self._goal_handle.succeed()
 
@@ -100,7 +100,7 @@ class DriveActionServer(Node):
 
             self._goal_handle = None
 
-        elif out.getState() == DriveStates.FAILED:
+        elif self.drive_logic.getActiveState() == DriveStates.FAILED:
             self.get_logger().info('fail: drive-goal.')
             self._goal_handle.abort()
 
@@ -150,7 +150,7 @@ class DriveActionServer(Node):
 
     def listener_callback_picture_data_asd(self, msg):
         self._last_picture_data = msg
-        self.drive_logic.setCameraData(msg.pixel_to_mid, msg.pixel_to_mid_prev, msg.pixel_height, msg.pixel_height_prev, msg.pic_width)
+        self.drive_logic.setCameraData(msg.angle_in_rad, msg.distance_in_meters)
 
 def main(args=None):
     rclpy.init(args=args)
