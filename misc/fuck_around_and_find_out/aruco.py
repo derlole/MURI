@@ -13,8 +13,12 @@ aruco_params = cv.aruco.DetectorParameters()
 detector = cv.aruco.ArucoDetector(aruco_dict, aruco_params)
 
 # Camera matrix and distortion coefficients
-camera_matrix = np.array([[1000, 0, 320], [0, 1000, 240], [0, 0, 1]], dtype=np.float32)
-dist_coeffs = np.zeros((4, 1), dtype=np.float32)
+camera_matrix = np.array([[516.4252772112708, 0,298.6676105491804 ], [0, 512.0095884513589, 220.28155171900605], [0, 0, 1]], dtype=np.float32)
+dist_coeffs = np.array([[0.10621528385106475],
+                              [-0.02435191316101751],
+                              [-0.0013438620450729774],
+                              [-0.018081122099881112],
+                              [-0.13027740709581895]], dtype=np.float32)
 
 while True:
     # Lesen eines Frames
