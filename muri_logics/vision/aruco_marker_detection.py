@@ -3,36 +3,38 @@ import cv2.aruco as aruco
 import numpy as np
 import pickle
 import math
+
 class AMD():
     def __init__(self):
-        self.marker_size = 100  # mm
+        self.marker_size = 200  # mm
         
         aruco_dict = aruco.getPredefinedDictionary(aruco.DICT_5X5_1000)
         aruco_params = aruco.DetectorParameters()
         self.detector = aruco.ArucoDetector(aruco_dict, aruco_params)
         self.aruco_dict = aruco_dict
         
-        self.camera_matrix = np.array([[1000, 0, 320], [0, 1000, 240], [0, 0, 1]], dtype=np.float32)
-        self.dist_coeffs = np.zeros((4, 1), dtype=np.float32)
+        self.camera_matrix = np.array([[604.1946504636386, 0.0, 311.1787729991119], [0.0, 604.2044268889094, 237.6933460968677], [0, 0, 1]], dtype=np.float32)
+        self.dist_coeffs = np.array([[0.19090119661845203],
+                              [-1.8264546666600625],
+                              [0.006275358413548046],
+                              [-0.0008178156020032578],
+                              [7.176765962359053]], dtype=np.float32)
 
         # Feld das für die Kalibrierung verwendet wird
-        self.charuco_board = aruco.CharucoBoard(
+        self.charuco_board = aruco.CharucoBoard(237.6933460968677
             (7, 5),      # 7x5 Felder
             40.0,        # mm Feldgröße
             30.0,        # mm Marker
             aruco_dict
         )
-        print('Alle Parameter gesetzt...')
         self.calibrate_from_image()
-        print('Kalibrierung durchgeführt...')
         
     def calibrate_from_image(self, image_path = None):
         pass #TODO Kalibrierung einfügen
         
     def aruco_detection(self, img):
-        # frame = cv.imread(img)
         frame = img
-        print('Bild eingelesen')
+        
         frame_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
         corners, ids, _ = self.detector.detectMarkers(frame_gray)
 
@@ -54,6 +56,5 @@ class AMD():
                 )
                 if success:
                     return tvec[2], rvec[2]
-                    print('Marker Daten returned...')
-        print('Detection fehlgeschlagen')
-        return -1000.0, math.pi
+
+        return -1.0, math.pi
