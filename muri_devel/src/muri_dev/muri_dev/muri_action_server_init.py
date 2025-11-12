@@ -124,6 +124,7 @@ class InitActionServer(Node):
     def handle_acc_callback(self, goal_handle):
         self._goal_handle = goal_handle
         self.init_logic.reset()
+        self.init_logic.setActive()
         goal_handle.execute()
 
     def cancel_callback(self, goal_handle):
