@@ -4,22 +4,16 @@ from launch.actions import ExecuteProcess
 
 def generate_launch_description():
     return LaunchDescription([
-
-        # -----------------------------
-        # Node auf Raspberry Pi (remote)
-        # -----------------------------
-        ExecuteProcess(
-            cmd=[
-                'ssh',
-                'ubuntu@10.42.0.1',  
-                'source /home/pi/my_ws/install/setup.bash && ros2 run pi_package pi_node'
-            ],
-            shell=True
-        ),
-
-        # -----------------------------
-        # Drei Action-Server Nodes lokal
-        # -----------------------------
+        # Node camera_read_out on raspi 
+        # ExecuteProcess(
+        #     cmd=[
+        #         'sshpass', '-p', 'ipek2023',
+        #         'ssh', '-o', 'StrictHostKeyChecking=no',
+        #         'ubuntu@10.42.0.1',
+        #         'source /home/ubuntu/muri_team/muri_robot/install/setup.bash && ros2 run vision_proccessing camera_readout'
+        #     ],
+        #     shell=True
+        # ),
         Node(
             package='muri_dev',
             executable='muri_action_server_drive',
@@ -38,20 +32,12 @@ def generate_launch_description():
             name='muri_action_server_init',
             output='screen'
         ),
-
-        # -----------------------------
-        # Eine lokale Node im selben Paket wie die Action-Server
-        # -----------------------------
         Node(
             package='muri_dev',
             executable='muri_action_handler',
             name='muri_action_handler',
             output='screen'
         ),
-
-        # -----------------------------
-        # Eine Node lokal, aber in einem anderen Paket
-        # -----------------------------
         Node(
             package='vision_proccessing',
             executable='image_data_processing',
