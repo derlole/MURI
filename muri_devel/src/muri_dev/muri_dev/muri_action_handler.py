@@ -157,6 +157,7 @@ class MuriActionHandler(Node):
         self.get_logger().info('Turn result: {0}'.format(result))
 
     def init_result_callback(self, promise):
+        print('init result')
         result = promise.result().result
         self.main_controller.setGoalStautusFinished(True)
         self.get_logger().info('Init result: {0}'.format(result))

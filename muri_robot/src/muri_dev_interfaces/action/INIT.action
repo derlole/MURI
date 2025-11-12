@@ -1,8 +1,0 @@
-# Request   (Goal)
-
----
-# Result
-bool success
----
-# Feedback
-float32 turned_angle

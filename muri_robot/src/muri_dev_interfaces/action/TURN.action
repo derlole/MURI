@@ -1,8 +1,0 @@
-# Request   (Goal)
-float32 target_angle
----
-# Result
-bool success
----
-# Feedback
-float32 moved_angle

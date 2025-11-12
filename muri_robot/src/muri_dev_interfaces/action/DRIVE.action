@@ -1,8 +1,0 @@
-# Request
-geometry_msgs/Pose2D target_pose
----
-# Result
-bool success
----
-# Feedback
-float32 distance_remaining

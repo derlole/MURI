@@ -127,14 +127,14 @@ class MainController(LogicInterface):
                 self.__state = MainStates.IDLE
 
             case MainStates.IDLE:
-                print('mainstate idle')
+                #print('mainstate idle')
                 #self.__state = MainStates.INIT_ROBOT #remove this later
                 #self.__output.values = 0 #remove this later
                 #self.__output.isValid = True # remove this later
                 pass
 
             case MainStates.INIT_ROBOT:
-                print('mainstate init_robot')
+                print('mainstate init_robot' + str(self._goal_status_fin) + str(self._goal_success))
                 self.__output.isValid = True
                 
                 if self._goal_status_fin and self._goal_success:
