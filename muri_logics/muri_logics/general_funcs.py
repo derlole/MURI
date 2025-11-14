@@ -11,3 +11,6 @@ def quaternion_to_yaw(q) -> float:
     yaw = math.atan2(siny_cosp, cosy_cosp)
     return yaw
 
+
+def regelung():
+    pass # TODO
