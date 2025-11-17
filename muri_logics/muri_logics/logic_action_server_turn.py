@@ -117,7 +117,9 @@ class TurnLogic(LogicInterface):
 
 
     def calculate(self): 
-        """Calculate the Angle to Turn and set die Angle velocity"""
+        """Calculate commands for angular velocity based on the current orientation and also reurns the turnd angle.
+        The function rotates the robot toward the target if the angular deviation exceeds a tolerance.
+        A proportional controller is used to determine the angular velocity."""
         angular_Velocity_Z = 0.0
         turned_Angle = self.__position_Theta - self.__first_Theta
 

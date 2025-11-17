@@ -14,6 +14,7 @@ class DriveStates(Enum):
 
 
 class Constants():
+    """Stores constants"""
     ANGLETOLLERANCE = 0.1
     MAXVELOSETY = 0.4
     MAXANGLEVELOSETY = 0.1
@@ -126,7 +127,9 @@ class DriveLogic(LogicInterface):
 
 
     def calculate(self):
-        """Calculate the Angle to Turn and set die Angelvelosity"""
+        """Calculate commands for angular and linear velocity based on the current orientation and distance to the target.
+        The function rotates the robot toward the target if the angular deviation exceeds a tolerance.
+        A proportional controller is used to determine the angular velocity."""
         angular_Velocity = 0.0
         linear_Velocity = 0.0
 
