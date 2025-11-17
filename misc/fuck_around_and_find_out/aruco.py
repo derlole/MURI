@@ -2,7 +2,7 @@ import cv2 as cv
 import numpy as np
 
 # Marker size in mm
-marker_size = 100
+marker_size = 175
 
 # Initialisieren der Kamera
 img = cv.VideoCapture(0)
@@ -13,12 +13,21 @@ aruco_params = cv.aruco.DetectorParameters()
 detector = cv.aruco.ArucoDetector(aruco_dict, aruco_params)
 
 # Camera matrix and distortion coefficients
-camera_matrix = np.array([[516.4252772112708, 0,298.6676105491804 ], [0, 512.0095884513589, 220.28155171900605], [0, 0, 1]], dtype=np.float32)
-dist_coeffs = np.array([[0.10621528385106475],
-                              [-0.02435191316101751],
-                              [-0.0013438620450729774],
-                              [-0.018081122099881112],
-                              [-0.13027740709581895]], dtype=np.float32)
+# Camera matrix and distortion coefficients
+camera_matrix = np.array([
+    [485.98256352079204, 0.0,           326.8156596599855],
+    [0.0,                481.9114474146188, 231.52240485863123],
+    [0.0,                0.0,           1.0]
+], dtype=np.float32)
+
+dist_coeffs = np.array([
+    [-0.28206812200227427],
+    [ 2.61448314076083],
+    [ 0.020889912770543827],
+    [ 0.017394594564323452],
+    [-7.331368052181177]
+], dtype=np.float32)
+
 
 while True:
     # Lesen eines Frames
