@@ -1,6 +1,6 @@
 import math
 
-def quaternion_to_yaw(q) -> float:
+def quaternion_to_yaw(q):
     """
     q: object with x, y, z, w 
     return: yaw in rad
@@ -12,5 +12,15 @@ def quaternion_to_yaw(q) -> float:
     return yaw
 
 
-def regelung():
-    pass # TODO
+def regelung_agular_velocity(angel_to_Mid):
+    MAXANGLEVELOSETY = 0.1
+    kp = 5
+
+    angel_Vel = kp * angel_to_Mid
+
+    if angel_Vel > MAXANGLEVELOSETY:
+        angel_Vel = MAXANGLEVELOSETY
+    elif angel_Vel < MAXANGLEVELOSETY:
+        angel_Vel = -MAXANGLEVELOSETY
+    
+    return angel_Vel
