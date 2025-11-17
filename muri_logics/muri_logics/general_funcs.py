@@ -12,9 +12,10 @@ def quaternion_to_yaw(q):
     return yaw
 
 
-def regelung_agular_velocity(angel_to_Mid):
+def angular_velocity_regulationy(angel_to_Mid):
+    '''regulates the angular velocity based on the angular offset to the center'''
     MAXANGLEVELOSETY = 0.1
-    kp = 5
+    kp = 1.5
 
     angel_Vel = kp * angel_to_Mid
 
