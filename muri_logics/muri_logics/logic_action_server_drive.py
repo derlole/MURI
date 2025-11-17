@@ -1,6 +1,6 @@
 from enum import Enum
 from muri_logics.logic_interface import LogicInterface, Out
-from muri_logics.general_funcs import quaternion_to_yaw
+from muri_logics.general_funcs import quaternion_to_yaw, p_regulator
 import math
 
 class DriveStates(Enum):
@@ -17,7 +17,7 @@ class Constants():
     ANGLETOLLERANCE = 0.1
     MAXVELOSETY = 0.4
     MAXANGLEVELOSETY = 0.1
-    MAXANGLE = 2 * math.pi #TODO maximalen winkel anpassen
+    MAXANGLE = math.pi 
     GOALDISTANCE = 0.25 #TODO Sinvolle distanz
 
 
@@ -131,7 +131,7 @@ class DriveLogic(LogicInterface):
         linear_Velocity = 0.0
 
         if abs(self.__angle_to_Mid_in_Rad) > Constants.ANGLETOLLERANCE and self.__distance_in_Meter > Constants.GOALDISTANCE:
-            angular_Velocity = (self.__angle_to_Mid_in_Rad / Constants.MAXANGLE) * Constants.MAXANGLEVELOSETY
+            angular_Velocity = p_regulator(self.__angle_to_Mid_in_Rad, 0.2, Constants.MAXANGLEVELOSETY)
 
         if self.__distance_in_Meter > Constants.GOALDISTANCE: 
             linear_Velocity = Constants.MAXVELOSETY

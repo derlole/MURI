@@ -1,6 +1,6 @@
 from enum import Enum
 from muri_logics.logic_interface import LogicInterface, Out
-from muri_logics.general_funcs import quaternion_to_yaw
+from muri_logics.general_funcs import quaternion_to_yaw, p_regulator
 import math
 
 
@@ -134,15 +134,17 @@ class InitLogic(LogicInterface):
     def calculate(self):
         """Calculate the Angle to Turn and set die Angle velocity"""
         print('positionTh and firstTh' + str(self.__positionTheta) + str(self.__firstTheta))
+
         angularVelocityZ = 0.0
         tuerndAngle = self.__positionTheta - self.__firstTheta
+        
         if abs(tuerndAngle) > math.pi:
             tuerndAngle = tuerndAngle + 2 * math.pi
         
         angularVelocityZ = Constants.MAXANGLEVELOSETY # TODO Vollgas, bis er halt einen erkennt
 
         if abs(self.__angle_to_Mid_in_Rad) > Constants.ANGLETOLLERAMCE and self.__distance_in_Meter > 1.0:
-            angularVelocityZ = (self.__angle_to_Mid_in_Rad / Constants.MAXANGLE) * Constants.MAXANGLEVELOSETY
+            angularVelocityZ = p_regulator(self.__angle_to_Mid_in_Rad, 0.2, Constants.MAXANGLEVELOSETY)
 
         if abs(self.__angle_to_Mid_in_Rad) < Constants.ANGLETOLLERAMCE and self.__distance_in_Meter > 1.0:
             angularVelocityZ = 0.0

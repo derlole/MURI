@@ -1,6 +1,6 @@
 from enum import Enum
 from muri_logics.logic_interface import LogicInterface, Out
-from muri_logics.general_funcs import quaternion_to_yaw
+from muri_logics.general_funcs import quaternion_to_yaw, p_regulator
 import math
 
 
@@ -17,7 +17,7 @@ class TurnStates(Enum):
 class Constants(): 
     ANGLETOLLERANCE = 0.1
     MAXANGLEVELOSETY = 0.4
-    MAXANGLE = 2 * math.pi #TODO anpassen für den Winkl
+    MAXANGLE = math.pi 
 
 
 
@@ -122,7 +122,7 @@ class TurnLogic(LogicInterface):
         turned_Angle = self.__position_Theta - self.__first_Theta
 
         if abs(self.__angle_to_Mid_in_Rad) > Constants.ANGLETOLLERANCE:
-            angular_Velocity_Z = (self.__angle_to_Mid_in_Rad / Constants.MAXANGLE) * Constants.MAXANGLEVELOSETY
+            angular_Velocity_Z = p_regulator(self.__angle_to_Mid_in_Rad, 0.2, Constants.MAXANGLEVELOSETY)
 
         if turned_Angle < 2 * math.pi / 3 or self.__distance_in_meter == -1.0:
             angular_Velocity_Z = Constants.MAXANGLEVELOSETY

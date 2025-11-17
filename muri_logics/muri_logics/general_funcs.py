@@ -15,6 +15,7 @@ def quaternion_to_yaw(q):
 
 def p_regulator(error, kp, max_output):
     '''Proportional controller with saturation limits'''
+
     output = kp * error
 
     if output > max_output:
