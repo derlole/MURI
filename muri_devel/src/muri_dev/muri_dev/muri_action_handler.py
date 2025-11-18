@@ -60,8 +60,6 @@ class MuriActionHandler(Node):
             if out.values['ASToCall'] == 2:
                 self.send_turn_goal()
 
-        
-        #TODO alles halt
 
     def listener_callback_picture_data_ah(self, msg):
         self.last_picture_data = msg

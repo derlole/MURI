@@ -76,7 +76,7 @@ class DriveOut(Out):
         return self.__isValid
 
 
-    def getError(self): #TODO Exeption?
+    def getError(self):
         """Retrieve any error state."""
         return self.__error
     

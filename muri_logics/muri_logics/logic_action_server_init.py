@@ -75,7 +75,7 @@ class InitOut(Out):
         """Check if the output is valid."""
         return self.__isValid
 
-    def getError(self): #TODO Exeption?
+    def getError(self):
         """Retrieve any error state."""
         return self.__error 
     
@@ -143,7 +143,7 @@ class InitLogic(LogicInterface):
         if abs(tuerndAngle) > math.pi:
             tuerndAngle = tuerndAngle + 2 * math.pi
         
-        angularVelocityZ = Constants.MAXANGLEVELOSETY # TODO Vollgas, bis er halt einen erkennt
+        angularVelocityZ = Constants.MAXANGLEVELOSETY
 
         if abs(self.__angle_to_Mid_in_Rad) > Constants.ANGLETOLLERAMCE and self.__distance_in_Meter > 1.0:
             angularVelocityZ = p_regulator(self.__angle_to_Mid_in_Rad, 0.2, Constants.MAXANGLEVELOSETY)
