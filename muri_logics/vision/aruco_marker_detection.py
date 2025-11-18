@@ -52,8 +52,7 @@ class AMD():
             - z_pos is the depth (Z-coordinate) in millimeters,
             - y_rot is the Y-rotation in radians.
             If no marker is detected, returns (-1.0, math.pi)."""
-        frame = img
-        frame_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+        frame_gray = img
         corners, ids, _ = self.detector.detectMarkers(frame_gray)
 
         if ids is not None and len(corners) > 0:

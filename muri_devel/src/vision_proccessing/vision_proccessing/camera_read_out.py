@@ -37,10 +37,13 @@ class CameraReadOut(Node):
 
         img = cv.VideoCapture(path_camera)
         success, frame = img.read()
+
+        frame_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+
         if not success:
             self.get_logger().info('Bild konnte nicht gelesen werden')
             return None
-        return frame
+        return frame_gray
     
 def main(args=None):
     rclpy.init(args=args)
