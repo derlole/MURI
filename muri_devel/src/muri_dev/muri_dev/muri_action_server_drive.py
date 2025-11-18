@@ -66,10 +66,11 @@ class DriveActionServer(Node):
 
         self.drive_logic.state_machine()
         out = self.drive_logic.getOut()
-
+        print(str(out.values['linear_velocity_x']) + str(out.outValid()))
         if not out.outValid():
             out.resetOut()
             self.__err_out_counter += 1
+            return
         
         cmd_vel = Twist()
         cmd_vel.linear.x = float(out.values['linear_velocity_x'])

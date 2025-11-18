@@ -27,13 +27,13 @@ class DriveOut(Out):
     def __init__(self):
         self.__values = {}
         self.__error = None
-        self.__is_Valid = False
+        self.__isValid = False
 
 
     @property
     def values(self):
         """Get the value."""
-        return self.values
+        return self.__values
 
 
     @values.setter
@@ -48,7 +48,7 @@ class DriveOut(Out):
             self.__values['linear_velocity_y'] = lvy
 
         if avz is not None:
-            self.__values['angular_velocity_Z'] = avz
+            self.__values['angular_velocity_z'] = avz
 
         if dr is not None:
             self.__values['distance_remaining'] = dr
@@ -56,14 +56,14 @@ class DriveOut(Out):
 
     def resetOut(self):
         """Reset the output to its initial state."""
-        self.__values = {}
+        self.values = (0.0, 0.0, 0.0, 0.0)
         self.__error = None
-        self.__is_Valid = False
+        self.__isValid = False
 
 
     def outValid(self):
         """Check if the output is valid."""
-        return self.__is_Valid
+        return self.__isValid
 
 
     def getError(self): #TODO Exeption?
@@ -160,14 +160,16 @@ class DriveLogic(LogicInterface):
                     pass
 
                 case DriveStates.RAEDY:
+                    print('drive-ready state')
                     if self.__first_Theta is None:
                         self.__first_Theta = self.__position_Theta
                     self.__state = DriveStates.DRIVEMOVE
 
                 case DriveStates.DRIVEMOVE:
+                    print('drivemove state')
                     avz, lv = self.calculate()
                     self.__output.values = (lv, None, avz, self.__distance_in_Meter)
-                    self.__output.__is_Valid = True
+                    self.__output.__isValid = True
                     if self.__distance_in_Meter < Constants.GOALDISTANCE:
                         self.__state = DriveStates.SUCCESS
 

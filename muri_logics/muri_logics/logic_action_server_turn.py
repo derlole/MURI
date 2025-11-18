@@ -25,7 +25,7 @@ class TurnOut(Out):
     def __init__(self): 
         self.__values = {}
         self.__error = None
-        self.__is_Valid = False
+        self.__isValid = False
 
     @property
     def values(self):
@@ -52,11 +52,11 @@ class TurnOut(Out):
     def resetOut(self):
         """Reset the output to its initial state."""
         self.__values = {}
-        self.__is_Valid = False
+        self.__isValid = False
 
     def outValid(self):
         """Check if the output is valid."""
-        return self.__is_Valid
+        return self.__isValid
 
     def getError(self): #TODO Exeption?
         """Retrieve any error state."""
@@ -157,7 +157,7 @@ class TurnLogic(LogicInterface):
             case TurnStates.TURNMOVE:
                 avz, ta = self.calculate()
                 self.__output.values = (None, None, avz, ta)
-                self.__output.__is_Valid = True
+                self.__output.__isValid = True
                 if abs(self.__angle_to_Mid_in_Rad) < Constants.ANGLETOLLERANCE and self.__distance_in_meter > 1.0:
                     self.__state = TurnStates.SUCCESS
 

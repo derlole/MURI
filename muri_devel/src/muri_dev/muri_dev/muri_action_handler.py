@@ -149,17 +149,20 @@ class MuriActionHandler(Node):
     def drive_result_callback(self, promise):
         result = promise.result().result
         self.main_controller.setGoalStautusFinished(True)
+        self.main_controller.setGoalSuccess(True)
         self.get_logger().info('Drive result: {0}'.format(result))
 
     def turn_result_callback(self, promise):
         result = promise.result().result
         self.main_controller.setGoalStautusFinished(True)
+        self.main_controller.setGoalSuccess(True)
         self.get_logger().info('Turn result: {0}'.format(result))
 
     def init_result_callback(self, promise):
         print('init result')
         result = promise.result().result
         self.main_controller.setGoalStautusFinished(True)
+        self.main_controller.setGoalSuccess(True)
         self.get_logger().info('Init result: {0}'.format(result))
 
 def main(args=None):

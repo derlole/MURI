@@ -140,6 +140,7 @@ class MainController(LogicInterface):
                 if self._goal_status_fin and self._goal_success:
                     self.__state = MainStates.DRIVE
                     self._goal_status_fin = False
+                    self._goal_success = False
                     self.__output.values = 1
 
             case MainStates.DRIVE:
@@ -149,6 +150,7 @@ class MainController(LogicInterface):
                 if self._goal_status_fin and self._goal_success:
                     self.__state = MainStates.TURN
                     self._goal_status_fin = False
+                    self._goal_success = False
                     self.__output.values = 2
                 
             case MainStates.TURN:
@@ -157,6 +159,7 @@ class MainController(LogicInterface):
                 if self._goal_status_fin and self._goal_success:
                     self.__state = MainStates.DRIVE
                     self._goal_status_fin = False
+                    self._goal_success = False
                     self.__output.values = 1
 
             case MainStates.PAUSE:
