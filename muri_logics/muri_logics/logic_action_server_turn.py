@@ -59,7 +59,7 @@ class TurnOut(Out):
             self.__values['angular_velocity_z'] = avz
 
         if ta is not None:
-            self.__values['turened_angele'] = ta
+            self.__values['turened_angle'] = ta
 
     def resetOut(self):
         """Reset the output to its initial state."""
