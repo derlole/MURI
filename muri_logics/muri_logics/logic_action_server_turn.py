@@ -27,6 +27,18 @@ class TurnOut(Out):
         self.__error = None
         self.__isValid = False
 
+
+    @property
+    def isValid(self):
+        """Get the isValid"""
+        return self.__isValid
+
+    @isValid.setter
+    def isValid(self, hiV):
+        """Set the isValid"""
+        self.__isValid = hiV
+
+
     @property
     def values(self):
         """Get the value."""
@@ -157,7 +169,7 @@ class TurnLogic(LogicInterface):
             case TurnStates.TURNMOVE:
                 avz, ta = self.calculate()
                 self.__output.values = (None, None, avz, ta)
-                self.__output.__isValid = True
+                self.__output.isValid = True
                 if abs(self.__angle_to_Mid_in_Rad) < Constants.ANGLETOLLERANCE and self.__distance_in_meter > 1.0:
                     self.__state = TurnStates.SUCCESS
 

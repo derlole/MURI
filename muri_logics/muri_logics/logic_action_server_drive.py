@@ -29,12 +29,22 @@ class DriveOut(Out):
         self.__error = None
         self.__isValid = False
 
+    
+    @property
+    def isValid(self):
+        """Get the isValid"""
+        return self.__isValid
+
+    @isValid.setter
+    def isValid(self, hiV):
+        """Set the isValid"""
+        self.__isValid = hiV
+
 
     @property
     def values(self):
         """Get the value."""
         return self.__values
-
 
     @values.setter
     def values(self, data):
@@ -169,7 +179,7 @@ class DriveLogic(LogicInterface):
                     print('drivemove state')
                     avz, lv = self.calculate()
                     self.__output.values = (lv, None, avz, self.__distance_in_Meter)
-                    self.__output.__isValid = True
+                    self.__output.isValid = True
                     if self.__distance_in_Meter < Constants.GOALDISTANCE:
                         self.__state = DriveStates.SUCCESS
 
