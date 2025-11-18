@@ -91,7 +91,7 @@ class ImageProcessing(Node):
             self.error = True
 
         self.distance_in_milimeters, self.angle_in_rad = self.proc_AMD.aruco_detection(data_img)
-        self.distance_in_meters = self.distance_in_milimeters/1000
+        self.distance_in_meters = self.distance_in_milimeters
 
 
 def main(args=None):
