@@ -74,4 +74,4 @@ class AMD():
                 if success:
                     return tvec[2], rvec[2]
 
-        return -1.0, math.pi    # Fehler-Return
+        return -1000.0, math.pi    # Fehler-Return
