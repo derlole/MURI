@@ -8,7 +8,7 @@ marker_size = 175
 img = cv.VideoCapture(0)
 
 # Define the ArUco dictionary
-aruco_dict = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_5X5_100)
+aruco_dict = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_5X5_1000)
 aruco_params = cv.aruco.DetectorParameters()
 detector = cv.aruco.ArucoDetector(aruco_dict, aruco_params)
 

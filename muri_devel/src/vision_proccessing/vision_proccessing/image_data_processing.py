@@ -5,12 +5,21 @@ import numpy as np
 import cv2 as cv
 import rclpy
 from rclpy.node import Node
-
 from vision.aruco_marker_detection import AMD
 
 class ImageProcessing(Node):
+    """
+    ROS 2 node that runs ArUco detection on incoming camera frames.
 
+    Subscribes to `/muri_image_raw` (raw BGR image) and publishes a
+    `PictureData` message on `/muri_picture_data`.  The node also
+    tracks an internal error counter – if more than ten consecutive
+    frames are lost the `error` flag in the output message is set.
+    """
     def __init__(self):
+        """
+        Initialise the ROS 2 node and all helpers.
+        """
         super().__init__('image_processing')
 
         self.bridge = CvBridge()
@@ -34,6 +43,15 @@ class ImageProcessing(Node):
             10)
 
     def listener_callback(self, msg):
+        """
+        ROS callback that receives a raw image, converts it to OpenCV format,
+        runs the detector and publishes the processed data.
+
+        Parameters
+        ----------
+        msg : sensor_msgs.msg.Image
+            Raw image message from the camera.
+        """
         self.data = msg
         cv_raw_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
         self.get_logger().info('Bild empfangen!')
@@ -55,6 +73,16 @@ class ImageProcessing(Node):
         self.get_logger().info('OpenCV-Daten werden gepublished...')
 
     def pic_to_data(self, data_img):
+        """
+        Convert an image into the four‑field `PictureData` message.
+
+        Parameters
+        ----------
+        data_img : numpy.ndarray
+            The OpenCV image to be processed.  If ``None`` the node
+            increments an internal counter and may eventually set an
+            error flag after ten consecutive failures.
+        """
         if data_img is None:
             self.get_logger().info('Kein Frame erhalten!')
             self.error_counter += 1
