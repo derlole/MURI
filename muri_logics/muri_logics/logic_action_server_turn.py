@@ -56,7 +56,7 @@ class TurnOut(Out):
             self.__values['linear_velocity_y'] = lvy
 
         if avz is not None:
-            self.__values['angular_velocity_Z'] = avz
+            self.__values['angular_velocity_z'] = avz
 
         if ta is not None:
             self.__values['turened_angele'] = ta
