@@ -153,6 +153,7 @@ class TurnLogic(LogicInterface):
         match self.__state:
 
             case TurnStates.INIT:
+                print('init turn')
                 self.__output.values = (0.0, 0.0, 0.0, 0.0)
                 self.__position_X = 0.0
                 self.__position_Y = 0.0
@@ -162,14 +163,17 @@ class TurnLogic(LogicInterface):
                 self.__state = TurnStates.IDLE
 
             case TurnStates.IDLE:
+                print('idle-turn')
                 pass 
 
             case TurnStates.RAEDY:
+                print('ready-turn')
                 if self.__first_Theta is None:
                     self.__first_Theta = self.__position_Theta
                 self.__state = TurnStates.TURNMOVE
 
             case TurnStates.TURNMOVE:
+                print('turnmove-turn')
                 avz, ta = self.calculate()
                 self.__output.values = (None, None, avz, ta)
                 self.__output.isValid = True
