@@ -78,12 +78,6 @@ class DebugArucoNode(Node):
         cv.imshow('Debug – ArUco Tracking', cv_image)
         cv.waitKey(1)   
 
-        try:
-            debug_msg = self.bridge.cv2_to_imgmsg(cv_image, encoding='mono8')
-            self.pub.publish(debug_msg)
-        except Exception as e:
-            self.get_logger().error(f'Publizieren des Debug‑Bildes fehlgeschlagen: {e}')
-
 def main(args=None):
     rclpy.init(args=args)
     node = DebugArucoNode()

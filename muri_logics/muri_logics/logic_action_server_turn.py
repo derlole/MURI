@@ -17,7 +17,7 @@ class TurnStates(Enum):
 class Constants(): 
     ANGLETOLLERANCE = 0.1
     MAXANGLEVELOSETY = 0.4
-    MAXANGLE = math.pi 
+    MAXANGLE = math.pi
 
 
 
@@ -135,20 +135,20 @@ class TurnLogic(LogicInterface):
         """Calculate commands for angular velocity based on the current orientation and also reurns the turnd angle.
         The function rotates the robot toward the target if the angular deviation exceeds a tolerance.
         A proportional controller is used to determine the angular velocity.""" #TODO
-        print('positionTh and firstTh' + str(self.__positionTheta) + str(self.__firstTheta))
+        print('positionTh and firstTh' + str(self.__position_Theta) + str(self.__first_Theta))
 
         angularVelocityZ = 0.0
-        tuerndAngle = self.__positionTheta - self.__firstTheta
+        tuerndAngle = self.__position_Theta - self.__first_Theta
         
         if abs(tuerndAngle) > math.pi:
             tuerndAngle = tuerndAngle + 2 * math.pi
         
         angularVelocityZ = Constants.MAXANGLEVELOSETY
 
-        if abs(self.__angle_to_Mid_in_Rad) > Constants.ANGLETOLLERAMCE and self.__distance_in_Meter > 1.0:
+        if abs(self.__angle_to_Mid_in_Rad) > Constants.ANGLETOLLERANCE and self.__distance_in_meter > 1.0:
             angularVelocityZ = p_regulator(self.__angle_to_Mid_in_Rad, 0.2, Constants.MAXANGLEVELOSETY)
 
-        if abs(self.__angle_to_Mid_in_Rad) < Constants.ANGLETOLLERAMCE and self.__distance_in_Meter > 1.0:
+        if abs(self.__angle_to_Mid_in_Rad) < Constants.ANGLETOLLERANCE and self.__distance_in_meter > 1.0:
             angularVelocityZ = 0.0
             
         return angularVelocityZ, tuerndAngle

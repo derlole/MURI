@@ -25,7 +25,8 @@ setup(
     entry_points={
         'console_scripts': [
             'camera_readout = vision_proccessing.camera_read_out:main',
-            'image_data_processing = vision_proccessing.image_data_processing:main'
+            'image_data_processing = vision_proccessing.image_data_processing:main',
+            'debug_vision = vision_proccessing.vision_debugging:main'
         ],
     },
 )
