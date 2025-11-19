@@ -55,7 +55,7 @@ class ImageProcessing(Node):
         self.data = msg
         cv_raw_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
         self.get_logger().info('Bild empfangen!')
-        self.get_logger().info(f'data: {cv_raw_image[0][0]}')
+        self.get_logger().info(f'tvec: {self.distance_in_meters}    rvec: {self.angle_in_rad}')
         self.pic_to_data(cv_raw_image)
         pub_pic_data = PictureData()
 
