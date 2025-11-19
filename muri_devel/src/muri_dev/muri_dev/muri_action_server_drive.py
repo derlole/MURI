@@ -1,4 +1,5 @@
 import rclpy
+import asyncio
 from rclpy.action import ActionServer, GoalResponse, CancelResponse
 from rclpy.node import Node
 from nav_msgs.msg import Odometry
@@ -49,11 +50,12 @@ class DriveActionServer(Node):
         self._last_picture_data = None
         self._last_odom = None
         self.__err_out_counter = 0
+        self._goal_future = None
 
     def timer_callback_asd(self):
         if self._goal_handle is None or not self._goal_handle.is_active:
             return
-        
+          
         if self._goal_handle.is_cancel_requested:
             self.get_logger().info('Canc: drive-goal.')
             self._goal_handle.canceled()
@@ -61,6 +63,11 @@ class DriveActionServer(Node):
             self._goal_result = DRIVE.Result()
             self._goal_result.success = False
             self._goal_exiting = True
+
+            if self._goal_future is not None and not self._goal_future.done():
+                self._goal_future.set_result(self._goal_result)
+          
+
             self._goal_handle = None
             return
 
@@ -99,6 +106,9 @@ class DriveActionServer(Node):
             self._goal_result.success = True
             self._goal_exiting = True
 
+            if self._goal_future is not None and not self._goal_future.done():
+                self._goal_future.set_result(self._goal_result)
+          
             self._goal_handle = None
 
         elif self.drive_logic.getActiveState() == DriveStates.FAILED:
@@ -109,20 +119,24 @@ class DriveActionServer(Node):
             self._goal_result.success = False
             self._goal_exiting = True
 
+            if self._goal_future is not None and not self._goal_future.done():
+                self._goal_future.set_result(self._goal_result)
+          
+
             self._goal_handle = None
 
         out.resetOut()
 
-    def execute_callback(self, goal_handle):
+    async def execute_callback(self, goal_handle):
         self.get_logger().info('Exe: drive goal')
 
+        self._goal_future = asyncio.Future()
         self._goal_exiting = False
         self._goal_result = None
 
-        while not self._goal_exiting:
-            rclpy.spin_once(self, timeout_sec=0.1)
+        result = await self._goal_future
 
-        return self._goal_result
+        return result
         # return DRIVE.Result() 
 
     def goal_callback(self, goal_request):
