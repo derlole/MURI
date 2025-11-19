@@ -57,27 +57,63 @@ class AMD():
             - z_pos is the depth (Z-coordinate) in millimeters,
             - y_rot is the Y-rotation in radians.
             If no marker is detected, returns (-1.0, math.pi)."""
+        
         frame_gray = img
         corners, ids, _ = self.detector.detectMarkers(frame_gray)
-
+        
         if ids is not None and len(corners) > 0:
             for i in range(len(ids)):
                 obj_points = np.array([[-self.marker_size / 2,  self.marker_size / 2, 0],
-                                       [ self.marker_size / 2,  self.marker_size / 2, 0],
-                                       [ self.marker_size / 2, -self.marker_size / 2, 0],
-                                       [-self.marker_size / 2, -self.marker_size / 2, 0]],
-                                      dtype=np.float32)
-
+                                    [ self.marker_size / 2,  self.marker_size / 2, 0],
+                                    [ self.marker_size / 2, -self.marker_size / 2, 0],
+                                    [-self.marker_size / 2, -self.marker_size / 2, 0]],
+                                    dtype=np.float32)
+                
                 success, rvec, tvec = cv.solvePnP(
                     obj_points,
                     corners[i][0],
                     self.camera_matrix,
                     self.dist_coeffs,
                     flags=cv.SOLVEPNP_IPPE_SQUARE)
-
+                
                 if success:
+                    angle_rad = self.calculate_angle_to_marker(corners[i])
+                    
                     print(f'tvec: 0:{tvec[0]}    1:{tvec[1]}     2:{tvec[2]}')
-                    print(f'rvec: 0:{rvec[0]}    1:{rvec[1]}     2:{rvec[2]}')
-                    return tvec[2], rvec[2]
-
-        return -1000.0, math.pi    # Fehler-Return
+                    print(f'Berechneter Winkel: {angle_rad} rad ({math.degrees(angle_rad):.2f}°)')
+                    
+                    return tvec[2][0], angle_rad
+    
+        return -1000.0, math.pi
+    
+    def calculate_angle_to_marker(self, corners):
+        """
+        Berechnet den horizontalen Winkel vom Kameramittelpunkt zum Markermittelpunkt.
+        
+        Parameters
+        ----------
+        corners : numpy.ndarray
+            Die Ecken des detektierten Markers (von detectMarkers).
+        
+        Returns
+        -------
+        float
+            Winkel in Radiant. 
+            - 0 rad = Marker ist in Bildmitte
+            - Positiv = Marker ist rechts von der Mitte
+            - Negativ = Marker ist links von der Mitte
+        """
+        marker_corners = corners[0]
+        marker_center_x = np.mean(marker_corners[:, 0])
+        marker_center_y = np.mean(marker_corners[:, 1])
+        
+        cx = self.camera_matrix[0, 2]  # 971.25
+        cy = self.camera_matrix[1, 2]  # 472.44
+        
+        fx = self.camera_matrix[0, 0]  # 1856.56
+        
+        delta_x = marker_center_x - cx
+        
+        angle_rad = math.atan2(delta_x, fx)
+        
+        return angle_rad
