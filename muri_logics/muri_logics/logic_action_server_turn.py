@@ -131,20 +131,28 @@ class TurnLogic(LogicInterface):
         self.__distance_in_meter = distanceIM
 
 
-    def calculate(self): 
+    def calculate(self):
         """Calculate commands for angular velocity based on the current orientation and also reurns the turnd angle.
         The function rotates the robot toward the target if the angular deviation exceeds a tolerance.
-        A proportional controller is used to determine the angular velocity."""
-        angular_Velocity_Z = 0.0
-        turned_Angle = self.__position_Theta - self.__first_Theta
+        A proportional controller is used to determine the angular velocity.""" #TODO
+        print('positionTh and firstTh' + str(self.__positionTheta) + str(self.__firstTheta))
 
-        if abs(self.__angle_to_Mid_in_Rad) > Constants.ANGLETOLLERANCE:
-            angular_Velocity_Z = p_regulator(self.__angle_to_Mid_in_Rad, 0.2, Constants.MAXANGLEVELOSETY)
+        angularVelocityZ = 0.0
+        tuerndAngle = self.__positionTheta - self.__firstTheta
+        
+        if abs(tuerndAngle) > math.pi:
+            tuerndAngle = tuerndAngle + 2 * math.pi
+        
+        angularVelocityZ = Constants.MAXANGLEVELOSETY
 
-        if turned_Angle < 2 * math.pi / 3 or self.__distance_in_meter == -1.0:
-            angular_Velocity_Z = Constants.MAXANGLEVELOSETY
+        if abs(self.__angle_to_Mid_in_Rad) > Constants.ANGLETOLLERAMCE and self.__distance_in_Meter > 1.0:
+            angularVelocityZ = p_regulator(self.__angle_to_Mid_in_Rad, 0.2, Constants.MAXANGLEVELOSETY)
 
-        return angular_Velocity_Z, turned_Angle
+        if abs(self.__angle_to_Mid_in_Rad) < Constants.ANGLETOLLERAMCE and self.__distance_in_Meter > 1.0:
+            angularVelocityZ = 0.0
+            
+        return angularVelocityZ, tuerndAngle
+
 
 
     def state_machine(self):
