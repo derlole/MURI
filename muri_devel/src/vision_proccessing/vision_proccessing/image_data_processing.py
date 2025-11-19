@@ -59,8 +59,9 @@ class ImageProcessing(Node):
         self.data = msg
         cv_raw_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='mono8')
         self.get_logger().info('Bild empfangen!')
-        self.get_logger().info(f'tvec: {self.distance_in_meters}    rvec: {self.angle_in_rad}')
+        self.get_logger().info(f'tvec_unfiltered: {self.distance_in_meters_unfiltered}    rvec: {self.angle_in_rad}')
         self.pic_to_data(cv_raw_image)
+        self.get_logger().info(f'tvec_filtered: {self.distance_in_meters_filtered}')
         pub_pic_data = PictureData()
 
         # PictureData.msg
