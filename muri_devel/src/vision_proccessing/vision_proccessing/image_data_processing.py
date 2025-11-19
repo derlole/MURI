@@ -99,14 +99,14 @@ class ImageProcessing(Node):
         self.distance_in_meters_filtered = self.daf()
 
     def daf(self):  # distance aruco failure
-        third_data = second_data
-        second_data = first_data
-        first_data = self.distance_in_meters_unfiltered
+        self.third_data = self.second_data
+        self.second_data = self.first_data
+        self.first_data = self.distance_in_meters_unfiltered
 
-        if third_data == -1.0 and second_data == -1.0 and first_data == -1.0:
+        if self.third_data == -1.0 and self.second_data == -1.0 and self.first_data == -1.0:
             return -1.0
         else:
-            return first_data
+            return self.first_data
 
 def main(args=None):
     rclpy.init(args=args)
