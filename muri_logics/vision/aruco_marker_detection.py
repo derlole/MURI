@@ -71,6 +71,8 @@ class AMD():
                     flags=cv.SOLVEPNP_IPPE_SQUARE)
 
                 if success:
+                    print(f'tvec: 0:{tvec[0]}    1:{tvec[1]}     2:{tvec[2]}    3:{tvec[3]}')
+                    print(f'rvec: 0:{rvec[0]}    1:{rvec[1]}     2:{rvec[2]}    3:{rvec[3]}')
                     return tvec[2], rvec[2]
 
         return -1000.0, math.pi    # Fehler-Return
