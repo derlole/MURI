@@ -30,6 +30,9 @@ class ImageProcessing(Node):
         self.angle_in_rad = None
         self.error = False
         self.error_counter = 0
+        self.first_data = None
+        self.second_data = None
+        self.third_data = None
         self.proc_AMD = AMD()
 
         self.subscription = self.create_subscription(
