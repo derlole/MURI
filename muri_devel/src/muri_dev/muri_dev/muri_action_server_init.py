@@ -21,8 +21,7 @@ class InitActionServer(Node):
             'muri_init',
             execute_callback=self.execute_callback,
             goal_callback=self.goal_callback,
-            cancel_callback=self.cancel_callback,
-            handle_accepted_callback=self.handle_acc_callback
+            cancel_callback=self.cancel_callback
         )
         self.cmd_vel_pub = self.create_publisher(
             Twist, 
@@ -102,6 +101,8 @@ class InitActionServer(Node):
 
     def execute_callback(self, goal_handle):
         self.get_logger().info('Exec: init-goal')
+
+        self._goal_handle = goal_handle
         
         self._goal_exiting = False
         self._goal_result = None
@@ -119,13 +120,11 @@ class InitActionServer(Node):
             return GoalResponse.REJECT
         
         self.get_logger().info('Acc: init-goal')
-        return GoalResponse.ACCEPT
 
-    def handle_acc_callback(self, goal_handle):
-        self._goal_handle = goal_handle
         self.init_logic.reset()
         self.init_logic.setActive()
-        goal_handle.execute()
+
+        return GoalResponse.ACCEPT
 
     def cancel_callback(self, goal_handle):
         self.get_logger().info('Rec: cancel init-goal')

@@ -21,8 +21,7 @@ class TurnActionServer(Node):
             'muri_turn',
             execute_callback=self.execute_callback,
             goal_callback=self.goal_callback,
-            cancel_callback=self.cancel_callback,
-            handle_accepted_callback=self.handle_acc_callback
+            cancel_callback=self.cancel_callback
         )
         self.cmd_vel_pub = self.create_publisher(
             Twist, 
@@ -102,6 +101,7 @@ class TurnActionServer(Node):
 
     def execute_callback(self, goal_handle):
         self.get_logger().info('Exec: turn-goal')
+        self._goal_handle = goal_handle
         
         self._goal_exiting = False
         self._goal_result = None
@@ -117,15 +117,13 @@ class TurnActionServer(Node):
         if self._goal_handle is not None and self._goal_handle.is_active:
             self.get_logger().info('Rej: turn-goal')
             return GoalResponse.REJECT
-        
-        self.get_logger().info('Acc: turn-goal')
-        return GoalResponse.ACCEPT
 
-    def handle_acc_callback(self, goal_handle):
-        self._goal_handle = goal_handle
+        self.get_logger().info('Acc: turn-goal')
+
         self.turn_logic.reset()
         self.turn_logic.setActive()
-        goal_handle.execute()
+
+        return GoalResponse.ACCEPT
 
     def cancel_callback(self, goal_handle):
         self.get_logger().info('Rec: cancel turn-goal')
