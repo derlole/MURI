@@ -18,6 +18,13 @@ class CameraReadOut(Node):
         super().__init__('camera_read_out')
         self.publisher = self.create_publisher(Image, '/muri_image_raw', 10)
         timer_time = 0.1 # sek
+
+        path_camera = 0 # '/dev/video0' 
+
+        self.img = cv.VideoCapture(path_camera)
+        self.img.set(cv.CAP_PROP_BUFFERSIZE, 1)
+        
+
         self.data = self.create_timer(timer_time, self.timer_callback)
 
     def timer_callback(self):
@@ -33,10 +40,8 @@ class CameraReadOut(Node):
         """
         Read a single frame from the default video device.
         """
-        path_camera = 0 # '/dev/video0' 
 
-        img = cv.VideoCapture(path_camera)
-        success, frame = img.read()
+        success, frame = self.img.read()
 
         frame_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
 

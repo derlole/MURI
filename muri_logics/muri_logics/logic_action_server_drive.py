@@ -144,7 +144,7 @@ class DriveLogic(LogicInterface):
         linear_Velocity = 0.0
 
         if abs(self.__angle_to_Mid_in_Rad) > Constants.ANGLETOLLERANCE and self.__distance_in_Meter > Constants.GOALDISTANCE:
-            angular_Velocity = p_regulator(self.__angle_to_Mid_in_Rad, 3.5, Constants.MAXANGLEVELOSETY)
+            angular_Velocity = p_regulator(self.__angle_to_Mid_in_Rad, 2.0, Constants.MAXANGLEVELOSETY)
 
         if self.__distance_in_Meter > Constants.GOALDISTANCE: 
             linear_Velocity = Constants.MAXVELOSETY
