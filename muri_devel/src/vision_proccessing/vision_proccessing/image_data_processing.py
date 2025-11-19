@@ -71,7 +71,7 @@ class ImageProcessing(Node):
 
         pub_pic_data.error = self.error
         pub_pic_data.angle_in_rad = float(self.angle_in_rad)
-        pub_pic_data.distance_in_meters = float(self.distance_in_meters)
+        pub_pic_data.distance_in_meters = float(self.distance_in_meters_unfiltered)
 
         self.publisher.publish(pub_pic_data)
         self.get_logger().info('OpenCV-Daten werden gepublished...')
