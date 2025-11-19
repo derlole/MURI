@@ -6,7 +6,8 @@ marker_size = 175
 
 # Initialisieren der Kamera
 img = cv.VideoCapture(0)
-
+img.set(cv.CAP_PROP_FRAME_WIDTH, 2600)
+img.set(cv.CAP_PROP_FRAME_HEIGHT, 1900)
 # Define the ArUco dictionary
 aruco_dict = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_5X5_1000)
 aruco_params = cv.aruco.DetectorParameters()
@@ -35,7 +36,7 @@ while True:
     if not success:
         print("Fehler beim Lesen des Frames")
         break
-    
+    print(f'-----{frame.shape}')
     # Umwandeln des Frames in Graustufen
     frame_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
     

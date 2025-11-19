@@ -17,12 +17,14 @@ class CameraReadOut(Node):
         """
         super().__init__('camera_read_out')
         self.publisher = self.create_publisher(Image, '/muri_image_raw', 10)
-        timer_time = 0.1 # sek
+        timer_time = 1/30 # sek
 
         path_camera = 0 # '/dev/video0' 
 
         self.img = cv.VideoCapture(path_camera)
-        self.img.set(cv.CAP_PROP_BUFFERSIZE, 1)
+        self.img.set(cv.CAP_PROP_FRAME_WIDTH, 1920)
+        self.img.set(cv.CAP_PROP_FRAME_HEIGHT, 1080)
+        self.img.set(cv.CAP_PROP_BUFFERSIZE, 0)
         
 
         self.data = self.create_timer(timer_time, self.timer_callback)
