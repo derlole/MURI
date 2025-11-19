@@ -24,7 +24,11 @@ class ImageProcessing(Node):
 
         self.bridge = CvBridge()
 
-        self.distance_in_meters, self.distance_in_milimeters, self.angle_in_rad, self.error = None, None, None, False
+        self.distance_in_meters_unfiltered = None
+        self.distance_in_meters_filtered = None
+        self.distance_in_milimeters = None
+        self.angle_in_rad = None
+        self.error = False
         self.error_counter = 0
         self.proc_AMD = AMD()
 
@@ -91,8 +95,18 @@ class ImageProcessing(Node):
             self.error = True
 
         self.distance_in_milimeters, self.angle_in_rad = self.proc_AMD.aruco_detection(data_img)
-        self.distance_in_meters = self.distance_in_milimeters/1000
+        self.distance_in_meters_unfiltered = self.distance_in_milimeters/1000
+        self.distance_in_meters_filtered = self.daf()
 
+    def daf(self):  # distance aruco failure
+        third_data = second_data
+        second_data = first_data
+        first_data = self.distance_in_meters_unfiltered
+
+        if third_data == -1.0 and second_data == -1.0 and first_data == -1.0:
+            return -1.0
+        else:
+            return first_data
 
 def main(args=None):
     rclpy.init(args=args)
