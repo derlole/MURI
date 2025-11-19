@@ -1,5 +1,6 @@
 import unittest
 import math
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from logic_action_server_init import InitLogic, InitStates, Constants
@@ -36,7 +37,8 @@ class TestInitLogic(unittest.TestCase):
         """Moves from READY to INITMOVE if firstTheta not set"""
         self.logic.reset()
         self.logic.setActive()
-        self.logic.setOdomData(0, 0, 0)
+        q = SimpleNamespace(x=0.0, y=0.0, z=0.0, w=0.0)
+        self.logic.setOdomData(0.0, 0.0, q)
         self.logic.state_machine()
         self.assertEqual(self.logic.getActiveState(), InitStates.INITMOVE)
 
@@ -44,27 +46,24 @@ class TestInitLogic(unittest.TestCase):
         """Test calculate logic gives max rotation when no camera data"""
         self.logic.reset()
         self.logic.setActive()
-        self.logic.setOdomData(0, 0, 0)
+        q = SimpleNamespace(x=0.0, y=0.0, z=0.0, w=0.0)
+        self.logic.setOdomData(0.0, 0.0, q)
         self.logic.setCameraData(angleIR=1.0, distanceIM=2.0)
 
         self.logic.state_machine()  # To enter INITMOVE
 
         avz, turned_angle = self.logic.calculate()
 
-        self.assertAlmostEqual(
-            avz, Constants.MAXANGLEVELOSETY, delta=0.00001
-        )
+        self.assertAlmostEqual(avz, Constants.MAXANGLEVELOSETY, delta=0.00001)
         self.assertAlmostEqual(turned_angle, 0.0, delta=0.00001)
 
     def test_success_condition(self):
         """When angle is small the state should switch to SUCCESS"""
         self.logic.reset()
         self.logic.setActive()
-        self.logic.setOdomData(0, 0, 0)
-        self.logic.setCameraData(
-            angleIR=Constants.ANGLETOLLERAMCE / 2, 
-            distanceIM=2.0
-        )
+        q = SimpleNamespace(x=0.0, y=0.0, z=0.0, w=0.0)
+        self.logic.setOdomData(0.0, 0.0, q)
+        self.logic.setCameraData(angleIR=Constants.ANGLETOLLERAMCE / 2, distanceIM=2.0)
 
         # Enter INITMOVE
         self.logic.state_machine()
@@ -78,7 +77,8 @@ class TestInitLogic(unittest.TestCase):
         """In INITMOVE mode output should be valid"""
         self.logic.reset()
         self.logic.setActive()
-        self.logic.setOdomData(0, 0, 0)
+        q = SimpleNamespace(x=0.0, y=0.0, z=0.0, w=0.0)
+        self.logic.setOdomData(0.0, 0.0, q)
         self.logic.setCameraData(0.5, 2.0)
         self.logic.state_machine()  # Ready → InitMove
         self.logic.state_machine()  # InitMove runs calculate()
