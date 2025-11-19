@@ -25,7 +25,7 @@ class CameraReadOut(Node):
         Timer callback that captures a frame from the camera and publishes it.
         """
         bridge = CvBridge()
-        msg = bridge.cv2_to_imgmsg(self.read_camera(), encoding='bgr8')
+        msg = bridge.cv2_to_imgmsg(self.read_camera(), encoding='mono8')
         self.publisher.publish(msg)
         self.get_logger().info('Bild wird verschickt...')
 
