@@ -102,15 +102,17 @@ class ImageProcessing(Node):
         self.distance_in_meters_unfiltered = self.distance_in_milimeters/1000
         self.distance_in_meters_filtered = self.daf()
 
-    def daf(self):  # distance aruco failure
-        self.third_data = self.second_data
+    def daf(self):
+        # 1. Ring‑Buffer aktualisieren
+        self.third_data  = self.second_data
         self.second_data = self.first_data
-        self.first_data = self.distance_in_meters_unfiltered
+        self.first_data  = self.distance_in_meters_unfiltered
 
-        if self.third_data == -1.0 and self.second_data == -1.0 and self.first_data == -1.0:
-            return -1.0
-        else:
-            return self.first_data
+        # 2. Das *neuste* gültige Ergebnis zurückgeben
+        for v in (self.first_data, self.second_data, self.third_data):
+            if v != -1.0:          # gibt den neuesten Wert zurück ungleich null
+                return v
+        return -1.0                 # <-- alle drei == -1.0
 
 def main(args=None):
     rclpy.init(args=args)
