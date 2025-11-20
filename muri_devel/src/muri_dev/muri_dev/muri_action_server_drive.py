@@ -1,254 +1,135 @@
 import rclpy
-from rclpy.action import ActionServer, GoalResponse, CancelResponse
+from rclpy.action import ActionServer, CancelResponse
 from rclpy.node import Node
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
 from rclpy.executors import ExternalShutdownException
-from muri_dev_interfaces.action import DRIVE
+from muri_dev_interfaces.action import TURN
 from muri_dev_interfaces.msg import PictureData
-from muri_logics.logic_action_server_drive import DriveLogic, DriveStates
+from muri_logics.logic_action_server_turn import TurnLogic, TurnStates
 from muri_logics.logic_interface import LogicInterface
-from rclpy.executors import MultiThreadedExecutor
 
-
-ERR_THRESHOLD = 5
-
-class DriveActionServer(Node):
+class TurnActionServer(Node):
     def __init__(self, logic: LogicInterface):
-        super().__init__('muri_drive_action_server')
+        super().__init__('muri_turn_action_server')
 
-        self.drive_logic: LogicInterface = logic
+        self.turn_logic: LogicInterface = logic
 
         self._action_server = ActionServer(
             self,
-            DRIVE,
-            'muri_drive',
-            execute_callback = self.execute_callback,
-            #goal_callback = self.goal_callback,
-            cancel_callback = self.cancel_callback
+            TURN,
+            'muri_turn',
+            execute_callback=self.execute_callback,
+            cancel_callback=self.cancel_callback
         )
-
         self.cmd_vel_pub = self.create_publisher(
-            Twist, 
-            '/cmd_vel',
-             10
-        )
-        self.picture_data_sub = self.create_subscription(
-            PictureData,
-            '/muri_picture_data',  
-            self.listener_callback_picture_data_asd,
-            10
+            Twist, '/cmd_vel', 10
         )
         self.odom_sub = self.create_subscription(
-            Odometry,
-            '/odom',  
-            self.listener_callback_odom_asd,
-            10
+            Odometry, '/odom', self.listener_callback_odom_ast, 10
         )
-        # self._timer = self.create_timer(0.1, self.timer_callback_asd)
-        self._goal_handle = None
+        self.picture_data_sub = self.create_subscription(
+            PictureData, '/muri_picture_data', self.listener_callback_picture_data_ast, 10
+        )
         self._last_picture_data = None
         self._last_odom = None
-        self.__err_out_counter = 0
-
-    # def timer_callback_asd(self):
-        # if self._goal_handle is None: # or not self._goal_handle.is_active:
-        #     return
-        
-        # if self._goal_handle.is_cancel_requested:
-        #     self.get_logger().info('Canc: drive-goal.')
-        #     self._goal_handle.canceled()
-
-        #     result = DRIVE.Result()
-        #     result.success = False
-        #     self._goal_exiting = True
-        #     self._goal_result = result
-        #     self._goal_handle = None
-        #     return
-
-        # self.drive_logic.state_machine()
-        # out = self.drive_logic.getOut()
-        # print(str(out.values['linear_velocity_x']) + str(out.outValid()) + str(out.values['angular_velocity_z']))
-        # if not out.outValid():
-        #     out.resetOut()
-        #     self.__err_out_counter += 1
-        #     return
-        
-        # cmd_vel = Twist()
-        # cmd_vel.linear.x = float(out.values['linear_velocity_x'])
-        # cmd_vel.linear.y = float(out.values['linear_velocity_y'])
-        # cmd_vel.angular.z = float(out.values['angular_velocity_z'])
-
-        # if self.__err_out_counter >= ERR_THRESHOLD:
-        #     cmd_vel.linear.x = 0.0
-        #     cmd_vel.linear.y = 0.0
-        #     cmd_vel.angular.z = 0.0
-        #     self.cmd_vel_pub.publish(cmd_vel)
-        #     return
-        # else:
-        #     self.cmd_vel_pub.publish(cmd_vel)
-
-        # feedback_msg = DRIVE.Feedback()
-        # feedback_msg.distance_remaining = float(out.values['distance_remaining'])
-
-        # self._goal_handle.publish_feedback(feedback_msg)
-
-        # if self.drive_logic.getActiveState() == DriveStates.SUCCESS:
-        #     self.get_logger().info('succ: drive-goal.')
-        #     self._goal_handle.succeed()
-
-        #     result = DRIVE.Result()
-        #     result.success = True
-        #     self._goal_result = result
-        #     self._goal_exiting = True
-
-        #     self._goal_handle = None
-
-        # elif self.drive_logic.getActiveState() == DriveStates.FAILED:
-        #     self.get_logger().info('fail: drive-goal.')
-        #     self._goal_handle.abort()
-
-        #     result = DRIVE.Result()
-        #     result.success = False
-        #     self._goal_result = result
-        #     self._goal_exiting = True
-
-        #     self._goal_handle = None
-
-        # out.resetOut()
 
     def execute_callback(self, goal_handle):
-        self.get_logger().info('Exe: drive goal')
-        self._goal_handle = goal_handle
+        self.get_logger().info('Exec: turn-goal')
 
-        self.drive_logic.reset()
-        self.drive_logic.setActive()
+        # Startzustand
+        self.turn_logic.reset()
+        self.turn_logic.setActive()
+        err_out_counter = 0
+        ERR_THRESHOLD = 5
 
-        # loop until finished
-        while rclpy.ok():
-            # if goal handle disappeared -> abort with failure result
-            if self._goal_handle is None or not self._goal_handle.is_active:
-                self.get_logger().warn('Goal handle missing or not active -> aborting goal.')
-                result = DRIVE.Result()
-                result.success = False
-                # If you want, don't call abort on a non-existing handle.
-                return result
+        # Haupt-Goal-Handling-Schleife
+        result = TURN.Result()
 
-            # cancellation requested?
-            if self._goal_handle.is_cancel_requested:
-                self.get_logger().info('Canc: drive-goal.')
-                self._goal_handle.canceled()
-                result = DRIVE.Result()
+        while rclpy.ok() and goal_handle.is_active:
+            # cancellation?
+            if goal_handle.is_cancel_requested:
+                self.get_logger().info('Canc: turn-goal.')
+                goal_handle.canceled()
                 result.success = False
                 return result
 
             # advance logic
-            self.drive_logic.state_machine()
-            out = self.drive_logic.getOut()
+            self.turn_logic.state_machine()
+            out = self.turn_logic.getOut()
 
-            # invalid output -> abort (or you could choose to continue/publish zero velocities)
             if not out.outValid():
                 out.resetOut()
-                self.__err_out_counter += 1
-                self.get_logger().warn(f'Invalid output from drive_logic (count={self.__err_out_counter}).')
+                err_out_counter += 1
 
-                # if too many invalid ticks -> abort
-                if self.__err_out_counter >= ERR_THRESHOLD:
-                    self.get_logger().error('ERR_THRESHOLD reached -> aborting drive goal.')
+                if err_out_counter >= ERR_THRESHOLD:
+                    self.get_logger().error('ERR_THRESHOLD erreicht -> abort turn-goal.')
                     # stop robot
                     cmd_vel = Twist()
-                    cmd_vel.linear.x = 0.0
-                    cmd_vel.linear.y = 0.0
-                    cmd_vel.angular.z = 0.0
                     self.cmd_vel_pub.publish(cmd_vel)
-
-                    self._goal_handle.abort()
-                    result = DRIVE.Result()
+                    goal_handle.abort()
                     result.success = False
                     return result
 
-                # otherwise keep waiting for valid output
                 rclpy.spin_once(self, timeout_sec=0.1)
                 continue
 
-            # publish cmd_vel
+            # publish movement
             cmd_vel = Twist()
             cmd_vel.linear.x = float(out.values['linear_velocity_x'])
             cmd_vel.linear.y = float(out.values['linear_velocity_y'])
             cmd_vel.angular.z = float(out.values['angular_velocity_z'])
             self.cmd_vel_pub.publish(cmd_vel)
 
-            # feedback
-            feedback_msg = DRIVE.Feedback()
-            feedback_msg.distance_remaining = float(out.values.get('distance_remaining', 0.0))
-            self._goal_handle.publish_feedback(feedback_msg)
+            # publish feedback
+            feedback_msg = TURN.Feedback()
+            feedback_msg.moved_angle = float(out.values.get('turned_angle', 0.0))
+            goal_handle.publish_feedback(feedback_msg)
 
-            # check success / failure states from logic
-            active_state = self.drive_logic.getActiveState()
-            if active_state == DriveStates.SUCCESS:
-                self.get_logger().info('succ: drive-goal.')
-                self._goal_handle.succeed()
-                result = DRIVE.Result()
+            # Erfolg/Misserfolg prüfen
+            active_state = self.turn_logic.getActiveState()
+            if active_state == TurnStates.SUCCESS:
+                self.get_logger().info('succ: turn-goal.')
+                goal_handle.succeed()
                 result.success = True
                 return result
 
-            if active_state == DriveStates.FAILED:
-                self.get_logger().info('fail: drive-goal.')
-                self._goal_handle.abort()
-                result = DRIVE.Result()
+            if active_state == TurnStates.FAILED:
+                self.get_logger().info('fail: turn-goal.')
+                goal_handle.abort()
                 result.success = False
                 return result
 
             out.resetOut()
             rclpy.spin_once(self, timeout_sec=0.1)
 
-        # if rclpy was shutdown
-        self.get_logger().info('rclpy not OK -> aborting drive goal.')
-        result = DRIVE.Result()
+        # fallback: Node wurde abgeschaltet
+        self.get_logger().info('rclpy nicht ok oder Goal nicht aktiv -> abort turn-goal.')
         result.success = False
         return result
 
-
-    def goal_callback(self, goal_request):
-        self.get_logger().info('Rec: drive-goal')
-
-        if self._goal_handle is not None and self._goal_handle.is_active:
-            self.get_logger().info('Rej: drive-goal')
-            return GoalResponse.REJECT
-        
-        self.get_logger().info('Acc: drive-goal')
-
-
-
-        return GoalResponse.ACCEPT
-
     def cancel_callback(self, goal_handle):
-        self.get_logger().info('Rec: cancel drive-goal')
+        self.get_logger().info('Rec: cancel turn-goal')
         return CancelResponse.ACCEPT
 
-    def listener_callback_odom_asd(self, msg):
+    def listener_callback_odom_ast(self, msg):
         self._last_odom = msg
-        self.drive_logic.setOdomData(msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.orientation)
+        self.turn_logic.setOdomData(msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.orientation)
 
-    def listener_callback_picture_data_asd(self, msg):
+    def listener_callback_picture_data_ast(self, msg):
         self._last_picture_data = msg
-        self.drive_logic.setCameraData(msg.angle_in_rad, msg.distance_in_meters)
+        self.turn_logic.setCameraData(msg.angle_in_rad, msg.distance_in_meters)
 
 def main(args=None):
     rclpy.init(args=args)
-
-    drive_action_server = DriveActionServer(DriveLogic())
-
+    turn_action_server = TurnActionServer(TurnLogic())
     try:
-        executor = MultiThreadedExecutor()
-        rclpy.spin(drive_action_server, executor=executor)
+        rclpy.spin(turn_action_server)
     except (KeyboardInterrupt, ExternalShutdownException):
-        drive_action_server.get_logger().info('Interrupt receivedat DriveActionServer, shutting down.')
-        # cmd_vel wird vom main controller auf null gesetzt
+        turn_action_server.get_logger().info('Interrupt received at TurnActionServer, shutting down.')
     finally:
-        executor.shutdown()
-        drive_action_server.destroy_node()
+        turn_action_server.destroy_node()
         rclpy.shutdown()
 
-if __name__ == '__main__':    
+if __name__ == '__main__':
     main()
