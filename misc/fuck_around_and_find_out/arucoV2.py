@@ -47,8 +47,8 @@ marker_size = 175
 img = cv.VideoCapture(0)
 # Hinweis: Nicht alle Kameras unterstützen jede Auflösung. 
 # Falls das Bild schwarz bleibt, hier Standardwerte (640x480) testen.
-img.set(cv.CAP_PROP_FRAME_WIDTH, 2600)
-img.set(cv.CAP_PROP_FRAME_HEIGHT, 1900)
+#img.set(cv.CAP_PROP_FRAME_WIDTH, 1920)
+#img.set(cv.CAP_PROP_FRAME_HEIGHT, 1080)
 
 # Define the ArUco dictionary
 aruco_dict = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_5X5_1000)

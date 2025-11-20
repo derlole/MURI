@@ -82,7 +82,7 @@ class AMD():
                     print(f'tvec: 0:{tvec[0]}    1:{tvec[1]}     2:{tvec[2]}')
                     print(f'Berechneter Winkel: {angle_rad} rad ({math.degrees(angle_rad):.2f}°)')
                     
-                    return tvec[2][0], angle_rad
+                    return tvec[2][0], -angle_rad
     
         return -1000.0, math.pi
     
