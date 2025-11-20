@@ -1,6 +1,7 @@
 import rclpy
 from rclpy.action import ActionServer, CancelResponse
 from rclpy.node import Node
+from rclpy.callback_groups import ReentrantCallbackGroup
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
 from rclpy.executors import ExternalShutdownException, MultiThreadedExecutor
@@ -15,21 +16,28 @@ class DriveActionServer(Node):
     def __init__(self, logic: LogicInterface):
         super().__init__('muri_drive_action_server')
         self.drive_logic: LogicInterface = logic
+
+        # Die ReentrantCallbackGroup ist das Wichtigste!
+        self._cb_group = ReentrantCallbackGroup()
+
         self._action_server = ActionServer(
             self,
             DRIVE,
             'muri_drive',
             execute_callback=self.execute_callback,
-            cancel_callback=self.cancel_callback
+            cancel_callback=self.cancel_callback,
+            callback_group=self._cb_group
         )
         self.cmd_vel_pub = self.create_publisher(
             Twist, '/cmd_vel', 10
         )
         self.picture_data_sub = self.create_subscription(
-            PictureData, '/muri_picture_data', self.listener_callback_picture_data_asd, 10
+            PictureData, '/muri_picture_data', self.listener_callback_picture_data_asd, 10,
+            callback_group=self._cb_group
         )
         self.odom_sub = self.create_subscription(
-            Odometry, '/odom', self.listener_callback_odom_asd, 10
+            Odometry, '/odom', self.listener_callback_odom_asd, 10,
+            callback_group=self._cb_group
         )
         self._last_picture_data = None
         self._last_odom = None
@@ -57,7 +65,6 @@ class DriveActionServer(Node):
                 err_out_counter += 1
                 if err_out_counter >= ERR_THRESHOLD:
                     self.get_logger().error('ERR_THRESHOLD reached -> aborting drive goal.')
-                    # stop robot
                     cmd_vel = Twist()
                     cmd_vel.linear.x = 0.0
                     cmd_vel.linear.y = 0.0
@@ -116,7 +123,8 @@ def main(args=None):
     drive_action_server = DriveActionServer(DriveLogic())
     try:
         executor = MultiThreadedExecutor()
-        rclpy.spin(drive_action_server, executor=executor)
+        executor.add_node(drive_action_server)
+        executor.spin()
     except (KeyboardInterrupt, ExternalShutdownException):
         drive_action_server.get_logger().info('Interrupt received at DriveActionServer, shutting down.')
     finally:
