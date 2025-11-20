@@ -8,6 +8,8 @@ from muri_dev_interfaces.action import DRIVE
 from muri_dev_interfaces.msg import PictureData
 from muri_logics.logic_action_server_drive import DriveLogic, DriveStates
 from muri_logics.logic_interface import LogicInterface
+from rclpy.executors import MultiThreadedExecutor
+
 
 ERR_THRESHOLD = 5
 
@@ -22,7 +24,7 @@ class DriveActionServer(Node):
             DRIVE,
             'muri_drive',
             execute_callback = self.execute_callback,
-            goal_callback = self.goal_callback,
+            #goal_callback = self.goal_callback,
             cancel_callback = self.cancel_callback
         )
 
@@ -43,88 +45,169 @@ class DriveActionServer(Node):
             self.listener_callback_odom_asd,
             10
         )
-        self._timer = self.create_timer(0.1, self.timer_callback_asd)
+        # self._timer = self.create_timer(0.1, self.timer_callback_asd)
         self._goal_handle = None
         self._last_picture_data = None
         self._last_odom = None
         self.__err_out_counter = 0
 
-    def timer_callback_asd(self):
-        if self._goal_handle is None or not self._goal_handle.is_active:
-            return
+    # def timer_callback_asd(self):
+        # if self._goal_handle is None: # or not self._goal_handle.is_active:
+        #     return
         
-        if self._goal_handle.is_cancel_requested:
-            self.get_logger().info('Canc: drive-goal.')
-            self._goal_handle.canceled()
+        # if self._goal_handle.is_cancel_requested:
+        #     self.get_logger().info('Canc: drive-goal.')
+        #     self._goal_handle.canceled()
 
-            self._goal_result = DRIVE.Result()
-            self._goal_result.success = False
-            self._goal_exiting = True
-            self._goal_handle = None
-            return
+        #     result = DRIVE.Result()
+        #     result.success = False
+        #     self._goal_exiting = True
+        #     self._goal_result = result
+        #     self._goal_handle = None
+        #     return
 
-        self.drive_logic.state_machine()
-        out = self.drive_logic.getOut()
-        print(str(out.values['linear_velocity_x']) + str(out.outValid()) + str(out.values['angular_velocity_z']))
-        if not out.outValid():
-            out.resetOut()
-            self.__err_out_counter += 1
-            return
+        # self.drive_logic.state_machine()
+        # out = self.drive_logic.getOut()
+        # print(str(out.values['linear_velocity_x']) + str(out.outValid()) + str(out.values['angular_velocity_z']))
+        # if not out.outValid():
+        #     out.resetOut()
+        #     self.__err_out_counter += 1
+        #     return
         
-        cmd_vel = Twist()
-        cmd_vel.linear.x = float(out.values['linear_velocity_x'])
-        cmd_vel.linear.y = float(out.values['linear_velocity_y'])
-        cmd_vel.angular.z = float(out.values['angular_velocity_z'])
+        # cmd_vel = Twist()
+        # cmd_vel.linear.x = float(out.values['linear_velocity_x'])
+        # cmd_vel.linear.y = float(out.values['linear_velocity_y'])
+        # cmd_vel.angular.z = float(out.values['angular_velocity_z'])
 
-        if self.__err_out_counter >= ERR_THRESHOLD:
-            cmd_vel.linear.x = 0.0
-            cmd_vel.linear.y = 0.0
-            cmd_vel.angular.z = 0.0
-            self.cmd_vel_pub.publish(cmd_vel)
-            return
-        else:
-            self.cmd_vel_pub.publish(cmd_vel)
+        # if self.__err_out_counter >= ERR_THRESHOLD:
+        #     cmd_vel.linear.x = 0.0
+        #     cmd_vel.linear.y = 0.0
+        #     cmd_vel.angular.z = 0.0
+        #     self.cmd_vel_pub.publish(cmd_vel)
+        #     return
+        # else:
+        #     self.cmd_vel_pub.publish(cmd_vel)
 
-        feedback_msg = DRIVE.Feedback()
-        feedback_msg.distance_remaining = float(out.values['distance_remaining'])
+        # feedback_msg = DRIVE.Feedback()
+        # feedback_msg.distance_remaining = float(out.values['distance_remaining'])
 
-        self._goal_handle.publish_feedback(feedback_msg)
+        # self._goal_handle.publish_feedback(feedback_msg)
 
-        if self.drive_logic.getActiveState() == DriveStates.SUCCESS:
-            self.get_logger().info('succ: drive-goal.')
-            self._goal_handle.succeed()
+        # if self.drive_logic.getActiveState() == DriveStates.SUCCESS:
+        #     self.get_logger().info('succ: drive-goal.')
+        #     self._goal_handle.succeed()
 
-            self._goal_result = DRIVE.Result()
-            self._goal_result.success = True
-            self._goal_exiting = True
+        #     result = DRIVE.Result()
+        #     result.success = True
+        #     self._goal_result = result
+        #     self._goal_exiting = True
 
-            self._goal_handle = None
+        #     self._goal_handle = None
 
-        elif self.drive_logic.getActiveState() == DriveStates.FAILED:
-            self.get_logger().info('fail: drive-goal.')
-            self._goal_handle.abort()
+        # elif self.drive_logic.getActiveState() == DriveStates.FAILED:
+        #     self.get_logger().info('fail: drive-goal.')
+        #     self._goal_handle.abort()
 
-            self._goal_result = DRIVE.Result()
-            self._goal_result.success = False
-            self._goal_exiting = True
+        #     result = DRIVE.Result()
+        #     result.success = False
+        #     self._goal_result = result
+        #     self._goal_exiting = True
 
-            self._goal_handle = None
+        #     self._goal_handle = None
 
-        out.resetOut()
+        # out.resetOut()
 
     def execute_callback(self, goal_handle):
         self.get_logger().info('Exe: drive goal')
-
         self._goal_handle = goal_handle
 
-        self._goal_exiting = False
-        self._goal_result = None
+        self.drive_logic.reset()
+        self.drive_logic.setActive()
 
-        while not self._goal_exiting:
+        # loop until finished
+        while rclpy.ok():
+            # if goal handle disappeared -> abort with failure result
+            if self._goal_handle is None or not self._goal_handle.is_active:
+                self.get_logger().warn('Goal handle missing or not active -> aborting goal.')
+                result = DRIVE.Result()
+                result.success = False
+                # If you want, don't call abort on a non-existing handle.
+                return result
+
+            # cancellation requested?
+            if self._goal_handle.is_cancel_requested:
+                self.get_logger().info('Canc: drive-goal.')
+                self._goal_handle.canceled()
+                result = DRIVE.Result()
+                result.success = False
+                return result
+
+            # advance logic
+            self.drive_logic.state_machine()
+            out = self.drive_logic.getOut()
+
+            # invalid output -> abort (or you could choose to continue/publish zero velocities)
+            if not out.outValid():
+                out.resetOut()
+                self.__err_out_counter += 1
+                self.get_logger().warn(f'Invalid output from drive_logic (count={self.__err_out_counter}).')
+
+                # if too many invalid ticks -> abort
+                if self.__err_out_counter >= ERR_THRESHOLD:
+                    self.get_logger().error('ERR_THRESHOLD reached -> aborting drive goal.')
+                    # stop robot
+                    cmd_vel = Twist()
+                    cmd_vel.linear.x = 0.0
+                    cmd_vel.linear.y = 0.0
+                    cmd_vel.angular.z = 0.0
+                    self.cmd_vel_pub.publish(cmd_vel)
+
+                    self._goal_handle.abort()
+                    result = DRIVE.Result()
+                    result.success = False
+                    return result
+
+                # otherwise keep waiting for valid output
+                rclpy.spin_once(self, timeout_sec=0.1)
+                continue
+
+            # publish cmd_vel
+            cmd_vel = Twist()
+            cmd_vel.linear.x = float(out.values['linear_velocity_x'])
+            cmd_vel.linear.y = float(out.values['linear_velocity_y'])
+            cmd_vel.angular.z = float(out.values['angular_velocity_z'])
+            self.cmd_vel_pub.publish(cmd_vel)
+
+            # feedback
+            feedback_msg = DRIVE.Feedback()
+            feedback_msg.distance_remaining = float(out.values.get('distance_remaining', 0.0))
+            self._goal_handle.publish_feedback(feedback_msg)
+
+            # check success / failure states from logic
+            active_state = self.drive_logic.getActiveState()
+            if active_state == DriveStates.SUCCESS:
+                self.get_logger().info('succ: drive-goal.')
+                self._goal_handle.succeed()
+                result = DRIVE.Result()
+                result.success = True
+                return result
+
+            if active_state == DriveStates.FAILED:
+                self.get_logger().info('fail: drive-goal.')
+                self._goal_handle.abort()
+                result = DRIVE.Result()
+                result.success = False
+                return result
+
+            out.resetOut()
             rclpy.spin_once(self, timeout_sec=0.1)
 
-        return self._goal_result
-        # return DRIVE.Result() 
+        # if rclpy was shutdown
+        self.get_logger().info('rclpy not OK -> aborting drive goal.')
+        result = DRIVE.Result()
+        result.success = False
+        return result
+
 
     def goal_callback(self, goal_request):
         self.get_logger().info('Rec: drive-goal')
@@ -135,8 +218,7 @@ class DriveActionServer(Node):
         
         self.get_logger().info('Acc: drive-goal')
 
-        self.drive_logic.reset()
-        self.drive_logic.setActive()
+
 
         return GoalResponse.ACCEPT
 
@@ -156,12 +238,15 @@ def main(args=None):
     rclpy.init(args=args)
 
     drive_action_server = DriveActionServer(DriveLogic())
+
     try:
-        rclpy.spin(drive_action_server)
+        executor = MultiThreadedExecutor()
+        rclpy.spin(drive_action_server, executor=executor)
     except (KeyboardInterrupt, ExternalShutdownException):
         drive_action_server.get_logger().info('Interrupt receivedat DriveActionServer, shutting down.')
         # cmd_vel wird vom main controller auf null gesetzt
     finally:
+        executor.shutdown()
         drive_action_server.destroy_node()
         rclpy.shutdown()
 

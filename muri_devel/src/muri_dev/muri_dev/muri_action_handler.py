@@ -8,6 +8,7 @@ from muri_dev_interfaces.msg import PictureData
 from rclpy.executors import ExternalShutdownException
 from muri_logics.main_controller import MainController, MainStates
 from muri_logics.logic_interface import LogicInterface
+from rclpy.executors import MultiThreadedExecutor
 
 
 class MuriActionHandler(Node):
@@ -78,8 +79,14 @@ class MuriActionHandler(Node):
         drive_goal.target_pose.theta = float(gt)
 
         self._action_client_drive.wait_for_server()
+
+        self.get_logger().info(f"Drive client ready: {self._action_client_drive.server_is_ready()}")
+        #self.get_logger().info(f"Drive client active goal? {self._drive_result_promise is not None}")
+
         self._drive_send_promise = self._action_client_drive.send_goal_async(drive_goal, feedback_callback=self.drive_feedback_callback)
         self._drive_send_promise.add_done_callback(self.drive_goal_response_callback)
+        self.get_logger().info(f"Result of send_goal_async: {self._drive_send_promise}")
+
 
 
     def send_turn_goal(self):
@@ -168,8 +175,10 @@ def main(args=None):
 
     logic = MainController()
     muri_action_handler = MuriActionHandler(logic)
+
     try:
-        rclpy.spin(muri_action_handler)
+        executor = MultiThreadedExecutor()
+        rclpy.spin(muri_action_handler, executor=executor)
     except (KeyboardInterrupt, ExternalShutdownException):
         muri_action_handler.get_logger().info('Interrupt received at MuriActionHandler, shutting down.')
     finally:

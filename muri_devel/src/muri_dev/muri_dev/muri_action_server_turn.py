@@ -20,7 +20,7 @@ class TurnActionServer(Node):
             TURN,
             'muri_turn',
             execute_callback=self.execute_callback,
-            goal_callback=self.goal_callback,
+            #goal_callback=self.goal_callback,
             cancel_callback=self.cancel_callback
         )
         self.cmd_vel_pub = self.create_publisher(
