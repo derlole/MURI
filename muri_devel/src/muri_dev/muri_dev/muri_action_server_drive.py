@@ -3,99 +3,91 @@ from rclpy.action import ActionServer, CancelResponse
 from rclpy.node import Node
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
-from rclpy.executors import ExternalShutdownException
-from muri_dev_interfaces.action import TURN
+from rclpy.executors import ExternalShutdownException, MultiThreadedExecutor
+from muri_dev_interfaces.action import DRIVE
 from muri_dev_interfaces.msg import PictureData
-from muri_logics.logic_action_server_turn import TurnLogic, TurnStates
+from muri_logics.logic_action_server_drive import DriveLogic, DriveStates
 from muri_logics.logic_interface import LogicInterface
 
-class TurnActionServer(Node):
+ERR_THRESHOLD = 5
+
+class DriveActionServer(Node):
     def __init__(self, logic: LogicInterface):
-        super().__init__('muri_turn_action_server')
-
-        self.turn_logic: LogicInterface = logic
-
+        super().__init__('muri_drive_action_server')
+        self.drive_logic: LogicInterface = logic
         self._action_server = ActionServer(
             self,
-            TURN,
-            'muri_turn',
+            DRIVE,
+            'muri_drive',
             execute_callback=self.execute_callback,
             cancel_callback=self.cancel_callback
         )
         self.cmd_vel_pub = self.create_publisher(
             Twist, '/cmd_vel', 10
         )
-        self.odom_sub = self.create_subscription(
-            Odometry, '/odom', self.listener_callback_odom_ast, 10
-        )
         self.picture_data_sub = self.create_subscription(
-            PictureData, '/muri_picture_data', self.listener_callback_picture_data_ast, 10
+            PictureData, '/muri_picture_data', self.listener_callback_picture_data_asd, 10
+        )
+        self.odom_sub = self.create_subscription(
+            Odometry, '/odom', self.listener_callback_odom_asd, 10
         )
         self._last_picture_data = None
         self._last_odom = None
 
     def execute_callback(self, goal_handle):
-        self.get_logger().info('Exec: turn-goal')
-
-        # Startzustand
-        self.turn_logic.reset()
-        self.turn_logic.setActive()
+        self.get_logger().info('Exe: drive goal')
+        self.drive_logic.reset()
+        self.drive_logic.setActive()
         err_out_counter = 0
-        ERR_THRESHOLD = 5
 
-        # Haupt-Goal-Handling-Schleife
-        result = TURN.Result()
+        result = DRIVE.Result()
 
         while rclpy.ok() and goal_handle.is_active:
-            # cancellation?
             if goal_handle.is_cancel_requested:
-                self.get_logger().info('Canc: turn-goal.')
+                self.get_logger().info('Canc: drive-goal.')
                 goal_handle.canceled()
                 result.success = False
                 return result
 
-            # advance logic
-            self.turn_logic.state_machine()
-            out = self.turn_logic.getOut()
+            self.drive_logic.state_machine()
+            out = self.drive_logic.getOut()
 
             if not out.outValid():
                 out.resetOut()
                 err_out_counter += 1
-
                 if err_out_counter >= ERR_THRESHOLD:
-                    self.get_logger().error('ERR_THRESHOLD erreicht -> abort turn-goal.')
+                    self.get_logger().error('ERR_THRESHOLD reached -> aborting drive goal.')
                     # stop robot
                     cmd_vel = Twist()
+                    cmd_vel.linear.x = 0.0
+                    cmd_vel.linear.y = 0.0
+                    cmd_vel.angular.z = 0.0
                     self.cmd_vel_pub.publish(cmd_vel)
                     goal_handle.abort()
                     result.success = False
                     return result
-
                 rclpy.spin_once(self, timeout_sec=0.1)
                 continue
 
-            # publish movement
             cmd_vel = Twist()
-            cmd_vel.linear.x = float(out.values['linear_velocity_x'])
-            cmd_vel.linear.y = float(out.values['linear_velocity_y'])
-            cmd_vel.angular.z = float(out.values['angular_velocity_z'])
+            cmd_vel.linear.x = float(out.values.get('linear_velocity_x', 0.0))
+            cmd_vel.linear.y = float(out.values.get('linear_velocity_y', 0.0))
+            cmd_vel.angular.z = float(out.values.get('angular_velocity_z', 0.0))
             self.cmd_vel_pub.publish(cmd_vel)
 
-            # publish feedback
-            feedback_msg = TURN.Feedback()
-            feedback_msg.moved_angle = float(out.values.get('turned_angle', 0.0))
+            feedback_msg = DRIVE.Feedback()
+            feedback_msg.distance_remaining = float(out.values.get('distance_remaining', 0.0))
             goal_handle.publish_feedback(feedback_msg)
 
-            # Erfolg/Misserfolg prüfen
-            active_state = self.turn_logic.getActiveState()
-            if active_state == TurnStates.SUCCESS:
-                self.get_logger().info('succ: turn-goal.')
+            active_state = self.drive_logic.getActiveState()
+            if active_state == DriveStates.SUCCESS:
+                self.get_logger().info('succ: drive-goal.')
                 goal_handle.succeed()
                 result.success = True
                 return result
 
-            if active_state == TurnStates.FAILED:
-                self.get_logger().info('fail: turn-goal.')
+            if active_state == DriveStates.FAILED:
+                self.get_logger().info('fail: drive-goal.')
                 goal_handle.abort()
                 result.success = False
                 return result
@@ -103,32 +95,32 @@ class TurnActionServer(Node):
             out.resetOut()
             rclpy.spin_once(self, timeout_sec=0.1)
 
-        # fallback: Node wurde abgeschaltet
-        self.get_logger().info('rclpy nicht ok oder Goal nicht aktiv -> abort turn-goal.')
+        self.get_logger().info('rclpy not OK or goal not active -> aborting drive goal.')
         result.success = False
         return result
 
     def cancel_callback(self, goal_handle):
-        self.get_logger().info('Rec: cancel turn-goal')
+        self.get_logger().info('Rec: cancel drive-goal')
         return CancelResponse.ACCEPT
 
-    def listener_callback_odom_ast(self, msg):
+    def listener_callback_odom_asd(self, msg):
         self._last_odom = msg
-        self.turn_logic.setOdomData(msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.orientation)
+        self.drive_logic.setOdomData(msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.orientation)
 
-    def listener_callback_picture_data_ast(self, msg):
+    def listener_callback_picture_data_asd(self, msg):
         self._last_picture_data = msg
-        self.turn_logic.setCameraData(msg.angle_in_rad, msg.distance_in_meters)
+        self.drive_logic.setCameraData(msg.angle_in_rad, msg.distance_in_meters)
 
 def main(args=None):
     rclpy.init(args=args)
-    turn_action_server = TurnActionServer(TurnLogic())
+    drive_action_server = DriveActionServer(DriveLogic())
     try:
-        rclpy.spin(turn_action_server)
+        executor = MultiThreadedExecutor()
+        rclpy.spin(drive_action_server, executor=executor)
     except (KeyboardInterrupt, ExternalShutdownException):
-        turn_action_server.get_logger().info('Interrupt received at TurnActionServer, shutting down.')
+        drive_action_server.get_logger().info('Interrupt received at DriveActionServer, shutting down.')
     finally:
-        turn_action_server.destroy_node()
+        drive_action_server.destroy_node()
         rclpy.shutdown()
 
 if __name__ == '__main__':
