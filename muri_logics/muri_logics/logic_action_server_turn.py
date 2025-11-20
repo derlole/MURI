@@ -16,7 +16,7 @@ class TurnStates(Enum):
 
 class Constants(): 
     ANGLETOLLERANCE = 0.1
-    MAXANGLEVELOSETY = 0.4
+    MAXANGLEVELOSETY = 0.20
     MAXANGLE = math.pi
 
 

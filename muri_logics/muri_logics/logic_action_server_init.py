@@ -134,7 +134,7 @@ class InitLogic(LogicInterface):
     def calculate(self):
         """Calculate commands for angular velocity based on the current orientation and also reurns the turnd angle.
         The function rotates the robot toward the target if the angular deviation exceeds a tolerance.
-        A proportional controller is used to determine the angular velocity.""" #TODO
+        A proportional controller is used to determine the angular velocity.""" 
         print('positionTh and firstTh' + str(self.__positionTheta) + str(self.__firstTheta))
 
         angularVelocityZ = 0.0
