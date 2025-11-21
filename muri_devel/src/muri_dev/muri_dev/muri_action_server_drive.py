@@ -25,7 +25,7 @@ class DriveActionServer(Node):
             DRIVE,
             'muri_drive',
             execute_callback=self.execute_callback,
-            cancel_callback=self.cancel_callback,
+            #cancel_callback=self.cancel_callback,
             callback_group=self._cb_group
         )
         self.cmd_vel_pub = self.create_publisher(

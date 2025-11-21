@@ -19,8 +19,8 @@ class TurnActionServer(Node):
             self,
             TURN,
             'muri_turn',
-            execute_callback=self.execute_callback,
-            cancel_callback=self.cancel_callback,
+            execute_callback=self.execute_callback
+            #cancel_callback=self.cancel_callback,
         )
         self.cmd_vel_pub = self.create_publisher(
             Twist,
