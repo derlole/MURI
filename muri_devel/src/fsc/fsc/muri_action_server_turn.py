@@ -7,6 +7,9 @@ from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
 from muri_logics.logic_action_server_turn import TurnLogic
 from muri_logics.logic_interface import LogicInterface
+from rclpy.callback_groups import MutuallyExclusiveCallbackGroup 
+from rclpy.executors import MultiThreadedExecutor
+import time
 
 class TurnActionServer(Node):
     
@@ -16,7 +19,8 @@ class TurnActionServer(Node):
             self,
             TURN,
             'muri_turn',
-            self.execute_callback
+            self.execute_callback,
+            callback_group=MutuallyExclusiveCallbackGroup()
         )
         self.goal_handler = None
 
@@ -40,7 +44,7 @@ class TurnActionServer(Node):
         self.turn_logic = logic 
         self._last_picture_data = None
         self._last_odom = None
-        self.create_timer(0.1, self.timer_callback)
+        self.create_timer(0.1, self.timer_callback, MutuallyExclusiveCallbackGroup())
 
     def count_to_ten(self):
         self.get_logger().info('Counting to ten...')
@@ -78,9 +82,12 @@ class TurnActionServer(Node):
 
         self._goal_finished = False
         self._goal_result = None
+        
+        self.turn_logic.reset()
+        self.turn_logic.setActive()
 
         while not self._goal_finished:
-            rclpy.spin_once(self, timeout_sec=0.1)
+            time.sleep(0.05)
 
         return self._goal_result
 
@@ -98,8 +105,10 @@ def main(args = None):
     rclpy.init(args=args)
 
     ac = TurnActionServer(logic=TurnLogic())
+    executor = MultiThreadedExecutor(num_threads=4)
+    executor.add_node(ac)
     
-    rclpy.spin(ac)
+    executor.spin()
     rclpy.shutdown() 
     
 if __name__ == '__main__':

@@ -24,6 +24,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            'mah = fsc.muri_action_handler:main',
+            'mast = fsc.muri_action_server_turn:main'
         ],
     },
 )
