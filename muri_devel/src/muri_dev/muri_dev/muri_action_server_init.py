@@ -1,6 +1,5 @@
 import rclpy
 from rclpy.action import ActionServer, CancelResponse, GoalResponse
-from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.node import Node
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
@@ -9,102 +8,126 @@ from muri_dev_interfaces.action import INIT
 from muri_dev_interfaces.msg import PictureData
 from muri_logics.logic_action_server_init import InitLogic, InitStates
 from muri_logics.logic_interface import LogicInterface
+from rclpy.callback_groups import MutuallyExclusiveCallbackGroup 
+import time
 
 class InitActionServer(Node):
     def __init__(self, logic: LogicInterface):
         super().__init__('muri_init_action_server')
-        self.init_logic: LogicInterface = logic
 
-        # Callback group für parallele Verarbeitung
-        self._cb_group = ReentrantCallbackGroup()
+        self.init_logic: LogicInterface = logic
 
         self._action_server = ActionServer(
             self,
             INIT,
             'muri_init',
             execute_callback=self.execute_callback,
-            #cancel_callback=self.cancel_callback,
-            callback_group=self._cb_group
+            goal_callback=self.goal_callback,
+            cancel_callback=self.cancel_callback,
+            callback_group=MutuallyExclusiveCallbackGroup()
         )
-
         self.cmd_vel_pub = self.create_publisher(
-            Twist, '/cmd_vel', 10
+            Twist, 
+            '/cmd_vel',
+             10
         )
-
         self.picture_data_sub = self.create_subscription(
-            PictureData, '/muri_picture_data', self.listener_callback_picture_data_asi, 10,
-            callback_group=self._cb_group
+            PictureData,
+            '/muri_picture_data',  
+            self.listener_callback_picture_data_asi,
+            10
         )
-
         self.odom_sub = self.create_subscription(
-            Odometry, '/odom', self.listener_callback_odom_asi, 10,
-            callback_group=self._cb_group
+            Odometry,
+            '/odom',  
+            self.listener_callback_odom_asi,
+            10
         )
-
+        self._timer = self.create_timer(0.1, self.timer_callback_asi, MutuallyExclusiveCallbackGroup())
+        self._goal_handle = None
         self._last_picture_data = None
         self._last_odom = None
 
+    def timer_callback_asi(self):
+        if self._goal_handle is None or not self._goal_handle.is_active:
+            return
+        
+        if self._goal_handle.is_cancel_requested:
+            self.get_logger().info('Canc: init-goal.')
+            self._goal_handle.canceled()
+
+            self._goal_result = INIT.Result()
+            self._goal_result.success = False
+            self._goal_exiting = True
+
+            self._goal_handle = None
+            return 
+
+        self.init_logic.state_machine()
+        out = self.init_logic.getOut()
+
+        if not out.outValid():
+            out.resetOut()
+            return
+        print(str(out.values))
+        cmd_vel = Twist()
+        cmd_vel.linear.x = float(out.values['linear_velocity_x'])
+        cmd_vel.linear.y = float(out.values['linear_velocity_y'])
+        cmd_vel.angular.z = float(out.values['angular_velocity_z'])
+        self.cmd_vel_pub.publish(cmd_vel)
+
+        feedback_msg = INIT.Feedback()
+        feedback_msg.turned_angle = float(out.values['turned_angle'])
+        self._goal_handle.publish_feedback(feedback_msg)
+
+        if self.init_logic.getActiveState() == InitStates.SUCCESS:
+            self.get_logger().info('succ: init-goal.')
+            self._goal_handle.succeed()
+
+            self._goal_result = INIT.Result()
+            self._goal_result.success = True
+            self._goal_exiting = True
+
+            self._goal_handle = None
+
+        elif self.init_logic.getActiveState() == InitStates.FAILED:
+            self.get_logger().info('fail: init-goal.')
+            self._goal_handle.abort()
+
+            self._goal_result = INIT.Result()
+            self._goal_result.success = False
+            self._goal_exiting = True
+
+            self._goal_handle = None
+
+        out.resetOut()
+
     def execute_callback(self, goal_handle):
         self.get_logger().info('Exec: init-goal')
+
+        self._goal_handle = goal_handle
+        
+        self._goal_exiting = False
+        self._goal_result = None
+
+        while not self._goal_result:
+            time.sleep(0.05)
+
+        return self._goal_result
+
+    def goal_callback(self, goal_request):
+        self.get_logger().info('Rec: init-goal')
+
+        if self._goal_handle is not None and self._goal_handle.is_active:
+            self.get_logger().info('Rej: init-goal')
+            return GoalResponse.REJECT
+        
+        self.get_logger().info('Acc: init-goal')
+
         self.init_logic.reset()
         self.init_logic.setActive()
 
-        result = INIT.Result()
-        err_out_counter = 0
-        ERR_THRESHOLD = 5
-
-        while rclpy.ok() and goal_handle.is_active:
-            if goal_handle.is_cancel_requested:
-                self.get_logger().info('Canc: init-goal.')
-                goal_handle.canceled()
-                result.success = False
-                return result
-
-            self.init_logic.state_machine()
-            out = self.init_logic.getOut()
-
-            if not out.outValid():
-                out.resetOut()
-                err_out_counter += 1
-                if err_out_counter >= ERR_THRESHOLD:
-                    self.get_logger().error('ERR_THRESHOLD reached -> abort init goal.')
-                    cmd_vel = Twist()
-                    self.cmd_vel_pub.publish(cmd_vel)
-                    goal_handle.abort()
-                    result.success = False
-                    return result
-                rclpy.spin_once(self, timeout_sec=0.1)
-                continue
-
-            cmd_vel = Twist()
-            cmd_vel.linear.x = float(out.values.get('linear_velocity_x', 0.0))
-            cmd_vel.linear.y = float(out.values.get('linear_velocity_y', 0.0))
-            cmd_vel.angular.z = float(out.values.get('angular_velocity_z', 0.0))
-            self.cmd_vel_pub.publish(cmd_vel)
-
-            feedback_msg = INIT.Feedback()
-            feedback_msg.turned_angle = float(out.values.get('turned_angle', 0.0))
-            goal_handle.publish_feedback(feedback_msg)
-
-            active_state = self.init_logic.getActiveState()
-            if active_state == InitStates.SUCCESS:
-                self.get_logger().info('succ: init-goal.')
-                goal_handle.succeed()
-                result.success = True
-                return result
-
-            if active_state == InitStates.FAILED:
-                self.get_logger().info('fail: init-goal.')
-                goal_handle.abort()
-                result.success = False
-                return result
-
-            out.resetOut()
-            rclpy.spin_once(self, timeout_sec=0.1)
-
-        self.get_logger().info('rclpy not OK or goal not active -> aborting init goal.')
-        result.success = False
-        return result
+        return GoalResponse.ACCEPT
 
     def cancel_callback(self, goal_handle):
         self.get_logger().info('Rec: cancel init-goal')
@@ -118,16 +141,18 @@ class InitActionServer(Node):
         self._last_picture_data = msg
         self.init_logic.setCameraData(msg.angle_in_rad, msg.distance_in_meters)
 
-
 def main(args=None):
     rclpy.init(args=args)
+
     init_action_server = InitActionServer(InitLogic())
+    executor = MultiThreadedExecutor(num_threads=4)
+    executor.add_node(init_action_server)
+
     try:
-        executor = MultiThreadedExecutor()
-        executor.add_node(init_action_server)
         executor.spin()
     except (KeyboardInterrupt, ExternalShutdownException):
         init_action_server.get_logger().info('Interrupt received at InitActionServer, shutting down.')
+        # cmd_vel wird vom main controller auf null gesetzt
     finally:
         init_action_server.destroy_node()
         rclpy.shutdown()

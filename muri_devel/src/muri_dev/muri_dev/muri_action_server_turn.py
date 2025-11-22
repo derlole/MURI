@@ -3,11 +3,13 @@ from rclpy.action import ActionServer, GoalResponse, CancelResponse
 from rclpy.node import Node
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
-from rclpy.executors import ExternalShutdownException
+from rclpy.executors import ExternalShutdownException, MultiThreadedExecutor
 from muri_dev_interfaces.action import TURN
 from muri_dev_interfaces.msg import PictureData
 from muri_logics.logic_action_server_turn import TurnLogic, TurnStates
 from muri_logics.logic_interface import LogicInterface
+from rclpy.callback_groups import MutuallyExclusiveCallbackGroup 
+import time
 
 class TurnActionServer(Node):
     def __init__(self, locic: LogicInterface):
@@ -20,8 +22,9 @@ class TurnActionServer(Node):
             TURN,
             'muri_turn',
             execute_callback=self.execute_callback,
-            #goal_callback=self.goal_callback,
-            cancel_callback=self.cancel_callback
+            goal_callback=self.goal_callback,
+            cancel_callback=self.cancel_callback,
+            callback_group=MutuallyExclusiveCallbackGroup()
         )
         self.cmd_vel_pub = self.create_publisher(
             Twist, 
@@ -43,7 +46,7 @@ class TurnActionServer(Node):
         self._goal_handle = None
         self._last_picture_data = None
         self._last_odom = None
-        self._timer = self.create_timer(0.1, self.timer_callback_ast)
+        self._timer = self.create_timer(0.1, self.timer_callback_ast, MutuallyExclusiveCallbackGroup())
 
     def timer_callback_ast(self):
         if self._goal_handle is None or not self._goal_handle.is_active:
@@ -107,7 +110,7 @@ class TurnActionServer(Node):
         self._goal_result = None
 
         while not self._goal_exiting:
-            rclpy.spin_once(self, timeout_sec=0.1)
+            time.sleep(0.05)
 
         return self._goal_result
 
@@ -140,8 +143,11 @@ def main(args=None):
     rclpy.init(args=args)
 
     turn_action_server = TurnActionServer(TurnLogic())
+    excecutor = MultiThreadedExecutor()
+    excecutor.add_node(turn_action_server)
+
     try:
-        rclpy.spin(turn_action_server)
+        excecutor.spin()
     except (KeyboardInterrupt, ExternalShutdownException):
         turn_action_server.get_logger().info('Interrupt received at TurnActionServer, shutting down.')
         # cmd_vel wird vom main controller auf null gesetzt
