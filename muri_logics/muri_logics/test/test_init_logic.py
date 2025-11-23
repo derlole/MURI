@@ -3,7 +3,7 @@ import math
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from logic_action_server_init import InitLogic, InitStates, Constants
+from logic_action_server_init import InitLogic, InitStates,Constants
 
 
 class TestInitLogic(unittest.TestCase):
@@ -37,9 +37,17 @@ class TestInitLogic(unittest.TestCase):
         """Moves from READY to INITMOVE if firstTheta not set"""
         self.logic.reset()
         self.logic.setActive()
-        q = SimpleNamespace(x = 0.0, y = 0.0, z = 0.0, w = 0.0)
+        self.logic.state_machine()
+        self.assertEqual(self.logic.getActiveState(), InitStates.INITMOVE)
+
+    def test_state_progression_to_intmove_with_first_theta(self):
+        """Moces from READY to INTMOVE when firstTheta is set"""
+        self.logic.reset()
+        self.logic.setActive()
+        q = SimpleNamespace(x = 1.0, y = 2.5, z = 0.0, w = 5.5)
         self.logic.setOdomData(0.0, 0.0, q)
         self.logic.state_machine()
+        #self.assertEqual(self.logic.__firstTheta, )
         self.assertEqual(self.logic.getActiveState(), InitStates.INITMOVE)
 
     def test_calculate_turn(self):
