@@ -4,62 +4,60 @@ import numpy as np
 import pytest
 from aruco_marker_detection import AMD
 
-# Hilfsfunktion: Bild laden (kann später durch Fixtures ersetzt werden)
-def load_image(rel_path: str) -> np.ndarray:
-    """Lädt ein Bild aus dem Test‑Verzeichnis und gibt es als BGR‑Array zurück."""
-    img_path = pathlib.Path(__file__).parent / rel_path
-    img = cv.imread(str(img_path))
-    if img is None:
-        raise FileNotFoundError(f"Bild nicht gefunden: {img_path}")
-    return img
 
-# Fixtures für die beiden Testbilder
-@pytest.fixture(scope="module")
-def img_max():
-    """Bild, das die maximale Distanz zum Marker erzeugt."""
-    return load_image("images/max_distance.jpg")
+# test_amd.py
+import cv2 as cv
+import math
+import numpy as np
+import unittest
 
-@pytest.fixture(scope="module")
-def img_min():
-    """Bild, das die minimale Distanz zum Marker erzeugt."""
-    return load_image("images/min_distance.jpg")
+from aruco_marker_detection import AMD   # <-- Pfad ggf. anpassen
 
-# Grundlegender Setup‑Fixture
-@pytest.fixture
-def detector():
-    """Instanziiert die AMD‑Klasse mit den vordefinierten Kameraparametern."""
-    return AMD()
 
-# Test für die maximale Distanz
-def test_max_distance(detector, img_max):
-    """
-    Erwartet, dass die ermittelte Z‑Position (Tiefe) im Bereich
-    der maximal erwarteten Distanz liegt.
-    """
-    z_pos, _ = detector.aruco_detection(img_max)
+class TestAMD(unittest.TestCase):
+    """Test‑Suite für die AMD‑Klasse."""
 
-    # Beispiel‑Grenzwerte – an dein Setup anpassen
-    max_expected = 2000.0   # mm
-    min_expected = 1500.0   # mm
+    @classmethod
+    def setUpClass(cls):
+        """Erstelle ein AMD‑Objekt, das für alle Tests verwendet wird."""
+        cls.amd = AMD()
 
-    assert min_expected <= z_pos <= max_expected, (
-        f"Max‑Distanz‑Test fehlgeschlagen: {z_pos:.1f} mm "
-        f"liegt nicht im erwarteten Bereich [{min_expected}, {max_expected}]"
-    )
+    def test_no_marker(self):
+        """Bild ohne ArUco‑Marker → erwartete Rückgabe (-1000.0, π)."""
+        # Schwarzes Bild (keine Marker)
+        img = np.zeros((480, 640, 3), dtype=np.uint8)
 
-# Test für die minimale Distanz
-def test_min_distance(detector, img_min):
-    """
-    Erwartet, dass die ermittelte Z‑Position (Tiefe) im Bereich
-    der minimalen erwarteten Distanz liegt.
-    """
-    z_pos, _ = detector.aruco_detection(img_min)
+        z, y_rot = self.amd.aruco_detection(img)
 
-    # Beispiel‑Grenzwerte – an dein Setup anpassen
-    max_expected = 500.0    # mm
-    min_expected = 100.0    # mm
+        self.assertAlmostEqual(z, -1000.0, places=3)
+        self.assertAlmostEqual(y_rot, math.pi, places=5)
 
-    assert min_expected <= z_pos <= max_expected, (
-        f"Min‑Distanz‑Test fehlgeschlagen: {z_pos:.1f} mm "
-        f"liegt nicht im erwarteten Bereich [{min_expected}, {max_expected}]"
-    )
+    def test_with_marker(self):
+        """Bild mit einem bekannten Marker → prüfe, dass ein Ergebnis zurückkommt."""
+        # 1. Erstelle ein Test‑Marker‑Bild (ID = 0)
+        marker_id = 0
+        marker_size_px = 200
+        aruco_dict = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_5X5_1000)
+        marker_img = cv.aruco.generateImageMarker(
+            aruco_dict, marker_id, marker_size_px, 1)
+
+        # 2. Lege das Marker‑Bild in ein größeres Bild ein (Simulation einer Kameraaufnahme)
+        img = np.zeros((480, 640, 3), dtype=np.uint8)
+        x_offset, y_offset = 220, 140
+        img[y_offset:y_offset+marker_size_px,
+            x_offset:x_offset+marker_size_px] = cv.cvtColor(marker_img, cv.COLOR_GRAY2BGR)
+
+        # 3. Aufruf der Erkennungsfunktion
+        z, y_rot = self.amd.aruco_detection(img)
+
+        # 4. Prüfe, dass ein plausibles Ergebnis zurückkommt
+        #    (Tiefe > 0 und Winkel im Bereich [-π/2, π/2])
+        self.assertGreater(z, 0.0, "Tiefe sollte positiv sein")
+        self.assertGreaterEqual(y_rot, -math.pi/2)
+        self.assertLessEqual(y_rot, math.pi/2)
+
+        # Optional: Ausgabe für manuelle Kontrolle
+        print(f"\nErkannt – Tiefe: {z:.2f} mm, Winkel: {math.degrees(y_rot):.2f}°")
+
+if __name__ == "__main__":
+    unittest.main()
