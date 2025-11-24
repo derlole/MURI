@@ -71,7 +71,6 @@ class DriveActionServer(Node):
         print(str(out.values['linear_velocity_x']) + str(out.outValid()) + str(out.values['angular_velocity_z']))
         if not out.outValid():
             out.resetOut()
-            self.__err_out_counter += 1
             return
         
         cmd_vel = Twist()
@@ -79,14 +78,8 @@ class DriveActionServer(Node):
         cmd_vel.linear.y = float(out.values['linear_velocity_y'])
         cmd_vel.angular.z = float(out.values['angular_velocity_z'])
 
-        if self.__err_out_counter >= ERR_THRESHOLD:
-            cmd_vel.linear.x = 0.0
-            cmd_vel.linear.y = 0.0
-            cmd_vel.angular.z = 0.0
-            self.cmd_vel_pub.publish(cmd_vel)
-            return
-        else:
-            self.cmd_vel_pub.publish(cmd_vel)
+
+        self.cmd_vel_pub.publish(cmd_vel)
 
         feedback_msg = DRIVE.Feedback()
         feedback_msg.distance_remaining = float(out.values['distance_remaining'])

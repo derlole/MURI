@@ -13,14 +13,6 @@ class AMD():
     """
 
     def __init__(self):
-        """
-        Initialise the ArUco detector and the camera parameters.
-
-        The marker dictionary is a predefined 5x5 dictionary containing
-        1000 possible IDs. The camera matrix and distortion coefficients
-        are hard-coded and correspond to a previously run script 
-        calibrating the camera of the used device.
-        """
         self.marker_size = 175  # mm
         aruco_dict = aruco.getPredefinedDictionary(aruco.DICT_5X5_1000)
         aruco_params = aruco.DetectorParameters()
@@ -45,13 +37,10 @@ class AMD():
     def aruco_detection(self, img):
         """Detect ArUco marker and return its depth and rotation.
 
-        Parameters
-        ----------
+        Parameters:
         img : numpy.ndarray
-            Input image in BGR format.
 
-        Returns
-        -------
+        Returns:
         tuple
             (z_pos, y_rot) where
             - z_pos is the depth (Z-coordinate) in millimeters,
@@ -82,27 +71,16 @@ class AMD():
                     print(f'tvec: 0:{tvec[0]}    1:{tvec[1]}     2:{tvec[2]}')
                     print(f'Berechneter Winkel: {angle_rad} rad ({math.degrees(angle_rad):.2f}°)')
                     
-                    return tvec[2][0], -angle_rad
+                    return tvec[2][0], angle_rad
     
         return -1000.0, math.pi
     
     def calculate_angle_to_marker(self, corners):
-        """
-        Berechnet den horizontalen Winkel vom Kameramittelpunkt zum Markermittelpunkt.
+        '''
+        Input:
         
-        Parameters
-        ----------
-        corners : numpy.ndarray
-            Die Ecken des detektierten Markers (von detectMarkers).
-        
-        Returns
-        -------
-        float
-            Winkel in Radiant. 
-            - 0 rad = Marker ist in Bildmitte
-            - Positiv = Marker ist rechts von der Mitte
-            - Negativ = Marker ist links von der Mitte
-        """
+        '''
+
         marker_corners = corners[0]
         marker_center_x = np.mean(marker_corners[:, 0])
         marker_center_y = np.mean(marker_corners[:, 1])
@@ -117,3 +95,5 @@ class AMD():
         angle_rad = math.atan2(delta_x, fx)
         
         return angle_rad
+    
+    

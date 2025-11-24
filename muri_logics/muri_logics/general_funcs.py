@@ -19,7 +19,7 @@ def p_regulator(error, kp, max_output):
     kp: proportional gain factor.
     max_output: absolute maximum output."""
 
-    output = kp * error
+    output = -kp * error
 
     if output > max_output:
         output = max_output
