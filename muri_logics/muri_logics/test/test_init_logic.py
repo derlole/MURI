@@ -56,7 +56,7 @@ class TestInitLogic(unittest.TestCase):
         self.logic.setActive()
         q = SimpleNamespace(x = 0.0, y = 0.0, z = 0.0, w = 0.0)
         self.logic.setOdomData(0.0, 0.0, q)
-        self.logic.setCameraData(angleIR=1.0, distanceIM=2.0)
+        self.logic.setCameraData(angleIR = -1.0, distanceIM = 2.0)
 
         self.logic.state_machine()  # To enter INITMOVE
 

@@ -66,7 +66,7 @@ class TestDriveLogic(unittest.TestCase):
     def test_calculate_rotation(self):
         """calculate() should generate angular velocity if misaligned."""
         self.logic.reset()
-        self.logic.setCameraData(angleIR=0.5, distanceIM=1.0)
+        self.logic.setCameraData(angleIR = -0.5, distanceIM = 1.0)
 
         angular, linear = self.logic.calculate()
 

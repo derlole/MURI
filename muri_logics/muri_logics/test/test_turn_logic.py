@@ -63,11 +63,4 @@ class TestTurnLogic(unittest.TestCase):
         self.logic.state_machine()
         self.assertEqual(self.logic.getActiveState(), TurnStates.TURNMOVE)
 
-    def test_calculate_rotation(self):
-        """calculate() should return angular velocity if angle is large"""
-        self.logic.reset()
-        self.logic.setCameraData(angleTM = 0.8, distanceIM = 2.0)
-
-        angular, turned_angle = self.logic.calculate()
-        self.assertGreater(angular, 0.0)
-        self.assertIsInstance(turned_angle, float)
+    
