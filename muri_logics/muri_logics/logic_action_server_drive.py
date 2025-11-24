@@ -2,6 +2,7 @@ from enum import Enum
 from muri_logics.logic_interface import LogicInterface, Out
 from muri_logics.general_funcs import quaternion_to_yaw, p_regulator
 import math
+import config
 
 class DriveStates(Enum):
     INIT = 0
@@ -10,17 +11,6 @@ class DriveStates(Enum):
     SUCCESS = 3
     RAEDY = 4
     DRIVEMOVE = 5
-
-
-
-class Constants():
-    """Stores constants"""
-    ANGLETOLLERANCE = 0.01
-    MAXVELOSETY = 0.08
-    MAXANGLEVELOSETY = 0.4
-    MAXANGLE = math.pi 
-    GOALDISTANCE = 0.25 #TODO Sinvolle distanz
-
 
 
 class DriveOut(Out):
@@ -143,11 +133,11 @@ class DriveLogic(LogicInterface):
         angular_Velocity = 0.0
         linear_Velocity = 0.0
 
-        if abs(self.__angle_to_Mid_in_Rad) > Constants.ANGLETOLLERANCE and self.__distance_in_Meter > Constants.GOALDISTANCE:
-            angular_Velocity = p_regulator(self.__angle_to_Mid_in_Rad, 2.0, Constants.MAXANGLEVELOSETY)
+        if abs(self.__angle_to_Mid_in_Rad) > config.ANGLE_REGULATOR_DRIVE and self.__distance_in_Meter > config.GOAL_DISTANCE:
+            angular_Velocity = p_regulator(self.__angle_to_Mid_in_Rad, config.KP_DRIVE, config.MAX_ANGLE_VELOCITY_DRIVE)
 
-        if self.__distance_in_Meter > Constants.GOALDISTANCE: 
-            linear_Velocity = Constants.MAXVELOSETY
+        if self.__distance_in_Meter > config.GOAL_DISTANCE: 
+            linear_Velocity = config.MAX_VELOCITY
 
         else:
             linear_Velocity = 0.0
@@ -181,7 +171,7 @@ class DriveLogic(LogicInterface):
                     avz, lv = self.calculate()
                     self.__output.values = (lv, None, avz, self.__distance_in_Meter)
                     self.__output.isValid = True
-                    if self.__distance_in_Meter < Constants.GOALDISTANCE:
+                    if self.__distance_in_Meter < config.GOAL_DISTANCE:
                         self.__state = DriveStates.SUCCESS
 
                 case DriveStates.FAILED:

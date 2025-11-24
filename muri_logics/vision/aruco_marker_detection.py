@@ -2,6 +2,7 @@ import cv2 as cv
 import cv2.aruco as aruco
 import numpy as np
 import math
+import config
 
 class AMD():
     """
@@ -13,26 +14,16 @@ class AMD():
     """
 
     def __init__(self):
-        self.marker_size = 175  # mm
+        self.marker_size = config.MARKER_SIZE  # mm
         aruco_dict = aruco.getPredefinedDictionary(aruco.DICT_5X5_1000)
         aruco_params = aruco.DetectorParameters()
         self.detector = aruco.ArucoDetector(aruco_dict, aruco_params)
         self.aruco_dict = aruco_dict
         
         
-        self.camera_matrix = np.array([
-            [1856.5594482378056, 0.0, 971.2508020385866],
-            [0.0, 1854.2218241989967, 472.4387993168578],
-            [0.0, 0.0, 1.0]
-        ], dtype=np.float32)
+        self.camera_matrix = np.array(config.CAMERA_MATRIX_RAW, dtype=np.float32)
 
-        self.dist_coeffs = np.array([
-            [0.4258768890441897],
-            [-2.58573901335018],
-            [-0.029226787102926456],
-            [-0.005191425823853011],
-            [ 6.748360238575704]
-        ], dtype=np.float32)
+        self.dist_coeffs = np.array(config.DISTANCE_COEFFICIENT, dtype=np.float32)
 
     def aruco_detection(self, img):
         """Detect ArUco marker and return its depth and rotation.

@@ -1,5 +1,6 @@
 setup.py
 muri_logics/__init__.py
+muri_logics/bg.py
 muri_logics/general_funcs.py
 muri_logics/logic_action_server_drive.py
 muri_logics/logic_action_server_init.py

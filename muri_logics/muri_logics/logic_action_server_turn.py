@@ -2,6 +2,7 @@ from enum import Enum
 from muri_logics.logic_interface import LogicInterface, Out
 from muri_logics.general_funcs import quaternion_to_yaw, p_regulator
 import math
+import config
 
 
 class TurnStates(Enum):
@@ -11,14 +12,6 @@ class TurnStates(Enum):
     SUCCESS = 3
     RAEDY = 4
     TURNMOVE = 5
-
-
-
-class Constants(): 
-    ANGLETOLLERANCE = 0.1
-    MAXANGLEVELOSETY = 0.20
-    MAXANGLE = math.pi
-
 
 
 class TurnOut(Out):
@@ -143,12 +136,12 @@ class TurnLogic(LogicInterface):
         if abs(tuerndAngle) > math.pi:
             tuerndAngle = tuerndAngle + 2 * math.pi
         
-        angularVelocityZ = Constants.MAXANGLEVELOSETY
+        angularVelocityZ = config.MAX_ANGLE_VELOCITY_TURN
 
-        if abs(self.__angle_to_Mid_in_Rad) > Constants.ANGLETOLLERANCE and self.__distance_in_meter > 1.0:
-            angularVelocityZ = p_regulator(self.__angle_to_Mid_in_Rad, 0.2, Constants.MAXANGLEVELOSETY)
+        if abs(self.__angle_to_Mid_in_Rad) > config.ANGLE_TOLLERANCE_TURN and self.__distance_in_meter > 1.0:
+            angularVelocityZ = p_regulator(self.__angle_to_Mid_in_Rad, config.KP_TURN, config.MAX_ANGLE_VELOCITY_TURN)
 
-        if abs(self.__angle_to_Mid_in_Rad) < Constants.ANGLETOLLERANCE and self.__distance_in_meter > 1.0:
+        if abs(self.__angle_to_Mid_in_Rad) < config.ANGLE_TOLLERANCE_TURN and self.__distance_in_meter > 1.0:
             angularVelocityZ = 0.0
             
         return angularVelocityZ, tuerndAngle
@@ -185,7 +178,7 @@ class TurnLogic(LogicInterface):
                 avz, ta = self.calculate()
                 self.__output.values = (None, None, avz, ta)
                 self.__output.isValid = True
-                if abs(self.__angle_to_Mid_in_Rad) < Constants.ANGLETOLLERANCE and self.__distance_in_meter > 1.0:
+                if abs(self.__angle_to_Mid_in_Rad) < config.ANGLE_TOLLERANCE_TURN and self.__distance_in_meter > 1.0:
                     self.__state = TurnStates.SUCCESS
 
             case TurnStates.FAILED:

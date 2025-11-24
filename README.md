@@ -31,6 +31,10 @@ source install/setup.bash
 cd MURI/muri_logics
 pip install -e .
 
+5. If your System needs different requirements e.g Camera Calibaration or any regulator parameters go into MURI/muri_logics and change the needed parameters
+
+6. 
+
 
 
 

@@ -2,6 +2,7 @@ from enum import Enum
 from muri_logics.logic_interface import LogicInterface, Out
 from muri_logics.general_funcs import quaternion_to_yaw, p_regulator
 import math
+import config
 
 
 
@@ -12,15 +13,6 @@ class InitStates(Enum):
     SUCCESS = 3
     RAEDY = 4 
     INITMOVE = 5
-
-
-
-class Constants():
-    ANGLETOLLERAMCE = 0.05
-    MAXANGLEVELOSETY = 0.20
-    MAXANGLE = 2 * math.pi #TODO maximalen winkel anpassen 
-
-
 
 class InitOut(Out):
     def __init__(self): 
@@ -143,12 +135,12 @@ class InitLogic(LogicInterface):
         if abs(tuerndAngle) > math.pi:
             tuerndAngle = tuerndAngle + 2 * math.pi
         
-        angularVelocityZ = Constants.MAXANGLEVELOSETY
+        angularVelocityZ = config.MAX_ANGLE_VELOCITY_TURN
 
-        if abs(self.__angle_to_Mid_in_Rad) > Constants.ANGLETOLLERAMCE and self.__distance_in_Meter > 1.0:
-            angularVelocityZ = p_regulator(self.__angle_to_Mid_in_Rad, 0.2, Constants.MAXANGLEVELOSETY)
+        if abs(self.__angle_to_Mid_in_Rad) > config.ANGLE_TOLLERANCE_INIT and self.__distance_in_Meter > 1.0:
+            angularVelocityZ = p_regulator(self.__angle_to_Mid_in_Rad, config.KP, config.MAX_ANGLE_VELOCITY_TURN)
 
-        if abs(self.__angle_to_Mid_in_Rad) < Constants.ANGLETOLLERAMCE and self.__distance_in_Meter > 1.0:
+        if abs(self.__angle_to_Mid_in_Rad) < config.ANGLE_TOLLERANCE_INIT and self.__distance_in_Meter > 1.0:
             angularVelocityZ = 0.0
             
         return angularVelocityZ, tuerndAngle
@@ -185,7 +177,7 @@ class InitLogic(LogicInterface):
                 avz, ta = self.calculate()
                 self.__output.values = (None, None, avz, ta)
                 self.__output.isValid = True
-                if abs(self.__angle_to_Mid_in_Rad) < Constants.ANGLETOLLERAMCE and self.__distance_in_Meter > 1.0:
+                if abs(self.__angle_to_Mid_in_Rad) < config.ANGLE_TOLLERANCE_INIT and self.__distance_in_Meter > 1.0:
                     self.__state = InitStates.SUCCESS
                 
                 #TODO wenn zu weit gedreht gehe in FAILED
