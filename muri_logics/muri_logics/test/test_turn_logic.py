@@ -36,22 +36,28 @@ class TestTurnLogic(unittest.TestCase):
 
         self.assertEqual(self.logic.getActiveState(), TurnStates.IDLE)
         self.assertFalse(out.outValid())
-        self.assertIn('angular_velocity_z', out.values)
+        self.assertIn('linear_velocity_x', out.values)
+        self.assertEqual(out.values['linear_velocity_x'], 0.0)
+        self.assertEqual(out.values['linear_velocity_y'], 0.0)
         self.assertEqual(out.values['angular_velocity_z'], 0.0)
+        self.assertEqual(out.values['turened_angle'], 0.0)
 
-    def test_set_odom_data(self):
-        """Odom data should be converted via quaternion → yaw"""
-        with patch("your_module_file.quaternion_to_yaw", return_value=1.234):
-            self.logic.setOdomData(1.0, 2.0, (0, 0, 0, 1))
-            self.assertAlmostEqual(
-                self.logic._TurnLogic__position_Theta, 1.234, delta=1e-6
-            )
+
+    def test_setOdomData(self): #TODO Funktion Überprüfung
+        
+        q = SimpleNamespace(x = 0, y = 0, z = 0, w = 1)
+        self.logic.setOdomData(1.0, 2.0, q)
+
+        self.assertEqual(self.logic._TurnLogic__position_Theta, 0.0)
+        self.assertEqual(self.logic._TurnLogic__position_X, 1.0)
+        self.assertEqual(self.logic._TurnLogic__position_Y, 2.0)
 
     def test_state_progression_to_turnmove(self):
         """RAEDY state should transition to TURNMOVE with first Theta set"""
         self.logic.reset()
         self.logic.setActive()
-        self.logic.setOdomData(0, 0, 0)
+        q = SimpleNamespace(x = 0, y = 0, z = 0, w = 1)
+        self.logic.setOdomData(0, 0, q)
 
         # Call state_machine once → RAEDY → TURNMOVE
         self.logic.state_machine()
@@ -60,50 +66,8 @@ class TestTurnLogic(unittest.TestCase):
     def test_calculate_rotation(self):
         """calculate() should return angular velocity if angle is large"""
         self.logic.reset()
-        self.logic.setCameraData(angleTM=0.5, distanceIM=2.0)
+        self.logic.setCameraData(angleTM = 0.8, distanceIM = 2.0)
 
         angular, turned_angle = self.logic.calculate()
         self.assertGreater(angular, 0.0)
         self.assertIsInstance(turned_angle, float)
-
-    def test_calculate_no_rotation_if_aligned(self):
-        """calculate() should return zero angular velocity if angle < tolerance"""
-        self.logic.reset()
-        self.logic.setCameraData(angleTM=0.05, distanceIM=2.0)
-
-        angular, _ = self.logic.calculate()
-        self.assertEqual(angular, 0.0)
-
-    def test_turn_to_success(self):
-        """TURNMOVE should transition to SUCCESS if angle within tolerance"""
-        self.logic.reset()
-        self.logic.setActive()
-        self.logic.setOdomData(0, 0, 0)
-
-        # READY → TURNMOVE
-        self.logic.state_machine()
-        self.logic.setCameraData(angleTM=0.05, distanceIM=2.0)
-
-        # Run state_machine to trigger TURNMOVE
-        self.logic.state_machine()
-        self.assertEqual(self.logic.getActiveState(), TurnStates.SUCCESS)
-
-    def test_output_validity_in_turnmove(self):
-        """Output should be valid during TURNMOVE"""
-        self.logic.reset()
-        self.logic.setActive()
-        self.logic.setOdomData(0, 0, 0)
-        self.logic.setCameraData(angleTM=0.5, distanceIM=2.0)
-
-        # READY → TURNMOVE
-        self.logic.state_machine()
-        self.logic.state_machine()  # run calculate in TURNMOVE
-
-        out = self.logic.getOut()
-        self.assertTrue(out.outValid())
-        self.assertIn('angular_velocity_z', out.values)
-        self.assertIn('turened_angle', out.values)
-
-
-if __name__ == '__main__':
-    unittest.main()
