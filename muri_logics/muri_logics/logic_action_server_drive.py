@@ -155,6 +155,7 @@ class DriveLogic(LogicInterface):
                     self.__position_X = 0.0
                     self.__position_Y = 0.0
                     self.__position_Theta = 0.0
+                    self.__state = DriveStates.IDLE
 
                 case DriveStates.IDLE:
                     print('drive-idle state')

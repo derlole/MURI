@@ -107,6 +107,8 @@ class TurnLogic(LogicInterface):
         self.__position_Y = 0.0
         self.__position_Theta = 0.0
         self.__first_Theta = None
+        self.__angle_to_Mid_in_Rad = 0.0
+        self.__distance_in_meter = 0.0
         self.__output.resetOut()
         self.__state = TurnStates.IDLE
 
@@ -136,10 +138,10 @@ class TurnLogic(LogicInterface):
         if abs(tuerndAngle) > math.pi:
             tuerndAngle = tuerndAngle + 2 * math.pi
         
-        angularVelocityZ = config.MAX_ANGLE_VELOCITY_TURN
+        angularVelocityZ = config.MAX_ANGLE_VELOCITY_TURN_INIT
 
         if abs(self.__angle_to_Mid_in_Rad) > config.ANGLE_TOLLERANCE_TURN and self.__distance_in_meter > 1.0:
-            angularVelocityZ = p_regulator(self.__angle_to_Mid_in_Rad, config.KP_TURN, config.MAX_ANGLE_VELOCITY_TURN)
+            angularVelocityZ = p_regulator(self.__angle_to_Mid_in_Rad, config.KP_TURN, config.MAX_ANGLE_VELOCITY_TURN_INIT)
 
         if abs(self.__angle_to_Mid_in_Rad) < config.ANGLE_TOLLERANCE_TURN and self.__distance_in_meter > 1.0:
             angularVelocityZ = 0.0
