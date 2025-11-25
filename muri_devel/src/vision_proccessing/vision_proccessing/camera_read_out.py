@@ -26,8 +26,9 @@ class CameraReadOut(Node):
         self.img.set(cv.CAP_PROP_FRAME_HEIGHT, 1080)
         self.img.set(cv.CAP_PROP_BUFFERSIZE, 1)
         
-
         self.data = self.create_timer(timer_time, self.timer_callback)
+
+        self.get_logger().info('CameraReadOut-Node gestartet')
 
     def timer_callback(self):
         """
