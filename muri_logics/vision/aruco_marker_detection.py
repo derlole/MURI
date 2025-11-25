@@ -5,13 +5,13 @@ import math
 import config
 
 class AMD():
-    """
+    '''
     ArUco marker detection
 
     The class encapsulates an OpenCV ArUco detector, the camera parameters
     and the logic to obtain the depth (Z-coordinate) and Y-rotation of a
     detected marker from a single image.
-    """
+    '''
 
     def __init__(self):
         self.marker_size = config.MARKER_SIZE  # mm
@@ -26,18 +26,20 @@ class AMD():
         self.dist_coeffs = np.array(config.DISTANCE_COEFFICIENT, dtype=np.float32)
 
     def aruco_detection(self, img):
-        """Detect ArUco marker and return its depth and rotation.
+        ''' Detect ArUco marker and return its depth and rotation.
 
-        Parameters:
+        Parameters
+        ----------
         img : numpy.ndarray
 
-        Returns:
+        Returns
+        ----------
         tuple
             (z_pos, y_rot) where
             - z_pos is the depth (Z-coordinate) in millimeters,
             - y_rot is the Y-rotation in radians.
-            If no marker is detected, returns (-1.0, math.pi)."""
-        
+            If no marker is detected, returns (-1.0, math.pi).
+        '''
         frame_gray = img
         corners, ids, _ = self.detector.detectMarkers(frame_gray)
         
@@ -67,11 +69,19 @@ class AMD():
         return -1000.0, math.pi
     
     def calculate_angle_to_marker(self, corners):
-        '''
-        Input:
-        
-        '''
+        ''' Compute the yaw angle of a detected marker.
+        Parameters
+        ----------
+        corners : numpy.ndarray
+            4×2 array with the image coordinates of the marker corners
 
+        Returns
+        ----------
+        float
+            angle_rad in radians.  
+                Positive → marker right of image centre,
+                Negative → left of image centre.
+        '''
         marker_corners = corners[0]
         marker_center_x = np.mean(marker_corners[:, 0])
         marker_center_y = np.mean(marker_corners[:, 1])
@@ -85,6 +95,4 @@ class AMD():
         
         angle_rad = math.atan2(delta_x, fx)
         
-        return angle_rad
-    
-    
+        return angle_rad    
