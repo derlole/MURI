@@ -133,7 +133,7 @@ class DriveLogic(LogicInterface):
         angular_Velocity = 0.0
         linear_Velocity = 0.0
 
-        if abs(self.__angle_to_Mid_in_Rad) > config.ANGLE_REGULATOR_DRIVE and self.__distance_in_Meter > config.GOAL_DISTANCE:
+        if abs(self.__angle_to_Mid_in_Rad) > config.ANGLE_TOLLERANCE_DRIVE and self.__distance_in_Meter > config.GOAL_DISTANCE:
             angular_Velocity = p_regulator(self.__angle_to_Mid_in_Rad, config.KP_DRIVE, config.MAX_ANGLE_VELOCITY_DRIVE)
 
         if self.__distance_in_Meter > config.GOAL_DISTANCE: 

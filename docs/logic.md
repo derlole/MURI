@@ -13,7 +13,7 @@ Das Steuerungssystem folgt einer modularen State-Machine-Architektur:
 - **DriveLogic**: Steuert die Vorwärtsbewegung zum Ziel unter Beibehaltung der Ausrichtung
 - **TurnLogic**: Verwaltet Drehmanöver zur Neuausrichtung des Roboters
 
-Alle Module erben von `LogicInterface` und implementieren das `Out`-Interface für die Ausgabeverwaltung.
+Alle Module implementieren das `LogicInterface`.
 
 ## Gemeinsame Komponenten
 
@@ -91,7 +91,6 @@ def calculate(self):
 **Erfolgsbedingung**: 
 - Winkel zum Ziel < `ANGLE_TOLLERANCE_INIT` UND Entfernung > 1.0m
 
-**Hinweis**: Enthält TODO für Behandlung übermäßiger Rotation (FAILED-Zustand-Übergang).
 
 ### 2. DriveLogic
 
@@ -107,7 +106,7 @@ def calculate(self):
 
 **Ausgabewerte**:
 - `linear_velocity_x`: Vorwärtsgeschwindigkeitsbefehl
-- `angular_velocity_z`: Rotationskorrekturbefehl
+- `angular_velocity_z`: Rotationsgeschwindikeitsbefehl
 - `distance_remaining`: Aktuelle Entfernung zum Ziel
 - `linear_velocity_y`: Nicht verwendet (None)
 
@@ -115,7 +114,7 @@ def calculate(self):
 ```python
 def calculate(self):
     # Wendet Winkelkorrektur an, wenn Abweichung Schwelle überschreitet
-    if abs(angle_error) > ANGLE_REGULATOR_DRIVE:
+    if abs(angle_error) > ANGLE_TOLLERANCE_DRIVE:
         angular_velocity = p_regulator(angle_error, KP_DRIVE, MAX_ANGULAR_VEL)
     
     # Fährt vorwärts bis zur Zielentfernung
@@ -129,11 +128,11 @@ def calculate(self):
 - Entfernung zum Ziel < `GOAL_DISTANCE`
 
 **Konfigurationsparameter**:
-- `ANGLE_REGULATOR_DRIVE`: Minimaler Winkelfehler für Korrektur
+- `ANGLE_TOLLERANCE_DRIVE`: Minimaler Winkelfehler für Korrektur
 - `KP_DRIVE`: Proportionalverstärkung für Winkelsteuerung
 - `MAX_ANGLE_VELOCITY_DRIVE`: Maximale Rotationsgeschwindigkeit
-- `MAX_VELOCITY`: Vorwärtsfahrgeschwindigkeit
-- `GOAL_DISTANCE`: Ziel-Annäherungsentfernung
+- `MAX_VELOCITY`: Maximale Vorwärtsfahrgeschwindigkeit
+- `GOAL_DISTANCE`: Ziel-Distanz
 
 ### 3. TurnLogic
 
@@ -145,10 +144,10 @@ def calculate(self):
 **Zentrale Variablen**:
 - `__first_Theta`: Initiale Orientierung bei Drehbeginn
 - `__angle_to_Mid_in_Rad`: Winkelabweichung zum Ziel
-- `__distance_in_meter`: Entfernung zum Ziel
+- `__distance_in_meter`: Verbleibende Entfernung zum Ziel
 
 **Ausgabewerte**:
-- `angular_velocity_z`: Rotationsbefehl
+- `angular_velocity_z`: Rotationsgeschwindikeitsbefehl
 - `turened_angle`: Gesamtwinkel gedreht (Hinweis: Tippfehler im Schlüsselnamen)
 - `linear_velocity_x`: Nicht verwendet (None)
 - `linear_velocity_y`: Nicht verwendet (None)
@@ -206,7 +205,7 @@ def calculate(self):
    - Übergang zu DRIVE bei Erfolg
 
 2. **DRIVE**: Aktiviert DriveLogic (ASToCall=1)
-   - Überwacht geschätzte Probleme (TODO)
+   - Überwacht geschätzte Probleme 
    - Übergang zu TURN bei Erfolg
 
 3. **TURN**: Aktiviert TurnLogic (ASToCall=2)
@@ -239,7 +238,7 @@ def postInit():
 
 ```
 Kamera/Sensoren → setCameraData()
-                       ↓
+                                ↓
 Odometrie → setOdomData() → Logik-Modul → calculate() → Ausgabe
                                                             ↓
                                                    Roboter-Befehle
@@ -263,7 +262,7 @@ Odometrie → setOdomData() → Logik-Modul → calculate() → Ausgabe
 - `angular_velocity_z`: Rotationsgeschwindigkeit [rad/s]
 
 **Statusinformationen**:
-- `turned_angle` / `turened_angle`: Durchgeführte Gesamtrotation
+- `turned_angle`: Durchgeführte Gesamtrotation
 - `distance_remaining`: Entfernung zum Ziel
 
 ## Konfigurationsparameter
@@ -276,11 +275,11 @@ Das System basiert auf einem `config`-Modul mit folgenden Parametern:
 - `MAX_ANGLE_VELOCITY_TURN_INIT`: Maximale Rotationsgeschwindigkeit
 
 **DriveLogic**:
-- `ANGLE_REGULATOR_DRIVE`: Winkelschwelle für Korrektur
+- `ANGLE_TOLLERANCE_DRIVE`: Winkeltoleranz für Winkelkorrektur
 - `KP_DRIVE`: Proportionalverstärkung für Winkelkorrektur
 - `MAX_ANGLE_VELOCITY_DRIVE`: Maximale Winkelgeschwindigkeit
-- `MAX_VELOCITY`: Vorwärtsfahrgeschwindigkeit
-- `GOAL_DISTANCE`: Zielentfernungsschwelle
+- `MAX_VELOCITY`: Maximale Vorwärtsfahrgeschwindigkeit
+- `GOAL_DISTANCE`: Ziel-Distanz
 
 **TurnLogic**:
 - `ANGLE_TOLLERANCE_TURN`: Winkeltoleranz für Ausrichtung
@@ -292,7 +291,17 @@ Das System basiert auf einem `config`-Modul mit folgenden Parametern:
 Alle Module verwenden einen Proportional-(P)-Regler über `p_regulator()`:
 
 ```python
-angular_velocity = p_regulator(error, kp, max_velocity)
+def p_regulator(error, kp, max_output):
+    # Wird zur Regelung der Winkelgeschwindigkeiten genutzt
+
+    output = -kp * error
+
+    if output > max_output:
+        output = max_output
+    elif output < -max_output:
+        output = -max_output
+    
+    return output
 ```
 
 Diese Funktion:
@@ -354,13 +363,9 @@ if output.isValid:
 2. **TurnLogic**: Tippfehler im Output-Schlüssel `'turened_angle'` (sollte `'turned_angle'` sein)
    - Auch Inkonsistenz in `resetOut()`: verwendet `'turned_angle'` statt `'turened_angle'`
 3. **MainController**: 
-   - `calculateEstimatedProblems()` nicht implementiert
    - `PAUSE`-Zustand nicht implementiert
-   - Zielpositionsberechnungsmethode existiert, aber Integration unklar
    - Tippfehler in `setGoalStautusFinished` (sollte `setGoalStatusFinished` sein)
-4. **Alle Module**: Fehlerbehandlung in FAILED-Zuständen ist minimal
-5. **Winkel-Wrapping**: Einige Inkonsistenzen bei der Behandlung von 2π-Wrap-Around
-6. **Rechtschreibfehler**: `RAEDY` sollte `READY` sein (in allen Modulen)
+4. **Rechtschreibfehler**: `RAEDY` sollte `READY` sein (in allen Modulen)
 
 ## Abhängigkeiten
 

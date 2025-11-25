@@ -71,7 +71,7 @@ class TestDriveLogic(unittest.TestCase):
     def test_calculate_rotation(self):
         """calculate() should generate angular velocity and linear velocety if misaligned / Goal not reached ."""
         self.logic.reset()
-        self.logic.setCameraData(config.ANGLE_REGULATOR_DRIVE + 1, 2.0)
+        self.logic.setCameraData(config.ANGLE_TOLLERANCE_DRIVE + 1, 2.0)
 
         avz, lv = self.logic.calculate()
 
@@ -81,7 +81,7 @@ class TestDriveLogic(unittest.TestCase):
     def test_calculate_stop_at_goal(self):
         """calculate() should stop linear motion and angular motion when near goal."""
         self.logic.reset()
-        self.logic.setCameraData(config.ANGLE_REGULATOR_DRIVE / 2, config.GOAL_DISTANCE - 0.5)
+        self.logic.setCameraData(config.ANGLE_TOLLERANCE_DRIVE / 2, config.GOAL_DISTANCE - 0.5)
 
         avz, lv = self.logic.calculate()
 
@@ -94,13 +94,13 @@ class TestDriveLogic(unittest.TestCase):
         self.logic.setActive()
         q = SimpleNamespace(x = 0.0, y = 0.0, z = 0.0, w = 1)
         self.logic.setOdomData(0.0, 0.0, q)
-        self.logic.setCameraData(config.ANGLE_REGULATOR_DRIVE + 1, 2.0)
+        self.logic.setCameraData(config.ANGLE_TOLLERANCE_DRIVE + 1, 2.0)
         
         self.logic.state_machine() # READY → DRIVEMOVE
         self.assertEqual(self.logic.getActiveState(), DriveStates.DRIVEMOVE)
 
         # close enough to goal
-        self.logic.setCameraData(config.ANGLE_REGULATOR_DRIVE / 2, config.GOAL_DISTANCE - 0.5)
+        self.logic.setCameraData(config.ANGLE_TOLLERANCE_DRIVE / 2, config.GOAL_DISTANCE - 0.5)
         self.logic.state_machine() # DDRIVEMOVE runs callculate()
 
         self.assertEqual(self.logic.getActiveState(), DriveStates.SUCCESS)
@@ -111,7 +111,7 @@ class TestDriveLogic(unittest.TestCase):
         self.logic.setActive()
         q = SimpleNamespace(x = 0.0, y = 0.0, z = 0.0, w = 0.0)
         self.logic.setOdomData(0.0, 0.0, q)
-        self.logic.setCameraData(config.ANGLE_REGULATOR_DRIVE + 1, 2.0)
+        self.logic.setCameraData(config.ANGLE_TOLLERANCE_DRIVE + 1, 2.0)
 
         
         self.logic.state_machine() # READY → DRIVEMOVE
