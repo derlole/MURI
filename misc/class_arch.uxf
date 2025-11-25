@@ -34,7 +34,7 @@ Responsibilities
 - working with INIT Goals
 - feedback ongoing INIT Goals
 - resulting finished INIT Goals
-- ros com</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>378</x><y>234</y><w>156</w><h>162</h></coordinates><panel_attributes>_ TurnActionServer _
+- ros com</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>378</x><y>234</y><w>156</w><h>168</h></coordinates><panel_attributes>_ TurnActionServer _
 --
 # action_server: rclpy.ActionServer
 + cmd_vel_pub: rclpy.node.Publisher
@@ -45,6 +45,7 @@ Responsibilities
 
 --
 + timer_callback_ast(): void
+
 
 --
 Responsibilities
@@ -89,7 +90,7 @@ Responsibilities
 Responsibilities
 - implement logic for turn
 - gives info on request
-- accepts abstracted infos</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>102</x><y>390</y><w>18</w><h>48</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>270</x><y>390</y><w>18</w><h>48</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>450</x><y>390</y><w>18</w><h>48</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>UMLClass</id><coordinates><x>204</x><y>0</y><w>156</w><h>162</h></coordinates><panel_attributes>_ ActionHandler_
+- accepts abstracted infos</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>102</x><y>390</y><w>18</w><h>48</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>270</x><y>390</y><w>18</w><h>48</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>450</x><y>396</y><w>18</w><h>42</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;50</additional_attributes></element><element><id>UMLClass</id><coordinates><x>204</x><y>0</y><w>156</w><h>162</h></coordinates><panel_attributes>_ ActionHandler_
 --
 - action_client_turn
 - action_client_init
