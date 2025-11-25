@@ -1,0 +1,89 @@
+<diagram program="umletino" version="15.1"><zoom_level>8</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>344</x><y>32</y><w>192</w><h>152</h></coordinates><panel_attributes>&lt;&lt;Out&gt;&gt;
+Package::muri_logics
+--
+- values: dict
+--
++ resetOut(): void
++ outValid(): bool
++ getError(): void
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>376</x><y>744</y><w>168</w><h>120</h></coordinates><panel_attributes>&lt;&lt;LogicInterface&gt;&gt;
+--
+- state
+--
++ getOut(): Out
++ setActive(boolean): boolean
++ state_machine(): void
++ getActiveState(): Enum
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>576</x><y>464</y><w>208</w><h>152</h></coordinates><panel_attributes>_ TurnLogic_
+--
+- state: TurnStates
+--
++ getOut(): TurnOut
++ setActive(boolean): boolean
++ state_machine(): void
+--
+Responsibilities
+- implement logic for turn
+- gives info on request
+- accepts abstracted infos</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>344</x><y>464</y><w>208</w><h>152</h></coordinates><panel_attributes>_ InitLogic_
+--
+- state: InitStates
+--
++ getOut(): InitOut
++ setActive(boolean): boolean
++ state_machine(): void
+
+--
+Responsibilities
+- implement logic for init
+- gives info on request
+- accepts abstracted infos</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>112</x><y>464</y><w>208</w><h>152</h></coordinates><panel_attributes>_ DriveLogic_
+--
+- state: DriveStates
+--
++ getOut(): DriveOut
++ setActive(boolean): boolean
++ state_machine(): void
++ getActiveState(): Enum
+
+--
+Responsibilities
+- implement logic for drive
+- gives info on request
+- accepts abstracted infos</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>808</x><y>464</y><w>208</w><h>152</h></coordinates><panel_attributes>_ MainController_
+--
+- state: MainStates
+--
++ getOut(): MainOut
++ setActive(boolean): boolean
++ state_machine(): void
+--
+Responsibilities
+- implement logic for turn
+- gives info on request
+- accepts abstracted infos</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>536</x><y>608</y><w>384</w><h>200</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>10;230;460;230;450;10</additional_attributes></element><element><id>Relation</id><coordinates><x>496</x><y>608</y><w>216</w><h>152</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>10;170;250;10</additional_attributes></element><element><id>Relation</id><coordinates><x>448</x><y>608</y><w>24</w><h>152</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>10;170;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>208</x><y>608</y><w>216</w><h>152</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>250;170;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>112</x><y>336</y><w>208</w><h>96</h></coordinates><panel_attributes>_ DriveOut_
+--
+- values: dict
+--
++ resetOut(): void
++ outValid(): bool
++ getError(): void</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>344</x><y>336</y><w>208</w><h>96</h></coordinates><panel_attributes>_ InitOut_
+--
+- values: dict
+--
++ resetOut(): void
++ outValid(): bool
++ getError(): void</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>576</x><y>336</y><w>208</w><h>96</h></coordinates><panel_attributes>_ TurnOut_
+--
+- values: dict
+--
++ resetOut(): void
++ outValid(): bool
++ getError(): void</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>440</x><y>176</y><w>24</w><h>176</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>10;10;10;200</additional_attributes></element><element><id>Relation</id><coordinates><x>200</x><y>176</y><w>160</w><h>176</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>180;10;10;200</additional_attributes></element><element><id>Relation</id><coordinates><x>528</x><y>176</y><w>168</w><h>176</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>10;10;190;200</additional_attributes></element><element><id>Relation</id><coordinates><x>200</x><y>424</y><w>24</w><h>56</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;50;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>448</x><y>424</y><w>24</w><h>56</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;50;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>688</x><y>424</y><w>24</w><h>56</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;50;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>808</x><y>336</y><w>208</w><h>96</h></coordinates><panel_attributes>_ MainOut_
+--
+- values: dict
+--
++ resetOut(): void
++ outValid(): bool
++ getError(): void</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>528</x><y>96</y><w>408</w><h>256</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>10;10;490;300</additional_attributes></element><element><id>Relation</id><coordinates><x>912</x><y>424</y><w>24</w><h>56</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;50;10;10</additional_attributes></element></diagram>
