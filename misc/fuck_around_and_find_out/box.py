@@ -37,3 +37,4 @@ if len(contours) > 0:
 
 else:
     print("Kein Rechteck gefunden...")
+    
