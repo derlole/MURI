@@ -46,12 +46,9 @@ class MuriActionHandler(Node):
             out = self.main_controller.getOut()
 
         if not out.outValid():
-            print('mainout not valid')
             return 
         
-        print('mainout valid' + str(out.values))
         if not out.values == {}:
-            print(out.values)
             if out.values['ASToCall'] == 0:
                 self.send_init_goal()
 
@@ -81,7 +78,6 @@ class MuriActionHandler(Node):
         self._action_client_drive.wait_for_server()
 
         self.get_logger().info(f"Drive client ready: {self._action_client_drive.server_is_ready()}")
-        #self.get_logger().info(f"Drive client active goal? {self._drive_result_promise is not None}")
 
         self._drive_send_promise = self._action_client_drive.send_goal_async(drive_goal, feedback_callback=self.drive_feedback_callback)
         self._drive_send_promise.add_done_callback(self.drive_goal_response_callback)
@@ -164,7 +160,6 @@ class MuriActionHandler(Node):
         self.get_logger().info('Turn result: {0}'.format(result))
 
     def init_result_callback(self, promise):
-        print('init result')
         result = promise.result().result
         self.main_controller.setGoalStautusFinished(True)
         self.main_controller.setGoalSuccess(True)
