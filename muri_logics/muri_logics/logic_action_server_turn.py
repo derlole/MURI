@@ -130,7 +130,6 @@ class TurnLogic(LogicInterface):
         """Calculate commands for angular velocity based on the current orientation and also reurns the turnd angle.
         The function rotates the robot toward the target if the angular deviation exceeds a tolerance.
         A proportional controller is used to determine the angular velocity.""" #TODO
-        print('positionTh and firstTh' + str(self.__position_Theta) + str(self.__first_Theta))
 
         angularVelocityZ = 0.0
         tuerndAngle = self.__position_Theta - self.__first_Theta
@@ -156,7 +155,7 @@ class TurnLogic(LogicInterface):
         match self.__state:
 
             case TurnStates.INIT:
-                print('init turn')
+                print('state turn-INIT')
                 self.__output.values = (0.0, 0.0, 0.0, 0.0)
                 self.__position_X = 0.0
                 self.__position_Y = 0.0
@@ -166,17 +165,14 @@ class TurnLogic(LogicInterface):
                 self.__state = TurnStates.IDLE
 
             case TurnStates.IDLE:
-                print('idle-turn')
                 pass 
 
             case TurnStates.RAEDY:
-                print('ready-turn')
                 if self.__first_Theta is None:
                     self.__first_Theta = self.__position_Theta
                 self.__state = TurnStates.TURNMOVE
 
             case TurnStates.TURNMOVE:
-                print('turnmove-turn')
                 avz, ta = self.calculate()
                 self.__output.values = (None, None, avz, ta)
                 self.__output.isValid = True
@@ -187,4 +183,5 @@ class TurnLogic(LogicInterface):
                 self.__output.setError(True)
 
             case TurnStates.SUCCESS:
+                print('state turn-SUCC')
                 pass 

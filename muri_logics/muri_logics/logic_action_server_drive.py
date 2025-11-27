@@ -151,6 +151,7 @@ class DriveLogic(LogicInterface):
             match self.__state:
 
                 case DriveStates.INIT:
+                    print('state drive-INIT')
                     self.__output.values = (0.0, 0.0, 0.0, 0.0)
                     self.__position_X = 0.0
                     self.__position_Y = 0.0
@@ -158,17 +159,14 @@ class DriveLogic(LogicInterface):
                     self.__state = DriveStates.IDLE
 
                 case DriveStates.IDLE:
-                    print('drive-idle state')
                     pass
 
                 case DriveStates.RAEDY:
-                    print('drive-ready state')
                     if self.__first_Theta is None:
                         self.__first_Theta = self.__position_Theta
                     self.__state = DriveStates.DRIVEMOVE
 
                 case DriveStates.DRIVEMOVE:
-                    print('drivemove state')
                     avz, lv = self.calculate()
                     self.__output.values = (lv, None, avz, self.__distance_in_Meter)
                     self.__output.isValid = True
@@ -179,4 +177,5 @@ class DriveLogic(LogicInterface):
                     self.__output.setError(True)
 
                 case DriveStates.SUCCESS:
+                    print('state drive-SUCC')
                     pass 

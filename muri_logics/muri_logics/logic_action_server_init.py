@@ -51,7 +51,6 @@ class InitOut(Out):
 
         if ta is not None:
             self.__values['turned_angle'] = ta
-        print(self.__values)
     
     def resetOut(self):
         """Reset the output to its initial state."""
@@ -127,7 +126,6 @@ class InitLogic(LogicInterface):
         """Calculate commands for angular velocity based on the current orientation and also reurns the turnd angle.
         The function rotates the robot toward the target if the angular deviation exceeds a tolerance.
         A proportional controller is used to determine the angular velocity.""" 
-        print('positionTh and firstTh' + str(self.__positionTheta) + str(self.__firstTheta))
 
         angularVelocityZ = 0.0
         tuerndAngle = self.__positionTheta - self.__firstTheta
@@ -153,7 +151,7 @@ class InitLogic(LogicInterface):
         match self.__state:
 
             case InitStates.INIT:
-                print('state init_init')
+                print('state init_INIT')
                 self.__output.values = (0.0, 0.0, 0.0, 0.0)
                 self.__positionX = 0.0
                 self.__positionY = 0.0
@@ -163,17 +161,14 @@ class InitLogic(LogicInterface):
                 self.__state = InitStates.IDLE
             
             case InitStates.IDLE:
-                print('state init_idle')
                 pass
 
             case InitStates.RAEDY:
-                print('state init_ready')
                 if self.__firstTheta is None:
                     self.__firstTheta = self.__positionTheta
                 self.__state = InitStates.INITMOVE
 
             case InitStates.INITMOVE:
-                print('state init_initmove')
                 avz, ta = self.calculate()
                 self.__output.values = (None, None, avz, ta)
                 self.__output.isValid = True
@@ -186,7 +181,7 @@ class InitLogic(LogicInterface):
                 self.__output.setError(True)
 
             case InitStates.SUCCESS:
-                print('state init_succ')
+                print('state init_SUCC')
                 pass
 
 
