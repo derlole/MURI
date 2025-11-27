@@ -53,7 +53,7 @@ data = {
     'dist_coeff': np.asarray(dist).tolist()
 }
 
-with open("calibration4.yaml", "w") as f:
+with open("standard_cali.yaml", "w") as f:
     yaml.dump(data, f)
 
 print("Kalibrierung abgeschlossen!")

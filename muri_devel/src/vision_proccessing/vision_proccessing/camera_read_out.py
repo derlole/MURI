@@ -37,7 +37,7 @@ class CameraReadOut(Node):
         bridge = CvBridge()
         msg = bridge.cv2_to_imgmsg(self.read_camera(), encoding='mono8')
         self.publisher.publish(msg)
-        self.get_logger().info('Bild wird verschickt...')
+        #self.get_logger().info('Bild wird verschickt...')
 
     def read_camera(self):
         """

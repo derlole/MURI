@@ -61,7 +61,7 @@ class ImageProcessing(Node):
         """
         self.data = msg
         cv_raw_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='mono8')
-        self.get_logger().info('Bild empfangen!')
+        #self.get_logger().info('Bild empfangen!')
         self.pic_to_data(cv_raw_image)
         pub_pic_data = PictureData()
 
@@ -70,7 +70,7 @@ class ImageProcessing(Node):
         pub_pic_data.distance_in_meters = float(self.distance_in_meters_unfiltered)
 
         self.publisher.publish(pub_pic_data)
-        self.get_logger().info('OpenCV-Daten wurden gepublished')
+        #self.get_logger().info('OpenCV-Daten wurden gepublished')
 
     def pic_to_data(self, data_img):
         """
