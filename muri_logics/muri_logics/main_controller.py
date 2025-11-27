@@ -115,7 +115,6 @@ class MainController(LogicInterface):
         pass #TODO
     
     def postInit(self):
-        print('postInit')
         self.state_machine()
         self.setActive()
 
@@ -130,7 +129,6 @@ class MainController(LogicInterface):
                 pass
 
             case MainStates.INIT_ROBOT:
-                print('mainstate init_robot' + str(self._goal_status_fin) + str(self._goal_success))
                 self.__output.isValid = True
                 
                 if self._goal_status_fin and self._goal_success:
@@ -140,7 +138,6 @@ class MainController(LogicInterface):
                     self.__output.values = 1
 
             case MainStates.DRIVE:
-                print('mainstate drive')
                 self.__output.isValid = True
                 self.calculateEstimatedProblems()
                 if self._goal_status_fin and self._goal_success:

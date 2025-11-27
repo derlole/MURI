@@ -135,10 +135,10 @@ class InitLogic(LogicInterface):
         
         angularVelocityZ = config.MAX_ANGLE_VELOCITY_TURN_INIT
 
-        if abs(self.__angle_to_Mid_in_Rad) > config.ANGLE_TOLLERANCE_INIT and self.__distance_in_Meter > 1.0:
+        if abs(self.__angle_to_Mid_in_Rad) > config.ANGLE_TOLLERANCE_INIT and self.__distance_in_Meter > config.ORIANTATION_DISTANCE:
             angularVelocityZ = p_regulator(self.__angle_to_Mid_in_Rad, config.KP_INIT, config.MAX_ANGLE_VELOCITY_TURN_INIT)
 
-        if abs(self.__angle_to_Mid_in_Rad) < config.ANGLE_TOLLERANCE_INIT and self.__distance_in_Meter > 1.0:
+        if abs(self.__angle_to_Mid_in_Rad) < config.ANGLE_TOLLERANCE_INIT and self.__distance_in_Meter > config.ORIANTATION_DISTANCE:
             angularVelocityZ = 0.0
             
         return angularVelocityZ, tuerndAngle

@@ -176,7 +176,7 @@ class TurnLogic(LogicInterface):
                 avz, ta = self.calculate()
                 self.__output.values = (None, None, avz, ta)
                 self.__output.isValid = True
-                if abs(self.__angle_to_Mid_in_Rad) < config.ANGLE_TOLLERANCE_TURN and self.__distance_in_meter > 1.0:
+                if abs(self.__angle_to_Mid_in_Rad) < config.ANGLE_TOLLERANCE_TURN and self.__distance_in_meter > config.ORIANTATION_DISTANCE:
                     self.__state = TurnStates.SUCCESS
 
             case TurnStates.FAILED:
