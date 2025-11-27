@@ -26,7 +26,7 @@ DISTANCE_COEFFICIENT = [
     [-50.50814936392801]
 ]
 
-# Standardauflösung 640x480 V2
+# 
 
 CAMERA_MATRIX_RAW = [
     [336.1289796344718, 0.0, 308.15649184387826],
@@ -42,4 +42,19 @@ DISTANCE_COEFFICIENT = [
     [-0.10860100898133669]
 ]
 
+# Standardauflösung 640x480 V3 (charuco-Kalibrierung)
+
+CAMERA_MATRIX_RAW = [
+    [593.91399635, 0.0, 334.37556895],
+    [0.0, 586.86697636, 203.66210936],
+    [0.0, 0.0, 1.0]
+]
+
+DISTANCE_COEFFICIENT = [
+    [-0.07703196],
+    [-0.06672068],
+    [-0.0093926],
+    [-0.00615253],
+    [0.18372124]
+]
 
