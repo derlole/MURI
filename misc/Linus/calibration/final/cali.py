@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import yaml
+import time
 
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
@@ -41,7 +42,7 @@ while found < 20:
     #cv2.waitKey(1000)
     #if cv2.waitKey(10) & 0xFF == ord('q'):  # 'q' Abbruch
     #    break
-
+    time.sleep(1.0)
 cap.release()
 #cv2.destroyAllWindows()
 ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(
