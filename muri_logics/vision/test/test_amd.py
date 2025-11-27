@@ -1,63 +1,274 @@
-import pathlib
-import cv2 as cv
-import numpy as np
-import pytest
-from aruco_marker_detection import AMD
-
-
-# test_amd.py
-import cv2 as cv
-import math
-import numpy as np
 import unittest
+import cv2 as cv
+import numpy as np
+import math
+import os
+from ..aruco_marker_detection import AMD
 
-from aruco_marker_detection import AMD   # <-- Pfad ggf. anpassen
+# Pfad zum Verzeichnis dieser Test-Datei
+TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class TestAMD(unittest.TestCase):
-    """Test‑Suite für die AMD‑Klasse."""
-
+    """Unit-Tests für die AMD (ArUco Marker Detection) Klasse"""
+    
     @classmethod
     def setUpClass(cls):
-        """Erstelle ein AMD‑Objekt, das für alle Tests verwendet wird."""
-        cls.amd = AMD()
+        """Einmalige Initialisierung für alle Tests"""
+        print("\n=== ArUco Marker Detection Tests ===")
+        print("Marker-ID: 0")
+        print("Marker-Größe: 175mm")
+        print("Toleranzen: ±100mm (Distanz), ±5° (Winkel)\n")
+    
+    def setUp(self):
+        """Initialisierung vor jedem Test"""
+        self.amd = AMD()
+        
+        # Erwartete Werte
+        self.expected_long_distance = 5300.0  # mm
+        self.expected_short_distance = 400.0  # mm
+        self.expected_angle = 0.0  # radians
+        
+        # Toleranzen
+        self.distance_tolerance = 100.0  # mm (±10cm)
+        self.angle_tolerance = math.radians(5)  # ±5°
+    
+    def test_initialization(self):
+        """Test: Korrekte Initialisierung der AMD-Klasse"""
+        self.assertEqual(self.amd.marker_size, 175, 
+                        "Marker-Größe wurde nicht korrekt gesetzt")
+        
+        self.assertIsNotNone(self.amd.detector, 
+                            "ArUco-Detektor wurde nicht initialisiert")
+        
+        self.assertEqual(self.amd.camera_matrix.shape, (3, 3), 
+                        "Kameramatrix hat falsche Dimensionen")
+        
+        self.assertIsNotNone(self.amd.dist_coeffs, 
+                            "Verzerrungskoeffizienten wurden nicht gesetzt")
+    
+    def test_long_distance_detection(self):
+        """Test: Marker-Erkennung bei ~5.5m Distanz (long.png)"""
+        img = cv.imread(os.path.join(TEST_DIR, 'picture/long.png'), cv.IMREAD_GRAYSCALE)
+        self.assertIsNotNone(img, 
+                            "Bild 'picture/long.png' konnte nicht geladen werden")
+        
+        z_pos, y_rot = self.amd.aruco_detection(img)
+        
+        # Marker sollte erkannt werden (nicht Standardwert)
+        self.assertNotEqual(z_pos, -1000.0, 
+                           "Marker wurde nicht erkannt (long.png)")
+        self.assertNotEqual(y_rot, math.pi, 
+                           "Marker-Winkel wurde nicht berechnet (long.png)")
+        
+        # Distanz prüfen: ~5500mm ±100mm
+        distance_error = abs(z_pos - self.expected_long_distance)
+        self.assertLessEqual(distance_error, self.distance_tolerance,
+                            f"Distanz {z_pos:.1f}mm weicht um {distance_error:.1f}mm "
+                            f"von erwarteten {self.expected_long_distance:.1f}mm ab "
+                            f"(Toleranz: ±{self.distance_tolerance:.1f}mm)")
+        
+        # Winkel prüfen: ~0° ±5°
+        angle_error = abs(y_rot - self.expected_angle)
+        self.assertLessEqual(angle_error, self.angle_tolerance,
+                            f"Winkel {math.degrees(y_rot):.2f}° weicht um "
+                            f"{math.degrees(angle_error):.2f}° von erwarteten 0° ab "
+                            f"(Toleranz: ±{math.degrees(self.angle_tolerance):.1f}°)")
+        
+        print(f"✓ Long distance: z={z_pos:.1f}mm, angle={math.degrees(y_rot):.2f}°")
+    
+    def test_short_distance_detection(self):
+        """Test: Marker-Erkennung bei ~40cm Distanz (short.png)"""
+        img = cv.imread(os.path.join(TEST_DIR, 'picture/short.png'), cv.IMREAD_GRAYSCALE)
+        self.assertIsNotNone(img, 
+                            "Bild 'picture/short.png' konnte nicht geladen werden")
+        
+        z_pos, y_rot = self.amd.aruco_detection(img)
+        
+        # Marker sollte erkannt werden
+        self.assertNotEqual(z_pos, -1000.0, 
+                           "Marker wurde nicht erkannt (short.png)")
+        self.assertNotEqual(y_rot, math.pi, 
+                           "Marker-Winkel wurde nicht berechnet (short.png)")
+        
+        # Distanz prüfen: ~400mm ±100mm
+        distance_error = abs(z_pos - self.expected_short_distance)
+        self.assertLessEqual(distance_error, self.distance_tolerance,
+                            f"Distanz {z_pos:.1f}mm weicht um {distance_error:.1f}mm "
+                            f"von erwarteten {self.expected_short_distance:.1f}mm ab "
+                            f"(Toleranz: ±{self.distance_tolerance:.1f}mm)")
+        
+        # Winkel prüfen: ~0° ±5°
+        angle_error = abs(y_rot - self.expected_angle)
+        self.assertLessEqual(angle_error, self.angle_tolerance,
+                            f"Winkel {math.degrees(y_rot):.2f}° weicht um "
+                            f"{math.degrees(angle_error):.2f}° von erwarteten 0° ab "
+                            f"(Toleranz: ±{math.degrees(self.angle_tolerance):.1f}°)")
+        
+        print(f"✓ Short distance: z={z_pos:.1f}mm, angle={math.degrees(y_rot):.2f}°")
+    
+    def test_no_marker_detection(self):
+        """Test: Verhalten bei fehlendem Marker (failure.png)"""
+        img = cv.imread(os.path.join(TEST_DIR, 'picture/failure.png'), cv.IMREAD_GRAYSCALE)
+        self.assertIsNotNone(img, 
+                            "Bild 'picture/failure.png' konnte nicht geladen werden")
+        
+        z_pos, y_rot = self.amd.aruco_detection(img)
+        
+        # Sollte Standardwerte zurückgeben
+        self.assertEqual(z_pos, -1000.0, 
+                        "Falscher Standardwert für Distanz bei fehlendem Marker")
+        self.assertEqual(y_rot, math.pi, 
+                        "Falscher Standardwert für Winkel bei fehlendem Marker")
+        
+        print(f"✓ No marker (failure.png): z={z_pos:.1f}mm, angle={math.degrees(y_rot):.2f}°")
+    
+    def test_angle_calculation_center(self):
+        """Test: Winkelberechnung für Marker im Bildzentrum"""
+        # Simulierte Ecken eines Markers im Bildzentrum
+        cx = self.amd.camera_matrix[0, 2]
+        cy = self.amd.camera_matrix[1, 2]
+        
+        # Marker zentriert um cx, cy
+        corners = np.array([[[cx - 20, cy - 20],
+                             [cx + 20, cy - 20],
+                             [cx + 20, cy + 20],
+                             [cx - 20, cy + 20]]], dtype=np.float32)
+        
+        angle = self.amd.calculate_angle_to_marker(corners)
+        
+        # Winkel sollte nahe 0 sein
+        self.assertAlmostEqual(angle, 0.0, places=3,
+                              msg=f"Winkel für zentrierten Marker sollte ~0 sein, "
+                                  f"ist aber {math.degrees(angle):.2f}°")
+    
+    def test_angle_calculation_right(self):
+        """Test: Winkelberechnung für Marker rechts vom Zentrum"""
+        cx = self.amd.camera_matrix[0, 2]
+        cy = self.amd.camera_matrix[1, 2]
+        
+        # Marker rechts vom Zentrum
+        offset = 100
+        corners = np.array([[[cx + offset - 20, cy - 20],
+                             [cx + offset + 20, cy - 20],
+                             [cx + offset + 20, cy + 20],
+                             [cx + offset - 20, cy + 20]]], dtype=np.float32)
+        
+        angle = self.amd.calculate_angle_to_marker(corners)
+        
+        # Winkel sollte positiv sein (rechts = positiv)
+        self.assertGreater(angle, 0.0, 
+                          "Winkel sollte positiv sein für Marker rechts vom Zentrum")
+        
+        print(f"✓ Right offset: angle={math.degrees(angle):.2f}°")
+    
+    def test_angle_calculation_left(self):
+        """Test: Winkelberechnung für Marker links vom Zentrum"""
+        cx = self.amd.camera_matrix[0, 2]
+        cy = self.amd.camera_matrix[1, 2]
+        
+        # Marker links vom Zentrum
+        offset = -100
+        corners = np.array([[[cx + offset - 20, cy - 20],
+                             [cx + offset + 20, cy - 20],
+                             [cx + offset + 20, cy + 20],
+                             [cx + offset - 20, cy + 20]]], dtype=np.float32)
+        
+        angle = self.amd.calculate_angle_to_marker(corners)
+        
+        # Winkel sollte negativ sein (links = negativ)
+        self.assertLess(angle, 0.0, 
+                       "Winkel sollte negativ sein für Marker links vom Zentrum")
+        
+        print(f"✓ Left offset: angle={math.degrees(angle):.2f}°")
+    
+    def test_camera_matrix_properties(self):
+        """Test: Überprüfung der Kameramatrix-Eigenschaften"""
+        # Hauptpunkt (cx, cy) sollte nahe der Bildmitte sein
+        cx = self.amd.camera_matrix[0, 2]
+        cy = self.amd.camera_matrix[1, 2]
+        
+        # Für 640x480 Auflösung
+        self.assertTrue(200 < cx < 440, 
+                       f"cx={cx:.1f} scheint nicht plausibel für 640x480 Auflösung")
+        self.assertTrue(100 < cy < 380, 
+                       f"cy={cy:.1f} scheint nicht plausibel für 640x480 Auflösung")
+        
+        # Brennweiten sollten positiv und ähnlich sein
+        fx = self.amd.camera_matrix[0, 0]
+        fy = self.amd.camera_matrix[1, 1]
+        
+        self.assertGreater(fx, 0, "Brennweite fx sollte positiv sein")
+        self.assertGreater(fy, 0, "Brennweite fy sollte positiv sein")
+        
+        # fx und fy sollten ähnlich sein (Abweichung < 5%)
+        ratio = fx / fy
+        self.assertTrue(0.95 < ratio < 1.05, 
+                       f"fx/fy={ratio:.3f} - Brennweiten weichen stark ab")
 
-    def test_no_marker(self):
-        """Bild ohne ArUco‑Marker → erwartete Rückgabe (-1000.0, π)."""
-        # Schwarzes Bild (keine Marker)
-        img = np.zeros((480, 640, 3), dtype=np.uint8)
 
-        z, y_rot = self.amd.aruco_detection(img)
+class TestAMDIntegration(unittest.TestCase):
+    """Integrationstests für die AMD-Klasse mit realen Bildern"""
+    
+    def setUp(self):
+        self.amd = AMD()
+    
+    def test_both_images_detected(self):
+        """Test: Beide Testbilder sollten erfolgreich Marker erkennen"""
+        long_img = cv.imread(os.path.join(TEST_DIR, 'picture/long.png'), cv.IMREAD_GRAYSCALE)
+        short_img = cv.imread(os.path.join(TEST_DIR, 'picture/short.png'), cv.IMREAD_GRAYSCALE)
+        
+        self.assertIsNotNone(long_img, "long.png konnte nicht geladen werden")
+        self.assertIsNotNone(short_img, "short.png konnte nicht geladen werden")
+        
+        long_z, long_angle = self.amd.aruco_detection(long_img)
+        short_z, short_angle = self.amd.aruco_detection(short_img)
+        
+        # Beide sollten Marker erkennen
+        self.assertNotEqual(long_z, -1000.0, "Kein Marker in long.png erkannt")
+        self.assertNotEqual(short_z, -1000.0, "Kein Marker in short.png erkannt")
+        
+        # Lange Distanz sollte deutlich größer sein als kurze Distanz
+        self.assertGreater(long_z, short_z * 10, 
+                          f"Long distance ({long_z:.1f}mm) sollte deutlich "
+                          f"größer sein als short distance ({short_z:.1f}mm)")
+        
+        print(f"\n✓ Integration test passed:")
+        print(f"  Long:  {long_z:.1f}mm @ {math.degrees(long_angle):.2f}°")
+        print(f"  Short: {short_z:.1f}mm @ {math.degrees(short_angle):.2f}°")
+        print(f"  Ratio: {long_z/short_z:.1f}x")
 
-        self.assertAlmostEqual(z, -1000.0, places=3)
-        self.assertAlmostEqual(y_rot, math.pi, places=5)
 
-    def test_with_marker(self):
-        """Bild mit einem bekannten Marker → prüfe, dass ein Ergebnis zurückkommt."""
-        # 1. Erstelle ein Test‑Marker‑Bild (ID = 0)
-        marker_id = 0
-        marker_size_px = 200
-        aruco_dict = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_5X5_1000)
-        marker_img = cv.aruco.generateImageMarker(
-            aruco_dict, marker_id, marker_size_px, 1)
+def run_tests_with_verbose_output():
+    """Führt die Tests mit ausführlicher Ausgabe aus"""
+    # Test-Suite erstellen
+    loader = unittest.TestLoader()
+    suite = unittest.TestSuite()
+    
+    # Tests hinzufügen
+    suite.addTests(loader.loadTestsFromTestCase(TestAMD))
+    suite.addTests(loader.loadTestsFromTestCase(TestAMDIntegration))
+    
+    # Tests ausführen mit verbosity=2 für detaillierte Ausgabe
+    runner = unittest.TextTestRunner(verbosity=2)
+    result = runner.run(suite)
+    
+    # Zusammenfassung
+    print("\n" + "="*70)
+    print("ZUSAMMENFASSUNG")
+    print("="*70)
+    print(f"Tests durchgeführt: {result.testsRun}")
+    print(f"Erfolgreich: {result.testsRun - len(result.failures) - len(result.errors)}")
+    print(f"Fehlgeschlagen: {len(result.failures)}")
+    print(f"Fehler: {len(result.errors)}")
+    print("="*70)
+    
+    return result.wasSuccessful()
 
-        # 2. Lege das Marker‑Bild in ein größeres Bild ein (Simulation einer Kameraaufnahme)
-        img = np.zeros((480, 640, 3), dtype=np.uint8)
-        x_offset, y_offset = 220, 140
-        img[y_offset:y_offset+marker_size_px,
-            x_offset:x_offset+marker_size_px] = cv.cvtColor(marker_img, cv.COLOR_GRAY2BGR)
 
-        # 3. Aufruf der Erkennungsfunktion
-        z, y_rot = self.amd.aruco_detection(img)
-
-        # 4. Prüfe, dass ein plausibles Ergebnis zurückkommt
-        #    (Tiefe > 0 und Winkel im Bereich [-π/2, π/2])
-        self.assertGreater(z, 0.0, "Tiefe sollte positiv sein")
-        self.assertGreaterEqual(y_rot, -math.pi/2)
-        self.assertLessEqual(y_rot, math.pi/2)
-
-        # Optional: Ausgabe für manuelle Kontrolle
-        print(f"\nErkannt – Tiefe: {z:.2f} mm, Winkel: {math.degrees(y_rot):.2f}°")
-
-if __name__ == "__main__":
-    unittest.main()
+if __name__ == '__main__':
+    # Tests mit ausführlicher Ausgabe ausführen
+    success = run_tests_with_verbose_output()
+    
+    # Exit-Code setzen (wichtig für CI/CD)
+    exit(0 if success else 1)
