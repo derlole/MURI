@@ -22,8 +22,8 @@ class CameraReadOut(Node):
         path_camera = 0 # '/dev/video0' 
 
         self.img = cv.VideoCapture(path_camera)
-        self.img.set(cv.CAP_PROP_FRAME_WIDTH, 1920)
-        self.img.set(cv.CAP_PROP_FRAME_HEIGHT, 1080)
+        #self.img.set(cv.CAP_PROP_FRAME_WIDTH, 1920)
+        #self.img.set(cv.CAP_PROP_FRAME_HEIGHT, 1080)
         self.img.set(cv.CAP_PROP_BUFFERSIZE, 1)
         
         self.data = self.create_timer(timer_time, self.timer_callback)
