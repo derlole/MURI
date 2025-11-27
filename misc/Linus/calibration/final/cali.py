@@ -14,8 +14,8 @@ objp = objp * SQUARE_SIZE  # mm
 objpoints = []  # 3d point world
 imgpoints = []  # 2d points image
 cap = cv2.VideoCapture(0)
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+#cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+#cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 found = 0
 
 while found < 20:
