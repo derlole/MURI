@@ -69,7 +69,7 @@ class InitActionServer(Node):
         if not out.outValid():
             out.resetOut()
             return
-        print(str(out.values))
+        #print(str(out.values))
         cmd_vel = Twist()
         cmd_vel.linear.x = float(out.values['linear_velocity_x'])
         cmd_vel.linear.y = float(out.values['linear_velocity_y'])
