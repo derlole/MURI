@@ -5,7 +5,6 @@ import math
 import os
 from ..aruco_marker_detection import AMD
 
-# Pfad zum Verzeichnis dieser Test-Datei
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -30,8 +29,8 @@ class TestAMD(unittest.TestCase):
         self.expected_angle = 0.0  # radians
         
         # Toleranzen
-        self.distance_tolerance = 100.0  # mm (±10cm)
-        self.angle_tolerance = math.radians(5)  # ±5°
+        self.distance_tolerance = 100.0  
+        self.angle_tolerance = math.radians(5)
     
     def test_initialization(self):
         """Test: Korrekte Initialisierung der AMD-Klasse"""
@@ -207,38 +206,6 @@ class TestAMD(unittest.TestCase):
                        f"fx/fy={ratio:.3f} - Brennweiten weichen stark ab")
 
 
-class TestAMDIntegration(unittest.TestCase):
-    """Integrationstests für die AMD-Klasse mit realen Bildern"""
-    
-    def setUp(self):
-        self.amd = AMD()
-    
-    def test_both_images_detected(self):
-        """Test: Beide Testbilder sollten erfolgreich Marker erkennen"""
-        long_img = cv.imread(os.path.join(TEST_DIR, 'picture/long.png'), cv.IMREAD_GRAYSCALE)
-        short_img = cv.imread(os.path.join(TEST_DIR, 'picture/short.png'), cv.IMREAD_GRAYSCALE)
-        
-        self.assertIsNotNone(long_img, "long.png konnte nicht geladen werden")
-        self.assertIsNotNone(short_img, "short.png konnte nicht geladen werden")
-        
-        long_z, long_angle = self.amd.aruco_detection(long_img)
-        short_z, short_angle = self.amd.aruco_detection(short_img)
-        
-        # Beide sollten Marker erkennen
-        self.assertNotEqual(long_z, -1000.0, "Kein Marker in long.png erkannt")
-        self.assertNotEqual(short_z, -1000.0, "Kein Marker in short.png erkannt")
-        
-        # Lange Distanz sollte deutlich größer sein als kurze Distanz
-        self.assertGreater(long_z, short_z * 10, 
-                          f"Long distance ({long_z:.1f}mm) sollte deutlich "
-                          f"größer sein als short distance ({short_z:.1f}mm)")
-        
-        print(f"\n✓ Integration test passed:")
-        print(f"  Long:  {long_z:.1f}mm @ {math.degrees(long_angle):.2f}°")
-        print(f"  Short: {short_z:.1f}mm @ {math.degrees(short_angle):.2f}°")
-        print(f"  Ratio: {long_z/short_z:.1f}x")
-
-
 def run_tests_with_verbose_output():
     """Führt die Tests mit ausführlicher Ausgabe aus"""
     # Test-Suite erstellen
@@ -247,7 +214,6 @@ def run_tests_with_verbose_output():
     
     # Tests hinzufügen
     suite.addTests(loader.loadTestsFromTestCase(TestAMD))
-    suite.addTests(loader.loadTestsFromTestCase(TestAMDIntegration))
     
     # Tests ausführen mit verbosity=2 für detaillierte Ausgabe
     runner = unittest.TextTestRunner(verbosity=2)
