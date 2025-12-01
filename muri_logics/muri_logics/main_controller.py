@@ -1,7 +1,7 @@
 import math
 
 from enum import Enum
-from muri_logics.logic_interface import LogicInterface, Out
+from muri_logics.logic_interface import ExtendedLogicInterface, Out
 from muri_logics.general_funcs import quaternion_to_yaw
 
 class MainStates(Enum):
@@ -11,6 +11,7 @@ class MainStates(Enum):
     INIT_ROBOT = 4
     DRIVE = 5
     TURN = 6
+    FOLLOW = 8
     PAUSE = 7
 
     FAILED = 2
@@ -46,7 +47,7 @@ class MainOut(Out):
         """Retrieve any error state."""
         return self.__error
 
-class MainController(LogicInterface):
+class MainController(ExtendedLogicInterface):
     def __init__(self):
         self.__state = MainStates.INIT
         self.__output = MainOut()
@@ -54,9 +55,15 @@ class MainController(LogicInterface):
         self._o_l_y = 0.0
         self._o_t = 0.0
         self._angle_in_rad = 0.0
+        self._dominant_aruco_id = -1 # -1 for no aruco detected
         self._distance_in_meters = 0.0
         self._goal_status_fin = False
         self._goal_success = False
+
+    def exit_to_pause(self):                            #TODO this is not finished looks like shit to me
+        self._memorized_return_state = self.__state
+        self.__state = MainStates.PAUSE
+
 
     def calculate_estimated_goal_pose(self, last_odom_x: float, last_odom_y: float, last_odom_quaternion):
         cur_yaw = quaternion_to_yaw(last_odom_quaternion)
@@ -91,6 +98,7 @@ class MainController(LogicInterface):
         """Reset the logic processing to its initial state."""
         self.__state = MainStates.IDLE
         self.__output.resetOut()
+        self._memorized_return_state = None
         self._o_l_x = 0.0
         self._o_l_y = 0.0
         self._o_t = 0.0
@@ -108,11 +116,12 @@ class MainController(LogicInterface):
         self._angle_in_rad = angle_in_rad
         self._distance_in_meters = distance_in_meters
 
+    def setArucoData(self, dominant_aruco_id):
+        """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
+        self._dominant_aruco_id = dominant_aruco_id
+
     def setPaused(self):
         self.__state = MainStates.PAUSE
-
-    def calculateEstimatedProblems(self):
-        pass #TODO
     
     def postInit(self):
         self.state_machine()
@@ -139,7 +148,6 @@ class MainController(LogicInterface):
 
             case MainStates.DRIVE:
                 self.__output.isValid = True
-                self.calculateEstimatedProblems()
                 if self._goal_status_fin and self._goal_success:
                     self.__state = MainStates.TURN
                     self._goal_status_fin = False
@@ -154,13 +162,16 @@ class MainController(LogicInterface):
                     self._goal_status_fin = False
                     self._goal_success = False
                     self.__output.values = 1
-# TODO
+
+            case MainStates.FOLLOW:
+                pass
+
             case MainStates.PAUSE:
-                pass 
+                pass    
 
             case MainStates.FAILED:
-                pass 
+                pass    # nothing to do here
 
             case MainStates.SUCCESS:
-                pass 
+                pass    # nothing to do here
 

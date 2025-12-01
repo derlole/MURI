@@ -3,25 +3,26 @@ from rclpy.action import ActionClient
 from rclpy.node import Node
 from nav_msgs.msg import Odometry
 # from geometry_msgs.msg import Twist
-from muri_dev_interfaces.action import DRIVE, TURN, INIT
+from muri_dev_interfaces.action import DRIVE, TURN, INIT, FOLLOW
 from muri_dev_interfaces.msg import PictureData
 from rclpy.executors import ExternalShutdownException
 from muri_logics.main_controller import MainController, MainStates
-from muri_logics.logic_interface import LogicInterface
+from muri_logics.logic_interface import ExtendedLogicInterface
 from rclpy.executors import MultiThreadedExecutor
 
 
 class MuriActionHandler(Node):
-    def __init__(self, logic: LogicInterface):
+    def __init__(self, logic: ExtendedLogicInterface):
         super().__init__('muri_action_handler')
 
         self._action_client_drive = ActionClient(self, DRIVE, 'muri_drive')
         self._action_client_turn = ActionClient(self, TURN, 'muri_turn')
         self._action_client_init = ActionClient(self, INIT, 'muri_init')
+        self._action_client_follow = ActionClient(self, FOLLOW, 'muri_follow')
 
         self.last_odom = None
         self.last_picture_data = None
-        self.main_controller: LogicInterface = logic
+        self.main_controller: ExtendedLogicInterface = logic
 
         self.picture_sub = self.create_subscription(
             PictureData,
@@ -58,10 +59,15 @@ class MuriActionHandler(Node):
             if out.values['ASToCall'] == 2:
                 self.send_turn_goal()
 
+            if out.values['ASToCall'] == 3:
+                self.send_follow_goal()
+
 
     def listener_callback_picture_data_ah(self, msg):
         self.last_picture_data = msg
         self.main_controller.setCameraData(msg.angle_in_rad, msg.distance_in_meters)
+        self.main_controller.setArucoData(msg.dominant_aruco_id)
+    
     def listener_callback_odom_ah(self, msg):
         self.last_odom = msg
         self.main_controller.setOdomData(msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.orientation)
@@ -83,7 +89,14 @@ class MuriActionHandler(Node):
         self._drive_send_promise.add_done_callback(self.drive_goal_response_callback)
         self.get_logger().info(f"Result of send_goal_async: {self._drive_send_promise}")
 
+    def send_follow_goal(self):
+        self.get_logger().info('Sending follow goal...')
 
+        follow_goal = FOLLOW.Goal()
+
+        self._action_client_follow.wait_for_server()
+        self._follow_send_promise = self._action_client_follow.send_goal_async(follow_goal, feedback_callback=self.follow_feedback_callback)
+        self._follow_send_promise.add_done_callback(self.follow_goal_response_callback)
 
     def send_turn_goal(self):
         self.get_logger().info('Sending turn goal...')
@@ -105,17 +118,17 @@ class MuriActionHandler(Node):
         self._init_send_promise = self._action_client_init.send_goal_async(init_goal, feedback_callback=self.init_feedback_callback)
         self._init_send_promise.add_done_callback(self.init_goal_response_callback)
 
+    def follow_feedback_callback(self, feedback_msg):
+        self.get_logger().info('Follow: ' + str(feedback_msg))
+
     def drive_feedback_callback(self, feedback_msg):
-        pass
-        #self.get_logger().info('Drive: ' + str(feedback_msg))
+        self.get_logger().info('Drive: ' + str(feedback_msg))
 
     def turn_feedback_callback(self, feedback_msg):
-        pass
-        #self.get_logger().info('Turn: ' + str(feedback_msg))
+        self.get_logger().info('Turn: ' + str(feedback_msg))
 
     def init_feedback_callback(self, feedback_msg):
-        pass
-        #self.get_logger().info('Init: ' + str(feedback_msg))
+        self.get_logger().info('Init: ' + str(feedback_msg))
 
     def drive_goal_response_callback(self, promise):
         goal_handle = promise.result()
@@ -150,23 +163,40 @@ class MuriActionHandler(Node):
         self._init_result_promise = goal_handle.get_result_async()
         self._init_result_promise.add_done_callback(self.init_result_callback)
 
+    def follow_goal_response_callback(self, promise):
+        goal_handle = promise.result()
+        if not goal_handle.accepted:
+            self.get_logger().info('Rej: follow-goal')
+            return
+        
+        self.get_logger().info('Acc: follow-goal')
+
+        self._follow_result_promise = goal_handle.get_result_async()
+        self._follow_result_promise.add_done_callback(self.follow_result_callback)
+
+    def follow_result_callback(self, promise):
+        result = promise.result().result
+        self.main_controller.setGoalStautusFinished(True)
+        self.get_logger().info('Follow result: {0}'.format(result))
+        self.main_controller.setGoalSuccess(result.success)
+
     def drive_result_callback(self, promise):
         result = promise.result().result
         self.main_controller.setGoalStautusFinished(True)
-        self.main_controller.setGoalSuccess(True)
         self.get_logger().info('Drive result: {0}'.format(result))
+        self.main_controller.setGoalSuccess(result.success)
 
     def turn_result_callback(self, promise):
         result = promise.result().result
         self.main_controller.setGoalStautusFinished(True)
-        self.main_controller.setGoalSuccess(True)
         self.get_logger().info('Turn result: {0}'.format(result))
+        self.main_controller.setGoalSuccess(result.success)
 
     def init_result_callback(self, promise):
         result = promise.result().result
         self.main_controller.setGoalStautusFinished(True)
-        self.main_controller.setGoalSuccess(True)
         self.get_logger().info('Init result: {0}'.format(result))
+        self.main_controller.setGoalSuccess(result.success)
 
 def main(args=None):
     rclpy.init(args=args)
