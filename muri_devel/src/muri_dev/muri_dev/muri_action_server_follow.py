@@ -63,7 +63,8 @@ class FollowActionServer(Node):
 
     def listener_callback_picture_data_asf(self, msg):
         self._last_picture_data = msg
-        self.follow_logic.setCameraData(msg.angle_in_rad, msg.distance_in_meters, msg.dominant_aruco_id)
+        self.follow_logic.setCameraData(msg.angle_in_rad, msg.distance_in_meters)
+        self.follow_logic.setArucoData(msg.dominant_aruco_id)
 
     def listener_callback_odom_asf(self, msg):
         self._last_odom = msg
