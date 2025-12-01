@@ -18,7 +18,7 @@ class ImageProcessing(Node):
     """
     def __init__(self):
         """
-        Initialise the ROS 2 node and all helpers.
+        Initialise the ROS 2 node and all helpers.
         """
         super().__init__('image_processing')
 
@@ -35,7 +35,6 @@ class ImageProcessing(Node):
         self.second_data = None
         self.third_data = None
         self.proc_AMD = AMD()
-
 
         self.subscription = self.create_subscription(
             Image,
@@ -69,7 +68,7 @@ class ImageProcessing(Node):
 
         pub_pic_data.error = self.error
         pub_pic_data.angle_in_rad = float(self.angle_in_rad)
-        pub_pic_data.distance_in_meters = float(self.distance_in_meters_unfiltered)
+        pub_pic_data.distance_in_meters = float(self.distance_in_meters_filtered)  # Gefilterte Distanz verwenden
         pub_pic_data.dominant_aruco_id = int(self.marker_id)
 
         self.publisher.publish(pub_pic_data)
