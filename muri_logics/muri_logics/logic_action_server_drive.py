@@ -142,6 +142,10 @@ class DriveLogic(LogicInterface):
         else:
             linear_Velocity = 0.0
 
+        if self.__distance_in_Meter == -1:
+            linear_Velocity = 0.0
+            angular_Velocity = 0.0
+
         return angular_Velocity, linear_Velocity
     
 
