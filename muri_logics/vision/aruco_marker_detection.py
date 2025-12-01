@@ -24,7 +24,7 @@ class AMD():
         self.dist_coeffs = np.array(config.DISTANCE_COEFFICIENT, dtype=np.float32)
 
     def aruco_detection(self, img):
-        ''' Detect ArUco marker and return its depth and rotation.
+        ''' Detect ArUco marker and return its depth, rotation, and ID.
 
         Parameters
         ----------
@@ -33,16 +33,29 @@ class AMD():
         Returns
         ----------
         tuple
-            (z_pos, y_rot) where
+            (z_pos, y_rot, marker_id) where
             - z_pos is the depth (Z-coordinate) in millimeters,
-            - y_rot is the Y-rotation in radians.
-            If no marker is detected, returns (-1.0, math.pi).
+            - y_rot is the Y-rotation in radians,
+            - marker_id is the ID of the detected marker.
+            If no marker is detected, returns (-1000.0, math.pi, 9999).
+            If both markers 0 and 69 are detected, returns marker 69.
         '''
         frame_gray = img
         corners, ids, _ = self.detector.detectMarkers(frame_gray)
         
-        if ids is not None and len(corners) > 0:
+        if ids is not None and len(corners) > 0: 
+            index_69 = None
+            index_0 = None
+            
             for i in range(len(ids)):
+                if ids[i][0] == 69:
+                    index_69 = i
+                elif ids[i][0] == 0:
+                    index_0 = i
+            
+            index_to_use = index_69 if index_69 is not None else index_0 # Wähle Marker 69, wenn er existiert, sonst Marker 0
+            
+            if index_to_use is not None:
                 obj_points = np.array([[-self.marker_size / 2,  self.marker_size / 2, 0],   # Obere linke Ecke
                                         [ self.marker_size / 2,  self.marker_size / 2, 0],  # Obere rechte Ecke
                                         [ self.marker_size / 2, -self.marker_size / 2, 0],  # Untere rechte Ecke
@@ -51,16 +64,17 @@ class AMD():
                 
                 success, _, tvec = cv.solvePnP(
                     obj_points,
-                    corners[i][0],
+                    corners[index_to_use][0],
                     self.camera_matrix,
                     self.dist_coeffs,
                     flags=cv.SOLVEPNP_IPPE_SQUARE)
                 
                 if success:
-                    angle_rad = self.calculate_angle_to_marker(corners[i])                  
-                    return tvec[2][0], angle_rad
+                    angle_rad = self.calculate_angle_to_marker(corners[index_to_use])
+                    marker_id = ids[index_to_use][0]
+                    return tvec[2][0], angle_rad, marker_id
     
-        return -1000.0, math.pi
+        return -1000.0, math.pi, 9999
     
     def calculate_angle_to_marker(self, corners):
         ''' Compute the yaw angle of a detected marker.
@@ -89,4 +103,4 @@ class AMD():
         
         angle_rad = math.atan2(delta_x, fx)
         
-        return angle_rad    
+        return angle_rad

@@ -28,12 +28,14 @@ class ImageProcessing(Node):
         self.distance_in_meters_filtered = None
         self.distance_in_milimeters = None
         self.angle_in_rad = None
+        self.marker_id = 9999
         self.error = False
         self.error_counter = 0
         self.first_data = None
         self.second_data = None
         self.third_data = None
         self.proc_AMD = AMD()
+
 
         self.subscription = self.create_subscription(
             Image,
@@ -68,6 +70,7 @@ class ImageProcessing(Node):
         pub_pic_data.error = self.error
         pub_pic_data.angle_in_rad = float(self.angle_in_rad)
         pub_pic_data.distance_in_meters = float(self.distance_in_meters_unfiltered)
+        pub_pic_data.dominant_aruco_id = int(self.marker_id)
 
         self.publisher.publish(pub_pic_data)
         #self.get_logger().info('OpenCV-Daten wurden gepublished')
@@ -90,7 +93,7 @@ class ImageProcessing(Node):
         if self.error_counter > 10:
             self.error = True
 
-        self.distance_in_milimeters, self.angle_in_rad = self.proc_AMD.aruco_detection(data_img)
+        self.distance_in_milimeters, self.angle_in_rad, self.marker_id = self.proc_AMD.aruco_detection(data_img)
         self.distance_in_meters_unfiltered = self.distance_in_milimeters/1000
         self.distance_in_meters_filtered = self.daf()
 
