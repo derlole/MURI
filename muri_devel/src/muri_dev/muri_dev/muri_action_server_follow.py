@@ -7,15 +7,15 @@ from rclpy.executors import ExternalShutdownException, MultiThreadedExecutor
 from muri_dev_interfaces.action import FOLLOW
 from muri_dev_interfaces.msg import PictureData
 from muri_logics.logic_action_server_drive import FollowLogic, FollowStates
-from muri_logics.logic_interface import LogicInterface
+from muri_logics.logic_interface import ExtendedLogicInterface
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup 
 import time
 
 class FollowActionServer(Node):
-    def __init__(self, logic: LogicInterface):
+    def __init__(self, logic: ExtendedLogicInterface):
         super().__init__('muri_follow_action_server')
 
-        self.follow_logic: LogicInterface = logic
+        self.follow_logic: ExtendedLogicInterface = logic
 
         self._action_server = ActionServer(
             self,
@@ -50,16 +50,92 @@ class FollowActionServer(Node):
         self._last_odom = None
 
     def timer_callback_asf(self):
-        pass
+        if self._goal_handle is None or not self._goal_handle.is_active:
+            return
+        
+        if self._goal_handle.is_cancel_requested:
+            self.get_logger().info('Canc: follow-goal.')
+            self._goal_handle.canceled()
+
+            self._goal_result = FOLLOW.Result()
+            self._goal_result.success = False
+            self._goal_exiting = True
+            self._goal_handle = None
+            return
+
+        self.follow_logic.state_machine()
+        out = self.follow_logic.getOut()
+
+        if not out.outValid():
+            out.resetOut()
+            return
+        
+        cmd_vel = Twist()
+        cmd_vel.linear.x = float(out.values['linear_velocity_x'])
+        cmd_vel.linear.y = float(out.values['linear_velocity_y'])
+        cmd_vel.angular.z = float(out.values['angular_velocity_z'])
+
+
+        self.cmd_vel_pub.publish(cmd_vel)
+
+        feedback_msg = FOLLOW.Feedback()
+        feedback_msg.distance_to_target = float(out.values['distance_to_robot']) #TODO tell louis to put that there
+
+        self._goal_handle.publish_feedback(feedback_msg)
+
+        if self.follow_logic.getActiveState() == FollowStates.SUCCESS:
+            self.get_logger().info('Succ: follow-goal.')
+            self._goal_handle.succeed()
+
+            self._goal_result = FOLLOW.Result()
+            self._goal_result.success = True
+            self._goal_exiting = True
+ 
+            self._goal_handle = None
+
+        elif self.follow_logic.getActiveState() == FollowStates.FAILED:
+            self.get_logger().info('Fail: follow-goal.')
+            self._goal_handle.abort()
+
+            self._goal_result = FOLLOW.Result()
+            self._goal_result.success = False
+            self._goal_exiting = True
+
+            self._goal_handle = None
+
+        out.resetOut()
+
 
     def execute_callback(self, goal_handle):
-        pass
+        self.get_logger().info('Exec: follow-goal.')
+
+        self._goal_handle = goal_handle
+
+        self._goal_exiting = False
+        self._goal_result = None
+
+        while not self._goal_exiting:
+            time.sleep(0.05)
+
+        return self._goal_result
 
     def goal_callback(self, goal_request):
-        pass
+        self.get_logger().info('Rec: follow-goal.')
+
+        if self._goal_handle is not None and self._goal_handle.is_active:
+            self.get_logger().info('Rej: follow-goal, already active.')
+            return GoalResponse.REJECT
+        
+        self.get_logger().info('Acc: follow-goal.')
+
+        self.follow_logic.reset()
+        self.follow_logic.setActive()
+
+        return GoalResponse.ACCEPT
 
     def cancel_callback(self, goal_handle):
-        pass
+        self.get_logger().info('Rec: cancel follow-goal.')
+        return CancelResponse.ACCEPT
 
     def listener_callback_picture_data_asf(self, msg):
         self._last_picture_data = msg

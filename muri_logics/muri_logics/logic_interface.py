@@ -68,3 +68,9 @@ class LogicInterface(ABC):
     def setCameraData(angle_in_rad: float, distance_in_meters: float): 
         """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
         pass 
+
+class ExtendedLogicInterface(LogicInterface):
+    @abstractmethod
+    def setArucoData(dominant_aruco_id: int):
+        """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
+        pass

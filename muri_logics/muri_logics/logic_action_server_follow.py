@@ -73,7 +73,7 @@ class FollowOut(Out):
         self.__error = er 
 
 
-class FollowLogic(LogicInterface):
+class FollowLogic(ExtendedLogicInterface):
     def __init__(self):
         self.__outputFollow = FollowOut()
         self.__stateFollow = FollowStates.INIT
