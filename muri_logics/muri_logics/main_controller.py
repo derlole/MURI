@@ -145,6 +145,11 @@ class MainController(ExtendedLogicInterface):
                     self._goal_status_fin = False
                     self._goal_success = False
                     self.__output.values = 1
+                
+                elif self._goal_status_fin and not self._goal_success:
+                    self.__state = MainStates.FAILED
+                    self._goal_status_fin = False
+                    self._goal_success = False
 
             case MainStates.DRIVE:
                 self.__output.isValid = True
@@ -153,6 +158,11 @@ class MainController(ExtendedLogicInterface):
                     self._goal_status_fin = False
                     self._goal_success = False
                     self.__output.values = 2
+
+                elif self._goal_status_fin and not self._goal_success:
+                    self.__state = MainStates.FAILED
+                    self._goal_status_fin = False
+                    self._goal_success = False
                 
             case MainStates.TURN:
                 self.__output.isValid = True
@@ -162,6 +172,11 @@ class MainController(ExtendedLogicInterface):
                     self._goal_status_fin = False
                     self._goal_success = False
                     self.__output.values = 1
+
+                elif self._goal_status_fin and not self._goal_success:
+                    self.__state = MainStates.FAILED
+                    self._goal_status_fin = False
+                    self._goal_success = False
 
             case MainStates.FOLLOW:
                 pass
