@@ -13,7 +13,9 @@ class AMD():
     detected marker from a single image.
     '''
     def __init__(self):
-        self.marker_size = config.MARKER_SIZE  # mm
+        # Marker-Größen aus der Konfiguration laden
+        self.marker_sizes = config.MARKER_SIZES
+        
         aruco_dict = aruco.getPredefinedDictionary(aruco.DICT_5X5_1000)
         aruco_params = aruco.DetectorParameters()
         self.detector = aruco.ArucoDetector(aruco_dict, aruco_params)
@@ -56,10 +58,18 @@ class AMD():
             index_to_use = index_69 if index_69 is not None else index_0 # Wähle Marker 69, wenn er existiert, sonst Marker 0
             
             if index_to_use is not None:
-                obj_points = np.array([[-self.marker_size / 2,  self.marker_size / 2, 0],   # Obere linke Ecke
-                                        [ self.marker_size / 2,  self.marker_size / 2, 0],  # Obere rechte Ecke
-                                        [ self.marker_size / 2, -self.marker_size / 2, 0],  # Untere rechte Ecke
-                                        [-self.marker_size / 2, -self.marker_size / 2, 0]], # Untere linke Ecke
+                # Bestimme die Markergröße basierend auf der ID
+                marker_id = ids[index_to_use][0]
+                marker_size = self.marker_sizes.get(marker_id)
+                
+                # Wenn die Marker-ID nicht konfiguriert ist, Fehler zurückgeben
+                if marker_size is None:
+                    return -1000.0, math.pi, 9999
+                
+                obj_points = np.array([[-marker_size / 2,  marker_size / 2, 0],   # Obere linke Ecke
+                                        [ marker_size / 2,  marker_size / 2, 0],  # Obere rechte Ecke
+                                        [ marker_size / 2, -marker_size / 2, 0],  # Untere rechte Ecke
+                                        [-marker_size / 2, -marker_size / 2, 0]], # Untere linke Ecke
                                     dtype=np.float32)
                 
                 success, _, tvec = cv.solvePnP(
