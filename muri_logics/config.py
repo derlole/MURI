@@ -4,11 +4,9 @@ import math
 
 # Marker-Größen je nach ID (in mm)
 MARKER_SIZES = {
-    0: 175,   # Marker ID 0 ist 175mm groß
-    69: 80    # Marker ID 69 ist 80mm groß
+    0: 175,   
+    69: 80    
 }
-
-# Standardauflösung 640x480
 # Standardauflösung 640x480 V2
 CAMERA_MATRIX_RAW = [
     [593.91399635, 0.0, 334.37556895],
