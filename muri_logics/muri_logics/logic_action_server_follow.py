@@ -12,6 +12,7 @@ class FollowStates(Enum):
     SUCCESS = 3
     READY = 4
     FOLLOWMOVE = 5
+    ABORT = 6
 
 
 
@@ -103,6 +104,7 @@ class FollowLogic(ExtendedLogicInterface):
         self.__positionTheta = 0.0
         self.__angleToMidInRad = 0.0
         self.__distanceInMeter = 0.0
+        self.__dominantArucoID = None
         self.__firstTheta = None
         self.__followDistance = 0.2
         self.__outputFollow.resetOut()
@@ -122,6 +124,10 @@ class FollowLogic(ExtendedLogicInterface):
         """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
         self.__angleToMidInRad = angleIR
         self.__distanceInMeter = distanceIM
+
+    def setArucoData(self, id):
+        """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
+        self.__dominantArucoID = id
 
     def calculate(self):
         angularVelocety = 0.0
@@ -163,13 +169,18 @@ class FollowLogic(ExtendedLogicInterface):
             case FollowStates.FOLLOWMOVE:
                 avz, lvx, dim = self.calculate()
                 self.__outputFollow.values = (lvx, None, avz, dim)
-                if self.__distanceInMeter == -1:
+                if self.__dominantArucoID == 0:
+                    self.__stateFollow = FollowStates.SUCCESS
+                
+                if self.__dominantArucoID == 9999:
                     self.__stateFollow = FollowStates.FAILED
-                self.__outputFollow.isValid = True
+
+            case FollowStates.ABORT: #TODO Nützlich? 
+                self.__outputFollow.values = config.STOP
 
             case FollowStates.SUCCESS:
                 self.__outputFollow.setError(False)
 
             case FollowStates.FAILED:
-                self.__outputFollow.values = (0.0, 0.0, 0.0, 0.0)
+                self.__outputFollow.values = config.STOP
                 self.__outputFollow.setError(True)

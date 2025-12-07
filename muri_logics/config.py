@@ -1,4 +1,5 @@
 import math
+from types import SimpleNamespace
 
 ###################### Camera Config Values ########################
 
@@ -39,10 +40,14 @@ MAX_VELOCITY = 0.08
 
 GOAL_DISTANCE = 0.25
 
-######################### Regulator Valus ##########################
+######################### Regulator Valus ###########################
 
 KP_INIT = 0.2
 KP_DRIVE = 2.0
 KP_TURN = 0.2
 KP_FOLLOW_ANGULAR = 0.2
 KP_FOLLOW_LINEAR = 0.2
+
+###################### Termination conditions #######################
+
+STOP = SimpleNamespace(lvx = 0, lvy = 0, avz = 0, dr = None)
