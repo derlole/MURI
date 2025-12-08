@@ -81,6 +81,7 @@ class DriveLogic(LogicInterface):
         self.__output = DriveOut()
         self.__state = DriveStates.INIT
         self.__first_Theta = None
+        self.__schpieth = 0.0 # TODO constants
         self.state_machine()
 
 
@@ -124,7 +125,9 @@ class DriveLogic(LogicInterface):
         self.__angle_to_Mid_in_Rad = angleIR
         self.__distance_in_Meter = distanceIM
 
-
+    def setSchpieth(self, s):
+        """Sets the Schpieth Value for Driving Logic"""
+        self.__schpieth = s
 
     def calculate(self):
         """Calculate commands for angular and linear velocity based on the current orientation and distance to the target.
@@ -137,7 +140,7 @@ class DriveLogic(LogicInterface):
             angular_Velocity = p_regulator(self.__angle_to_Mid_in_Rad, config.KP_DRIVE, config.MAX_ANGLE_VELOCITY_DRIVE)
 
         if self.__distance_in_Meter > config.GOAL_DISTANCE: 
-            linear_Velocity = config.MAX_VELOCITY
+            linear_Velocity = self.__schpieth
 
         else:
             linear_Velocity = 0.0

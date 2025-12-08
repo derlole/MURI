@@ -1,6 +1,7 @@
 import rclpy
 from rclpy.action import ActionServer, GoalResponse, CancelResponse
 from rclpy.node import Node
+from std_msgs.msg import Float32
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
 from rclpy.executors import ExternalShutdownException, MultiThreadedExecutor
@@ -42,6 +43,12 @@ class FollowActionServer(Node):
             Odometry,
             '/odom',  
             self.listener_callback_odom_asf,
+            10
+        )
+        self.schpieth_sup = self.create_subscription(
+            Float32,
+            '/schpieth_supervision',
+            self.listener_callback_schpieth_asf,
             10
         )
         self._timer = self.create_timer(0.1, self.timer_callback_asf, MutuallyExclusiveCallbackGroup())
@@ -145,6 +152,10 @@ class FollowActionServer(Node):
     def listener_callback_odom_asf(self, msg):
         self._last_odom = msg
         self.follow_logic.setOdomData(msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.orientation)
+        
+    def listener_callback_schpieth_asf(self, msg):
+        value = max(0.0, min(msg.data, 0.2)) # TODO constants
+        self.follow_logic.setSchpieth(value)
 
 def main(args=None):
     rclpy.init(args=args)

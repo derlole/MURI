@@ -2,6 +2,7 @@ import rclpy
 from rclpy.action import ActionServer, GoalResponse, CancelResponse
 from rclpy.node import Node
 from nav_msgs.msg import Odometry
+from std_msgs.msg import Float32
 from geometry_msgs.msg import Twist
 from rclpy.executors import ExternalShutdownException, MultiThreadedExecutor
 from muri_dev_interfaces.action import DRIVE
@@ -44,6 +45,12 @@ class DriveActionServer(Node):
             Odometry,
             '/odom',  
             self.listener_callback_odom_asd,
+            10
+        )
+        self.schpieth_sup = self.create_subscription(
+            Float32,
+            '/schpieth_supervision',
+            self.listener_callback_schpieth_asd,
             10
         )
         self._timer = self.create_timer(0.1, self.timer_callback_asd, MutuallyExclusiveCallbackGroup())
@@ -147,6 +154,10 @@ class DriveActionServer(Node):
         self._last_picture_data = msg
         self.drive_logic.setCameraData(msg.angle_in_rad, msg.distance_in_meters)
 
+    def listener_callback_schpieth_asd(self, msg):
+        value = max(0.0, min(msg.data, 0.2)) # TODO constants
+        self.drive_logic.setSchpieth(value)
+        
 def main(args=None):
     rclpy.init(args=args)
 

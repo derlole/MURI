@@ -32,6 +32,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "action/INIT.action"
   "action/DRIVE.action"
   "action/TURN.action"
+  "action/FOLLOW.action"
   "msg/PictureData.msg"
   DEPENDENCIES geometry_msgs std_msgs
 )
