@@ -6,7 +6,7 @@ from types import SimpleNamespace
 # Marker-Größen je nach ID (in mm)
 MARKER_SIZES = {
     0: 175,   
-    69: 63    
+    69: 62
 }
 # Standardauflösung 640x480 V2
 CAMERA_MATRIX_RAW = [
