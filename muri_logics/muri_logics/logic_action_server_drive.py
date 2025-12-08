@@ -177,7 +177,7 @@ class DriveLogic(LogicInterface):
                     avz, lv = self.calculate()
                     self.__output.values = (lv, None, avz, self.__distance_in_Meter)
                     self.__output.isValid = True
-                    if self.__distance_in_Meter < config.GOAL_DISTANCE and self.__distance_in_Meter is not -1:
+                    if self.__distance_in_Meter < config.GOAL_DISTANCE and self.__distance_in_Meter != -1.0:
                         self.__state = DriveStates.SUCCESS
 
                 case DriveStates.FAILED:
