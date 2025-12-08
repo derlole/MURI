@@ -117,7 +117,7 @@ class FollowLogic(ExtendedLogicInterface):
     def setOdomData(self, x, y, t):
         """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
         self.__positionX = x
-        self.__positionY = x
+        self.__positionY = y
         self.__positionTheta = quaternion_to_yaw(t)
 
     def setCameraData(self, angleIR, distanceIM): 

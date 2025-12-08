@@ -38,7 +38,7 @@ ORIANTATION_DISTANCE = 0.5
 
 MAX_VELOCITY = 0.08
 
-GOAL_DISTANCE = 0.25
+GOAL_DISTANCE = 0.4
 
 ######################### Regulator Valus ###########################
 
