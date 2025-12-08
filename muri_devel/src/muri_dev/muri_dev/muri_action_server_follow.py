@@ -7,7 +7,7 @@ from geometry_msgs.msg import Twist
 from rclpy.executors import ExternalShutdownException, MultiThreadedExecutor
 from muri_dev_interfaces.action import FOLLOW
 from muri_dev_interfaces.msg import PictureData
-from muri_logics.logic_action_server_drive import FollowLogic, FollowStates
+from muri_logics.logic_action_server_follow import FollowLogic, FollowStates
 from muri_logics.logic_interface import ExtendedLogicInterface
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup 
 import time

@@ -31,7 +31,7 @@ setup(
             'muri_action_server_drive = muri_dev.muri_action_server_drive:main',
             'muri_action_server_turn = muri_dev.muri_action_server_turn:main',
             'muri_action_server_init = muri_dev.muri_action_server_init:main',
-            'muri_action_server_follow.py = muri_dev.muri_action_server_follow:main'
+            'muri_action_server_follow = muri_dev.muri_action_server_follow:main'
         ],
     },
 )
