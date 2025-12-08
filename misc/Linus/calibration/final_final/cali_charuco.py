@@ -60,15 +60,13 @@ while found < required_images:
         all_charuco_ids.append(charuco_ids)
         found += 1
         print(f'Bild {found}/{required_images} erfasst - {len(charuco_corners)} Ecken gefunden')
-        
-        # Optional: Visualisierung (auskommentiert für headless)
+
         # img_with_markers = cv2.aruco.drawDetectedMarkers(img.copy(), marker_corners, marker_ids)
         # img_with_corners = cv2.aruco.drawDetectedCornersCharuco(img_with_markers, charuco_corners, charuco_ids)
         # cv2.imshow('ChArUco Detection', img_with_corners)
         
         time.sleep(1.0)  # Warte 1 Sekunde zwischen Aufnahmen
     
-    # Optional: Abbruch mit 'q'
     # if cv2.waitKey(10) & 0xFF == ord('q'):
     #     break
 
