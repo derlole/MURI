@@ -41,7 +41,6 @@ class TestInitLogic(unittest.TestCase):
         self.assertEqual(out.values['angular_velocity_z'], 0.0)
         self.assertEqual(out.values['turned_angle'], 0.0)
 
-
     def test_state_progression_to_initmove(self):
         """Moves from READY to INITMOVE if firstTheta not set"""
         self.logic.reset()

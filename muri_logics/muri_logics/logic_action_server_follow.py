@@ -57,7 +57,10 @@ class FollowOut(Out):
         
     def resetOut(self):
         """Reset the output to its initial state."""
-        self.__values = (0.0, 0.0, 0.0, 0.0)
+        self.__values['linear_velocity_x'] = 0.0
+        self.__values['linear_velocity_y'] = 0.0
+        self.__values['angular_velocity_z'] = 0.0
+        self.__values['distance_remaining'] = 0.0
         self.__error = None
         self.__isValid = False
 
@@ -137,7 +140,8 @@ class FollowLogic(ExtendedLogicInterface):
             angularVelocety = p_regulator(self.__angleToMidInRad, config.KP_FOLLOW_ANGULAR, config.MAX_ANGLE_VELOCITY_FOLLOW)
         
         if self.__distanceInMeter < self.__followDistance:
-            linearVelocety = p_regulator(self.__distanceInMeter, config.KP_FOLLOW_LINEAR, config.MAX_VELOCITY)
+            linearVelocety = p_regulator(-self.__distanceInMeter, config.KP_FOLLOW_LINEAR, config.MAX_VELOCITY) #TODO EVTL Regler überarbeiten
+            # minus im fehler das sonst bei einem Positiven abstand eine negative lineare geschwindigkeit resultiert
 
         if self.__distanceInMeter == -1: #TODO Evtl.
             linearVelocety = 0.0
@@ -152,7 +156,7 @@ class FollowLogic(ExtendedLogicInterface):
         match self.__stateFollow:
 
             case FollowStates.INIT:
-                self.__outputFollow = (0.0, 0.0, 0.0, 0.0)
+                self.__outputFollow.values = (0.0, 0.0, 0.0, 0.0)
                 self.__positionX = 0.0
                 self.__positionY = 0.0
                 self.__positionTheta =0.0
@@ -167,8 +171,8 @@ class FollowLogic(ExtendedLogicInterface):
                 self.__stateFollow = FollowStates.FOLLOWMOVE
 
             case FollowStates.FOLLOWMOVE:
-                avz, lvx, dim = self.calculate()
-                self.__outputFollow.values = (lvx, None, avz, dim)
+                avz, lvx = self.calculate()
+                self.__outputFollow.values = (lvx, None, avz, self.__distanceInMeter)
                 if self.__dominantArucoID == 0:
                     self.__stateFollow = FollowStates.SUCCESS
                 

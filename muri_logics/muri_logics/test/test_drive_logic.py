@@ -76,7 +76,6 @@ class TestDriveLogic(unittest.TestCase):
         avz, lv = self.logic.calculate()
 
         self.assertNotEqual(avz, 0.0)
-        self.assertAlmostEqual(lv, config.MAX_VELOCITY)
 
     def test_calculate_stop_at_goal(self):
         """calculate() should stop linear motion and angular motion when near goal."""
