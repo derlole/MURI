@@ -72,7 +72,7 @@ class AMD():
                                         [-marker_size / 2, -marker_size / 2, 0]], # Untere linke Ecke
                                     dtype=np.float32)
                 
-                success, _, tvec = cv.solvePnP(
+                success, _, self.tvec = cv.solvePnP(
                     obj_points,
                     corners[index_to_use][0],
                     self.camera_matrix,
@@ -80,9 +80,9 @@ class AMD():
                     flags=cv.SOLVEPNP_IPPE_SQUARE)
                 
                 if success:
-                    angle_rad = self.calculate_angle_to_marker(corners[index_to_use])
+                    angle_rad = self.calculate_angle_to_marker_2(corners[index_to_use])
                     marker_id = ids[index_to_use][0]
-                    return tvec[2][0], angle_rad, marker_id
+                    return self.tvec[2][0], angle_rad, marker_id
     
         return -1000.0, math.pi, 9999
     
@@ -113,4 +113,14 @@ class AMD():
         
         angle_rad = math.atan2(delta_x, fx)
         
+        return angle_rad
+        
+    def calculate_angle_to_marker_2(self, corners):
+
+        distance = self.tvec[2][0]
+        x_offset = self.tvec[0][0]
+
+        angle_rad = math.atan2(x_offset, distance)
+
+
         return angle_rad
