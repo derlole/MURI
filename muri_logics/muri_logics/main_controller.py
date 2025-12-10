@@ -153,7 +153,7 @@ class MainController(ExtendedLogicInterface):
 
             case MainStates.DRIVE:
                 self.__output.isValid = True
-
+                print(self._dominant_aruco_id + type(self._dominant_aruco_id))
                 if self._dominant_aruco_id == 69:
                     self.__state = MainStates.FOLLOW
                     self._goal_status_fin = True
