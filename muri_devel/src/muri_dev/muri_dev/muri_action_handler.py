@@ -203,8 +203,13 @@ class MuriActionHandler(Node):
         self.main_controller.setGoalSuccess(result.success)
 
     def cancle_drive_goal(self):
-        self._drive_send_promise.cancel()
+        if hasattr(self, "_drive_goal_handle") and self._drive_goal_handle is not None:
+            self.get_logger().info("Requesting drive-goal cancel...")
+            future = self._drive_goal_handle.cancel_goal_async()
+            future.add_done_callback(self.cancel_done_callback)
 
+    def cancel_done_callback(self, future):
+        self.get_logger().info(f"Drive goal cancel result: {future.result()}")
 
 
 def main(args=None):
