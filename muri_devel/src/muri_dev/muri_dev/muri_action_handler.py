@@ -123,13 +123,16 @@ class MuriActionHandler(Node):
         self.get_logger().info('Follow: ' + str(feedback_msg))
 
     def drive_feedback_callback(self, feedback_msg):
-        self.get_logger().info('Drive: ' + str(feedback_msg))
+        pass
+        # self.get_logger().info('Drive: ' + str(feedback_msg))
 
     def turn_feedback_callback(self, feedback_msg):
-        self.get_logger().info('Turn: ' + str(feedback_msg))
+        pass
+        # self.get_logger().info('Turn: ' + str(feedback_msg))
 
     def init_feedback_callback(self, feedback_msg):
-        self.get_logger().info('Init: ' + str(feedback_msg))
+        pass 
+        # self.get_logger().info('Init: ' + str(feedback_msg))
 
     def drive_goal_response_callback(self, promise):
         goal_handle = promise.result()
@@ -200,9 +203,8 @@ class MuriActionHandler(Node):
         self.main_controller.setGoalSuccess(result.success)
 
     def cancle_drive_goal(self):
-        self._action_client_drive._cancel_goal()
         self._drive_send_promise.cancel()
-        
+
 
 
 def main(args=None):
