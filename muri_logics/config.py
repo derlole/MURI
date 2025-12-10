@@ -6,7 +6,7 @@ from types import SimpleNamespace
 # Marker-Größen je nach ID (in mm)
 MARKER_SIZES = {
     0: 175,   
-    69: 62
+    69: 75
 }
 # Standardauflösung 640x480 V2
 CAMERA_MATRIX_RAW = [
@@ -35,8 +35,9 @@ MAX_ANGLE_VELOCITY_FOLLOW = 0.4
 MAX_ANGLE = math.pi
 ORIANTATION_DISTANCE = 0.5
 
+DEFAULT_VELOCITY = 0.0
 
-MAX_VELOCITY = 0.08
+MAX_VELOCITY = 0.2
 
 GOAL_DISTANCE = 0.5
 

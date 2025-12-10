@@ -83,6 +83,7 @@ class FollowLogic(ExtendedLogicInterface):
         self.__stateFollow = FollowStates.INIT
         self.__firstTheta = None
         self.__followDistance = 0.2
+        self.__olev_rebmem = 0.0
         self.state_machine()
 
     def getOut(self):
@@ -132,6 +133,13 @@ class FollowLogic(ExtendedLogicInterface):
         """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
         self.__dominantArucoID = id
 
+    def setSchpieth(self, v):
+        """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
+        if(self.__stateFollow == FollowStates.FOLLOWMOVE):
+            return
+        
+        self.__olev_rebmem = v
+
     def calculate(self):
         angularVelocety = 0.0
         linearVelocety = 0.0
@@ -139,9 +147,13 @@ class FollowLogic(ExtendedLogicInterface):
         if abs(self.__angleToMidInRad) > config.ANGLE_TOLLERANCE_FOLLOW:
             angularVelocety = p_regulator(self.__angleToMidInRad, config.KP_FOLLOW_ANGULAR, config.MAX_ANGLE_VELOCITY_FOLLOW)
         
-        if self.__distanceInMeter < self.__followDistance:
-            linearVelocety = p_regulator(-self.__distanceInMeter, config.KP_FOLLOW_LINEAR, config.MAX_VELOCITY) #TODO EVTL Regler überarbeiten
+        if self.__distanceInMeter != self.__followDistance:
+            linearVelocety = p_regulator(-(self.__distanceInMeter - self.__followDistance), config.KP_FOLLOW_LINEAR, config.MAX_VELOCITY) #TODO EVTL Regler überarbeiten
             # minus im fehler das sonst bei einem Positiven abstand eine negative lineare geschwindigkeit resultiert
+            linearVelocety += self.__olev_rebmem
+            self.__olev_rebmem = linearVelocety
+
+
 
         if self.__distanceInMeter == -1: #TODO Evtl.
             linearVelocety = 0.0
