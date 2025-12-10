@@ -119,8 +119,8 @@ class AMD():
 
         distance = self.tvec[2][0]
         x_offset = self.tvec[0][0]
-
-        angle_rad = math.atan2(x_offset, distance)
-
-
+        # x_offset Gegenkathete; distance Ankathete
+        angle_rad = math.atan2(x_offset, distance) 
+        
+        # Rückgabe in rad
         return angle_rad
