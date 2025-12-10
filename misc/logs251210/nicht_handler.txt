@@ -1,0 +1,29 @@
+ing=0.5927913188934326))
+[INFO] [1735168978.156165616] [muri_action_handler]: Drive: muri_dev_interfaces.action.DRIVE_FeedbackMessage(goal_id=unique_identifier_msgs.msg.UUID(uuid=array([ 56,  26,  44, 116,  13, 211,  72,  78, 155,  79,  40, 161,  15,
+       238,  63, 209], dtype=uint8)), feedback=muri_dev_interfaces.action.DRIVE_Feedback(distance_remaining=0.5403716564178467))
+[INFO] [1735168978.255323431] [muri_action_handler]: Drive: muri_dev_interfaces.action.DRIVE_FeedbackMessage(goal_id=unique_identifier_msgs.msg.UUID(uuid=array([ 56,  26,  44, 116,  13, 211,  72,  78, 155,  79,  40, 161,  15,
+       238,  63, 209], dtype=uint8)), feedback=muri_dev_interfaces.action.DRIVE_Feedback(distance_remaining=0.5283874273300171))
+[INFO] [1735168978.343899097] [muri_action_handler]: Drive: muri_dev_interfaces.action.DRIVE_FeedbackMessage(goal_id=unique_identifier_msgs.msg.UUID(uuid=array([ 56,  26,  44, 116,  13, 211,  72,  78, 155,  79,  40, 161,  15,
+       238,  63, 209], dtype=uint8)), feedback=muri_dev_interfaces.action.DRIVE_Feedback(distance_remaining=0.559226393699646))
+[INFO] [1735168978.463614190] [muri_action_handler]: Drive: muri_dev_interfaces.action.DRIVE_FeedbackMessage(goal_id=unique_identifier_msgs.msg.UUID(uuid=array([ 56,  26,  44, 116,  13, 211,  72,  78, 155,  79,  40, 161,  15,
+       238,  63, 209], dtype=uint8)), feedback=muri_dev_interfaces.action.DRIVE_Feedback(distance_remaining=0.5493893623352051))
+[INFO] [1735168978.573211597] [muri_action_handler]: Drive: muri_dev_interfaces.action.DRIVE_FeedbackMessage(goal_id=unique_identifier_msgs.msg.UUID(uuid=array([ 56,  26,  44, 116,  13, 211,  72,  78, 155,  79,  40, 161,  15,
+       238,  63, 209], dtype=uint8)), feedback=muri_dev_interfaces.action.DRIVE_Feedback(distance_remaining=0.5316485166549683))
+[INFO] [1735168978.668293634] [muri_action_handler]: Drive: muri_dev_interfaces.action.DRIVE_FeedbackMessage(goal_id=unique_identifier_msgs.msg.UUID(uuid=array([ 56,  26,  44, 116,  13, 211,  72,  78, 155,  79,  40, 161,  15,
+       238,  63, 209], dtype=uint8)), feedback=muri_dev_interfaces.action.DRIVE_Feedback(distance_remaining=0.5252557992935181))
+[INFO] [1735168978.746865134] [muri_action_handler]: Drive: muri_dev_interfaces.action.DRIVE_FeedbackMessage(goal_id=unique_identifier_msgs.msg.UUID(uuid=array([ 56,  26,  44, 116,  13, 211,  72,  78, 155,  79,  40, 161,  15,
+       238,  63, 209], dtype=uint8)), feedback=muri_dev_interfaces.action.DRIVE_Feedback(distance_remaining=0.506821870803833))
+[INFO] [1735168978.848644560] [muri_action_handler]: Drive: muri_dev_interfaces.action.DRIVE_FeedbackMessage(goal_id=unique_identifier_msgs.msg.UUID(uuid=array([ 56,  26,  44, 116,  13, 211,  72,  78, 155,  79,  40, 161,  15,
+       238,  63, 209], dtype=uint8)), feedback=muri_dev_interfaces.action.DRIVE_Feedback(distance_remaining=0.4932602643966675))
+[INFO] [1735168978.929997171] [muri_action_handler]: Drive result: muri_dev_interfaces.action.DRIVE_Result(success=True)
+[INFO] [1735168978.983394004] [muri_action_handler]: Sending drive goal...
+[INFO] [1735168979.001309819] [muri_action_handler]: Drive client ready: True
+[INFO] [1735168979.035144338] [muri_action_handler]: Result of send_goal_async: <rclpy.task.Future object at 0xffffa4d55d80>
+/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/task.py:153: UserWarning: Unhandled exception in done callback: 'NoneType' object has no attribute 'accepted'
+  warnings.warn('Unhandled exception in done callback: {}'.format(e))
+[INFO] [1735168979.051325486] [muri_action_handler]: Sending follow goal...
+[WARN] [1735168979.094405375] [muri_action_handler]: Ignoring unexpected goal response. There may be more than one action server for the action 'muri_drive'
+[INFO] [1735168979.160424263] [muri_action_handler]: Rej: follow-goal
+[INFO] [1735168979.268025837] [muri_action_handler]: Drive: muri_dev_interfaces.action.DRIVE_FeedbackMessage(goal_id=unique_identifier_msgs.msg.UUID(uuid=array([ 99, 223, 183, 184, 149,  56,  77,  59, 189,  21,  47, 105,  58,
+        61,  27, 242], dtype=uint8)), feedback=muri_dev_interfaces.action.DRIVE_Feedback(distance_remaining=0.4113205671310425))
+

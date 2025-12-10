@@ -1,0 +1,94 @@
+[INFO] [launch]: All log files can be found below /home/ubuntu/.ros/log/2024-12-25-23-13-43-990005-ubuntu-4879
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [muri_action_server_drive-1]: process started with pid [4880]
+[INFO] [muri_action_server_turn-2]: process started with pid [4882]
+[INFO] [muri_action_server_init-3]: process started with pid [4884]
+[INFO] [muri_action_server_follow-4]: process started with pid [4886]
+[INFO] [image_data_processing-5]: process started with pid [4888]
+[INFO] [camera_readout-6]: process started with pid [4890]
+[image_data_processing-5] [INFO] [1735168428.466044388] [image_data_processing]: Subscription getätigt
+[camera_readout-6] [INFO] [1735168428.679811518] [camera_readout]: CameraReadOut-Node gestartet
+[muri_action_server_init-3] [INFO] [1735168446.247442470] [muri_action_server_init]: Rec: init-goal
+[muri_action_server_init-3] [INFO] [1735168446.277034081] [muri_action_server_init]: Acc: init-goal
+[muri_action_server_init-3] [INFO] [1735168446.296632100] [muri_action_server_init]: Exec: init-goal
+[muri_action_server_init-3] [INFO] [1735168477.400115711] [muri_action_server_init]: succ: init-goal.
+[muri_action_server_drive-1] [INFO] [1735168478.266386155] [muri_action_server_drive]: Rec: drive-goal
+[muri_action_server_drive-1] [INFO] [1735168478.270068044] [muri_action_server_drive]: Acc: drive-goal
+[muri_action_server_drive-1] [INFO] [1735168478.318560247] [muri_action_server_drive]: Exe: drive goal
+[muri_action_server_drive-1] [INFO] [1735168514.540955281] [muri_action_server_drive]: succ: drive-goal.
+[muri_action_server_turn-2] [INFO] [1735168515.004860022] [muri_action_server_turn]: Rec: turn-goal
+[muri_action_server_turn-2] [INFO] [1735168515.026984336] [muri_action_server_turn]: Acc: turn-goal
+[muri_action_server_turn-2] [INFO] [1735168515.060652485] [muri_action_server_turn]: Exec: turn-goal
+[muri_action_server_turn-2] [INFO] [1735168544.140290060] [muri_action_server_turn]: succ: turn-goal.
+[muri_action_server_drive-1] [INFO] [1735168544.260163319] [muri_action_server_drive]: Rec: drive-goal
+[muri_action_server_drive-1] [INFO] [1735168544.269927282] [muri_action_server_drive]: Acc: drive-goal
+[muri_action_server_drive-1] [INFO] [1735168544.306682171] [muri_action_server_drive]: Exe: drive goal
+[muri_action_server_drive-1] [INFO] [1735168580.861957019] [muri_action_server_drive]: succ: drive-goal.
+[muri_action_server_turn-2] [INFO] [1735168580.967011445] [muri_action_server_turn]: Rec: turn-goal
+[muri_action_server_turn-2] [INFO] [1735168580.970594223] [muri_action_server_turn]: Acc: turn-goal
+[muri_action_server_turn-2] [INFO] [1735168581.017004890] [muri_action_server_turn]: Exec: turn-goal
+[muri_action_server_turn-2] [INFO] [1735168608.559456133] [muri_action_server_turn]: succ: turn-goal.
+[muri_action_server_drive-1] [INFO] [1735168608.646939262] [muri_action_server_drive]: Rec: drive-goal
+[muri_action_server_drive-1] [INFO] [1735168608.652390744] [muri_action_server_drive]: Acc: drive-goal
+[muri_action_server_drive-1] [INFO] [1735168608.669843947] [muri_action_server_drive]: Exe: drive goal
+[muri_action_server_drive-1] [INFO] [1735168625.041088197] [muri_action_server_drive]: succ: drive-goal.
+[muri_action_server_init-3] [INFO] [1735168821.456763654] [muri_action_server_init]: Rec: init-goal
+[muri_action_server_init-3] [INFO] [1735168821.494378820] [muri_action_server_init]: Acc: init-goal
+[muri_action_server_init-3] [INFO] [1735168821.553174154] [muri_action_server_init]: Exec: init-goal
+[muri_action_server_init-3] [INFO] [1735168907.193077103] [muri_action_server_init]: succ: init-goal.
+[muri_action_server_drive-1] [INFO] [1735168907.269627769] [muri_action_server_drive]: Rec: drive-goal
+[muri_action_server_drive-1] [INFO] [1735168907.281003454] [muri_action_server_drive]: Acc: drive-goal
+[muri_action_server_drive-1] [INFO] [1735168907.309089473] [muri_action_server_drive]: Exe: drive goal
+[muri_action_server_drive-1] [INFO] [1735168943.538493785] [muri_action_server_drive]: succ: drive-goal.
+[muri_action_server_turn-2] [INFO] [1735168943.674063766] [muri_action_server_turn]: Rec: turn-goal
+[muri_action_server_turn-2] [INFO] [1735168943.736940507] [muri_action_server_turn]: Acc: turn-goal
+[muri_action_server_turn-2] [INFO] [1735168943.768337933] [muri_action_server_turn]: Exec: turn-goal
+[muri_action_server_turn-2] [INFO] [1735168966.952791604] [muri_action_server_turn]: succ: turn-goal.
+[muri_action_server_drive-1] [INFO] [1735168967.066042808] [muri_action_server_drive]: Rec: drive-goal
+[muri_action_server_drive-1] [INFO] [1735168967.084164011] [muri_action_server_drive]: Acc: drive-goal
+[muri_action_server_drive-1] [INFO] [1735168967.115165437] [muri_action_server_drive]: Exe: drive goal
+[muri_action_server_follow-4] [INFO] [1735168971.859623046] [muri_action_server_follow]: Rec: follow-goal.
+[muri_action_server_follow-4] [INFO] [1735168971.863308620] [muri_action_server_follow]: Acc: follow-goal.
+[muri_action_server_follow-4] [INFO] [1735168971.896913249] [muri_action_server_follow]: Rec: follow-goal.
+[muri_action_server_follow-4] [INFO] [1735168971.902190397] [muri_action_server_follow]: Acc: follow-goal.
+[muri_action_server_follow-4] [INFO] [1735168971.908068934] [muri_action_server_follow]: Exec: follow-goal.
+[muri_action_server_follow-4] [INFO] [1735168971.918731323] [muri_action_server_follow]: Exec: follow-goal.
+[muri_action_server_follow-4] [INFO] [1735168972.082264582] [muri_action_server_follow]: Rec: follow-goal.
+[muri_action_server_follow-4] [INFO] [1735168972.088512934] [muri_action_server_follow]: Rej: follow-goal, already active.
+[muri_action_server_drive-1] [INFO] [1735168978.832954986] [muri_action_server_drive]: succ: drive-goal.
+[muri_action_server_drive-1] [INFO] [1735168979.051325393] [muri_action_server_drive]: Rec: drive-goal
+[muri_action_server_drive-1] [INFO] [1735168979.059416986] [muri_action_server_drive]: Acc: drive-goal
+[muri_action_server_follow-4] [INFO] [1735168979.099618449] [muri_action_server_follow]: Rec: follow-goal.
+[muri_action_server_follow-4] [INFO] [1735168979.104869856] [muri_action_server_follow]: Rej: follow-goal, already active.
+[muri_action_server_drive-1] [INFO] [1735168979.122404041] [muri_action_server_drive]: Exe: drive goal
+[muri_action_server_drive-1] [INFO] [1735168979.244023652] [muri_action_server_drive]: succ: drive-goal.
+[muri_action_server_follow-4] Traceback (most recent call last):
+[muri_action_server_follow-4]   File "/home/ubuntu/muri_team/MURI/muri_devel/install/muri_dev/lib/muri_dev/muri_action_server_follow", line 33, in <module>
+[muri_action_server_follow-4]     sys.exit(load_entry_point('muri-dev==0.1.0', 'console_scripts', 'muri_action_server_follow')())
+[muri_action_server_follow-4]   File "/home/ubuntu/muri_team/MURI/muri_devel/install/muri_dev/lib/python3.10/site-packages/muri_dev/muri_action_server_follow.py", line 168, in main
+[muri_action_server_follow-4]     executor.spin()
+[muri_action_server_follow-4]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 279, in spin
+[muri_action_server_follow-4]     self.spin_once()
+[muri_action_server_follow-4]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 764, in spin_once
+[muri_action_server_follow-4]     self._spin_once_impl(timeout_sec)
+[muri_action_server_follow-4]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 761, in _spin_once_impl
+[muri_action_server_follow-4]     future.result()
+[muri_action_server_follow-4]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/task.py", line 94, in result
+[muri_action_server_follow-4]     raise self.exception()
+[muri_action_server_follow-4]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/task.py", line 239, in __call__
+[muri_action_server_follow-4]     self._handler.send(None)
+[muri_action_server_follow-4]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 418, in handler
+[muri_action_server_follow-4]     await call_coroutine(entity, arg)
+[muri_action_server_follow-4]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 332, in _execute_timer
+[muri_action_server_follow-4]     await await_or_execute(tmr.callback)
+[muri_action_server_follow-4]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 107, in await_or_execute
+[muri_action_server_follow-4]     return callback(*args)
+[muri_action_server_follow-4]   File "/home/ubuntu/muri_team/MURI/muri_devel/install/muri_dev/lib/python3.10/site-packages/muri_dev/muri_action_server_follow.py", line 73, in timer_callback_asf
+[muri_action_server_follow-4]     self.follow_logic.state_machine()
+[muri_action_server_follow-4]   File "/home/ubuntu/muri_team/MURI/muri_logics/muri_logics/logic_action_server_follow.py", line 201, in state_machine
+[muri_action_server_follow-4]     self.__outputFollow.values = config.STOP
+[muri_action_server_follow-4]   File "/home/ubuntu/muri_team/MURI/muri_logics/muri_logics/logic_action_server_follow.py", line 44, in values
+[muri_action_server_follow-4]     lvx, lvy, avz, dr = data
+[muri_action_server_follow-4] TypeError: cannot unpack non-iterable types.SimpleNamespace object
+
+
