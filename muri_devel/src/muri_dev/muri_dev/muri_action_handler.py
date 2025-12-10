@@ -60,6 +60,7 @@ class MuriActionHandler(Node):
                 self.send_turn_goal()
 
             if out.values['ASToCall'] == 3:
+                self.cancle_drive_goal()
                 self.send_follow_goal()
 
 
@@ -197,6 +198,12 @@ class MuriActionHandler(Node):
         self.main_controller.setGoalStautusFinished(True)
         self.get_logger().info('Init result: {0}'.format(result))
         self.main_controller.setGoalSuccess(result.success)
+
+    def cancle_drive_goal(self):
+        self._action_client_drive._cancel_goal()
+        self._drive_send_promise.cancel()
+        
+
 
 def main(args=None):
     rclpy.init(args=args)
