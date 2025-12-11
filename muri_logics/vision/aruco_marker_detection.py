@@ -80,7 +80,7 @@ class AMD():
                     flags=cv.SOLVEPNP_IPPE_SQUARE)
                 
                 if success:
-                    angle_rad = self.calculate_angle_to_marker(corners[index_to_use])
+                    angle_rad = self.calculate_angle_to_marker()
                     marker_id = ids[index_to_use][0]
                     return self.tvec[2][0], angle_rad, marker_id
     
@@ -88,7 +88,7 @@ class AMD():
     
     def calculate_angle_to_marker(self):
         ''' Compute the yaw angle of a detected marker using 3D position data.
-        
+
         Returns
         ----------
         float
