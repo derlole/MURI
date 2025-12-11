@@ -80,45 +80,25 @@ class AMD():
                     flags=cv.SOLVEPNP_IPPE_SQUARE)
                 
                 if success:
-                    angle_rad = self.calculate_angle_to_marker_2(corners[index_to_use])
+                    angle_rad = self.calculate_angle_to_marker(corners[index_to_use])
                     marker_id = ids[index_to_use][0]
                     return self.tvec[2][0], angle_rad, marker_id
     
         return -1000.0, math.pi, 9999
     
-    def calculate_angle_to_marker(self, corners):
-        ''' Compute the yaw angle of a detected marker.
-        Parameters
-        ----------
-        corners : numpy.ndarray
-            4×2 array with the image coordinates of the marker corners
-
+    def calculate_angle_to_marker(self):
+        ''' Compute the yaw angle of a detected marker using 3D position data.
+        
         Returns
         ----------
         float
-            angle_rad in radians.  
-                Positive → marker right of image centre,
-                Negative → left of image centre.
+            angle_rad in radians.
+                Positive → marker right of camera,
+                Negative → marker left of camera.
         '''
-        marker_corners = corners[0]
-        marker_center_x = np.mean(marker_corners[:, 0])
-        marker_center_y = np.mean(marker_corners[:, 1])
-        
-        cx = self.camera_matrix[0, 2]
-        cy = self.camera_matrix[1, 2]
-        
-        fx = self.camera_matrix[0, 0]
-        
-        delta_x = marker_center_x - cx
-        
-        angle_rad = math.atan2(delta_x, fx)
-        
-        return angle_rad
-        
-    def calculate_angle_to_marker_2(self, corners):
-
         distance = self.tvec[2][0]
         x_offset = self.tvec[0][0]
+        
         # x_offset Gegenkathete; distance Ankathete
         angle_rad = math.atan2(x_offset, distance) 
         
