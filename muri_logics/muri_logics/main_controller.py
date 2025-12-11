@@ -153,12 +153,11 @@ class MainController(ExtendedLogicInterface):
 
             case MainStates.DRIVE:
                 self.__output.isValid = True
-                print(str(self._dominant_aruco_id) + str(type(self._dominant_aruco_id)))
+                # print(str(self._dominant_aruco_id) + str(type(self._dominant_aruco_id)))
                 if self._dominant_aruco_id == 69:
                     self.__state = MainStates.FOLLOW
                     self.__output.values = 3
                     return
-                    # TODO cancel drive
 
                 if self._goal_status_fin and self._goal_success:
                     self.__state = MainStates.TURN
