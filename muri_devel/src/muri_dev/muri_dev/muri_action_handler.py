@@ -136,47 +136,47 @@ class MuriActionHandler(Node):
         # self.get_logger().info('Init: ' + str(feedback_msg))
 
     def drive_goal_response_callback(self, promise):
-        goal_handle = promise.result()
-        if not goal_handle.accepted:
+        self._drive_goal_handle = promise.result()
+        if not self._drive_goal_handle.accepted:
             self.get_logger().info('Rej: drive-goal')
             return
         
         self.get_logger().info('Acc: drive-goal')
 
-        self._drive_result_promise = goal_handle.get_result_async()
+        self._drive_result_promise = self._drive_goal_handle.get_result_async()
         self._drive_result_promise.add_done_callback(self.drive_result_callback)
 
     def turn_goal_response_callback(self, promise):
-        goal_handle = promise.result()
-        if not goal_handle.accepted:
+        self._turn_goal_handle = promise.result()
+        if not self._turn_goal_handle.accepted:
             self.get_logger().info('Rej: turn-goal')
             return
         
         self.get_logger().info('Acc: turn-goal')
 
-        self._turn_result_promise = goal_handle.get_result_async()
+        self._turn_result_promise = self._turn_goal_handle.get_result_async()
         self._turn_result_promise.add_done_callback(self.turn_result_callback)
 
     def init_goal_response_callback(self, promise):
-        goal_handle = promise.result()
-        if not goal_handle.accepted:
+        self._init_goal_handle = promise.result()
+        if not self._init_goal_handle.accepted:
             self.get_logger().info('Rej: init-goal')
             return
         
         self.get_logger().info('Acc: init-goal')
 
-        self._init_result_promise = goal_handle.get_result_async()
+        self._init_result_promise = self._init_goal_handle.get_result_async()
         self._init_result_promise.add_done_callback(self.init_result_callback)
 
     def follow_goal_response_callback(self, promise):
-        goal_handle = promise.result()
-        if not goal_handle.accepted:
+        self._follow_goal_handle = promise.result()
+        if not self._follow_goal_handle.accepted:
             self.get_logger().info('Rej: follow-goal')
             return
         
         self.get_logger().info('Acc: follow-goal')
 
-        self._follow_result_promise = goal_handle.get_result_async()
+        self._follow_result_promise = self._follow_goal_handle.get_result_async()
         self._follow_result_promise.add_done_callback(self.follow_result_callback)
 
     def follow_result_callback(self, promise):
