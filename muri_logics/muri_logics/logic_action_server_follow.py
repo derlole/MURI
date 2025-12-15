@@ -60,7 +60,7 @@ class FollowOut(Out):
         self.__values['linear_velocity_x'] = 0.0
         self.__values['linear_velocity_y'] = 0.0
         self.__values['angular_velocity_z'] = 0.0
-        self.__values['distance_remaining'] = 0.0
+        self.__values['distance_to_robot'] = 0.0
         self.__error = None
         self.__isValid = False
 
@@ -151,7 +151,7 @@ class FollowLogic(ExtendedLogicInterface):
             linearVelocety = p_regulator(-(self.__distanceInMeter - self.__followDistance), config.KP_FOLLOW_LINEAR, config.MAX_VELOCITY) #TODO EVTL Regler überarbeiten
             # minus im fehler das sonst bei einem Positiven abstand eine negative lineare geschwindigkeit resultiert
             linearVelocety += self.__olev_rebmem
-            self.__olev_rebmem = linearVelocety
+            # self.__olev_rebmem = linearVelocety
 
 
 
@@ -188,6 +188,7 @@ class FollowLogic(ExtendedLogicInterface):
             case FollowStates.FOLLOWMOVE:
                 print("FOLOWMOVE")
                 avz, lvx = self.calculate()
+                self.__outputFollow.isValid = True
                 self.__outputFollow.values = (lvx, None, avz, self.__distanceInMeter)
                 if self.__dominantArucoID == 0:
                     self.__stateFollow = FollowStates.SUCCESS
@@ -196,6 +197,7 @@ class FollowLogic(ExtendedLogicInterface):
                     self.__stateFollow = FollowStates.FAILED
 
             case FollowStates.ABORT: #TODO Nützlich? 
+                self.__outputFollow.isValid = True
                 print("ABORT")
                 self.__outputFollow.values = (0.0, 0.0, 0.0, 0.0)
 
@@ -203,5 +205,6 @@ class FollowLogic(ExtendedLogicInterface):
                 self.__outputFollow.setError(False)
 
             case FollowStates.FAILED:
+                self.__outputFollow.isValid = True
                 self.__outputFollow.values = (0.0, 0.0, 0.0, 0.0)
                 self.__outputFollow.setError(True)

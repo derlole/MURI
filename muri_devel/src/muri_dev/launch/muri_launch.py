@@ -22,12 +22,12 @@ def generate_launch_description():
             name='muri_action_server_init',
             output='log'
         ),
-        Node(
-            package='muri_dev',
-            executable='muri_action_server_follow',
-            name='muri_action_server_follow',
-            output='log'
-        ),
+        # Node(
+        #     package='muri_dev',
+        #     executable='muri_action_server_follow',
+        #     name='muri_action_server_follow',
+        #     output='log'
+        # ),
         # Node(
         #     package='muri_dev',
         #     executable='muri_action_handler',

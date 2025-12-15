@@ -57,7 +57,7 @@ class FollowActionServer(Node):
         self._last_odom = None
 
     def timer_callback_asf(self):
-        print(str(self._goal_handle is None or not self._goal_handle.is_active))
+        # print(str(self._goal_handle is None or not self._goal_handle.is_active))
         if self._goal_handle is None or not self._goal_handle.is_active:
             return
         
@@ -70,7 +70,7 @@ class FollowActionServer(Node):
             self._goal_exiting = True
             self._goal_handle = None
             return
-        print("exec state_machine")
+        # print("exec state_machine")
         self.follow_logic.state_machine()
         out = self.follow_logic.getOut()
 
@@ -82,12 +82,12 @@ class FollowActionServer(Node):
         cmd_vel.linear.x = float(out.values['linear_velocity_x'])
         cmd_vel.linear.y = float(out.values['linear_velocity_y'])
         cmd_vel.angular.z = float(out.values['angular_velocity_z'])
-
+        print(str(cmd_vel))
 
         self.cmd_vel_pub.publish(cmd_vel)
 
         feedback_msg = FOLLOW.Feedback()
-        feedback_msg.distance_to_target = float(out.values['distance_to_robot']) #TODO tell louis to put that there
+        feedback_msg.distance_to_target = float(out.values['distance_to_robot'])
 
         self._goal_handle.publish_feedback(feedback_msg)
 
