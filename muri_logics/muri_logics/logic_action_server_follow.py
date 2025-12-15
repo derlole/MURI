@@ -168,6 +168,7 @@ class FollowLogic(ExtendedLogicInterface):
         match self.__stateFollow:
 
             case FollowStates.INIT:
+                print("INIT")
                 self.__outputFollow.values = (0.0, 0.0, 0.0, 0.0)
                 self.__positionX = 0.0
                 self.__positionY = 0.0
@@ -175,14 +176,17 @@ class FollowLogic(ExtendedLogicInterface):
                 self.__stateFollow = FollowStates.IDLE
 
             case FollowStates.IDLE:
+                print("IDLE")
                 pass
 
             case FollowStates.READY:
+                print("READY")
                 if self.__firstTheta is None:
                     self.__firstTheta = self.__positionTheta
                 self.__stateFollow = FollowStates.FOLLOWMOVE
 
             case FollowStates.FOLLOWMOVE:
+                print("FOLOWMOVE")
                 avz, lvx = self.calculate()
                 self.__outputFollow.values = (lvx, None, avz, self.__distanceInMeter)
                 if self.__dominantArucoID == 0:
@@ -192,11 +196,12 @@ class FollowLogic(ExtendedLogicInterface):
                     self.__stateFollow = FollowStates.FAILED
 
             case FollowStates.ABORT: #TODO Nützlich? 
-                self.__outputFollow.values = config.STOP
+                print("ABORT")
+                self.__outputFollow.values = (0.0, 0.0, 0.0, 0.0)
 
             case FollowStates.SUCCESS:
                 self.__outputFollow.setError(False)
 
             case FollowStates.FAILED:
-                self.__outputFollow.values = config.STOP
+                self.__outputFollow.values = (0.0, 0.0, 0.0, 0.0)
                 self.__outputFollow.setError(True)

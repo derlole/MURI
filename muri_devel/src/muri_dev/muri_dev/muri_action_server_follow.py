@@ -57,6 +57,7 @@ class FollowActionServer(Node):
         self._last_odom = None
 
     def timer_callback_asf(self):
+        print(str(self._goal_handle is None or not self._goal_handle.is_active))
         if self._goal_handle is None or not self._goal_handle.is_active:
             return
         
@@ -69,7 +70,7 @@ class FollowActionServer(Node):
             self._goal_exiting = True
             self._goal_handle = None
             return
-
+        print("exec state_machine")
         self.follow_logic.state_machine()
         out = self.follow_logic.getOut()
 
@@ -161,7 +162,7 @@ def main(args=None):
     rclpy.init(args=args)
     
     follow_action_server = FollowActionServer(FollowLogic())
-    executor = MultiThreadedExecutor()
+    executor = MultiThreadedExecutor(num_threads=4)
     executor.add_node(follow_action_server)
 
     try:
