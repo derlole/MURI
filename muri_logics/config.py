@@ -52,3 +52,5 @@ KP_FOLLOW_LINEAR = 0.2
 ###################### Termination conditions #######################
 
 STOP = SimpleNamespace(lvx = 0, lvy = 0, avz = 0, dr = None)
+
+NULL_TUPEL = (0.0, 0.0, 0.0, 0.0)
