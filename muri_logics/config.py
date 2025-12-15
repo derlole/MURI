@@ -3,12 +3,11 @@ from types import SimpleNamespace
 
 ###################### Camera Config Values ########################
 
-# Marker-Größen je nach ID (in mm)
 MARKER_SIZES = {
     0: 175,   
     69: 75
 }
-# Standardauflösung 640x480 V2
+
 CAMERA_MATRIX_RAW = [
     [649.91775597, 0.0, 320.82553764],
     [0.0, 657.56547185, 240.4845238],
