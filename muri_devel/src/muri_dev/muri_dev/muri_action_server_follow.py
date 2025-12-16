@@ -82,7 +82,7 @@ class FollowActionServer(Node):
         cmd_vel.linear.x = float(out.values['linear_velocity_x'])
         cmd_vel.linear.y = float(out.values['linear_velocity_y'])
         cmd_vel.angular.z = float(out.values['angular_velocity_z'])
-        print(str(cmd_vel))
+        # print(str(cmd_vel))
 
         self.cmd_vel_pub.publish(cmd_vel)
 

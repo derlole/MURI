@@ -151,13 +151,14 @@ class FollowLogic(ExtendedLogicInterface):
             print(str(self.__distanceInMeter - self.__followDistance))
             linearVelocety = p_regulator(-(self.__distanceInMeter - self.__followDistance), config.KP_FOLLOW_LINEAR, config.MAX_VELOCITY) #TODO EVTL Regler überarbeiten
             # minus im fehler das sonst bei einem Positiven abstand eine negative lineare geschwindigkeit resultiert
-            linearVelocety += self.__olev_rebmem
+            #linearVelocety += self.__olev_rebmem
             # self.__olev_rebmem = linearVelocety
 
 
 
-        if self.__distanceInMeter == -1: #TODO Evtl.
+        if self.__distanceInMeter < 0: #TODO Evtl.
             linearVelocety = 0.0
+            angularVelocety = 0.0
 
         return angularVelocety, linearVelocety
 
@@ -173,7 +174,7 @@ class FollowLogic(ExtendedLogicInterface):
                 self.__outputFollow.values = (0.0, 0.0, 0.0, 0.0)
                 self.__positionX = 0.0
                 self.__positionY = 0.0
-                self.__positionTheta =0.0
+                self.__positionTheta = 0.0
                 self.__stateFollow = FollowStates.IDLE
 
             case FollowStates.IDLE:

@@ -22,6 +22,7 @@ class MuriActionHandler(Node):
 
         self.last_odom = None
         self.last_picture_data = None
+        self.noDriveGoalAccept = False
         self.main_controller: ExtendedLogicInterface = logic
 
         self.picture_sub = self.create_subscription(
@@ -54,6 +55,9 @@ class MuriActionHandler(Node):
                 self.send_init_goal()
 
             if out.values['ASToCall'] == 1:
+                if self.noDriveGoalAccept:
+                    return
+                
                 self.cancle_follow_goal_call_drive()
                 # self.send_drive_goal()
 
@@ -93,7 +97,7 @@ class MuriActionHandler(Node):
 
     def send_follow_goal(self):
         self.get_logger().info('Sending follow goal...')
-
+        self.noDriveGoalAccept = True
         follow_goal = FOLLOW.Goal()
 
         self._action_client_follow.wait_for_server()
@@ -185,6 +189,7 @@ class MuriActionHandler(Node):
         self.main_controller.setGoalStautusFinished(True)
         self.get_logger().info('Follow result: {0}'.format(result))
         self.main_controller.setGoalSuccess(result.success)
+        self.noDriveGoalAccept = False
 
     def drive_result_callback(self, promise):
         result = promise.result().result
