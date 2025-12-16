@@ -54,8 +54,8 @@ class MuriActionHandler(Node):
                 self.send_init_goal()
 
             if out.values['ASToCall'] == 1:
-                # self.cancle_follow_goal()
-                self.send_drive_goal()
+                self.cancle_follow_goal_call_drive()
+                # self.send_drive_goal()
 
             if out.values['ASToCall'] == 2:
                 self.send_turn_goal()
@@ -223,14 +223,19 @@ class MuriActionHandler(Node):
         self.get_logger().info(f"Drive goal cancel result: {future.result()}")
         self.send_follow_goal()
 
-    def cancle_follow_goal(self):
+    def cancle_follow_goal_call_drive(self):
         if hasattr(self, "_follow_goal_handle") and self._follow_goal_handle is not None:
             self.get_logger().info("Requesting follow-goal cancel...")
             future = self._follow_goal_handle.cancel_goal_async()
             future.add_done_callback(self.cancel_done_callback_follow)
 
+        else:
+            self.get_logger().info("No Follow to cancle...")
+            self.send_drive_goal()
+
     def cancel_done_callback_follow(self, future):
         self.get_logger().info(f"Follow goal cancel result: {future.result()}")
+        self.send_drive_goal()
 
 def main(args=None):
     rclpy.init(args=args)
