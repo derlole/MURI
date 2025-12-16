@@ -140,6 +140,9 @@ class FollowLogic(ExtendedLogicInterface):
         
         self.__olev_rebmem = v
 
+    def setSuccess(self):
+        self.__stateFollow = FollowStates.SUCCESS
+
     def calculate(self):
         angularVelocety = 0.0
         linearVelocety = 0.0
@@ -209,8 +212,11 @@ class FollowLogic(ExtendedLogicInterface):
                 print("Success")
                 self.__outputFollow.values = (0.0, 0.0, 0.0, 0.0)
                 self.__outputFollow.isValid = True
+                self.__stateFollow = FollowStates.IDLE
+
 
             case FollowStates.FAILED:
                 print("Failed")
                 self.__outputFollow.values = (0.0, 0.0, 0.0, 0.0)
                 self.__outputFollow.isValid = True
+                self.__stateFollow = FollowStates.IDLE

@@ -143,6 +143,7 @@ class FollowActionServer(Node):
 
     def cancel_callback(self, goal_handle):
         self.get_logger().info('Rec: cancel follow-goal.')
+        self.follow_logic.setSuccess()
         return CancelResponse.ACCEPT
 
     def listener_callback_picture_data_asf(self, msg):
