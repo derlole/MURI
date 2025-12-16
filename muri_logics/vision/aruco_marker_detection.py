@@ -6,8 +6,7 @@ import config
 
 class AMD():
     '''
-    ArUco marker detection
-
+    ARUCO MARKER DETECTION
     The class encapsulates an OpenCV ArUco detector, the camera parameters
     and the logic to obtain the depth (Z-coordinate) and Y-rotation of a
     detected marker from a single image.
@@ -27,7 +26,6 @@ class AMD():
 
     def aruco_detection(self, img):
         ''' Detect ArUco marker and return its depth, rotation, and ID.
-
         Parameters
         ----------
         img : numpy.ndarray

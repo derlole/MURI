@@ -61,14 +61,17 @@ class ImageProcessing(Node):
             Raw image message from the camera.
         """
         self.data = msg
-        cv_raw_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='mono8')
+        try:
+            cv_raw_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='mono8')
+        except Exception as e:
+            self.get_logger().info("Fehler bei der Bildübertragung")
         #self.get_logger().info('Bild empfangen!')
         self.pic_to_data(cv_raw_image)
         pub_pic_data = PictureData()
 
         pub_pic_data.error = self.error
         pub_pic_data.angle_in_rad = float(self.angle_in_rad)
-        pub_pic_data.distance_in_meters = float(self.distance_in_meters_filtered)  # Gefilterte Distanz verwenden
+        pub_pic_data.distance_in_meters = float(self.distance_in_meters_filtered)  # gefilterte Distanz verwenden
         pub_pic_data.dominant_aruco_id = int(self.marker_id)
 
         self.publisher.publish(pub_pic_data)
@@ -97,16 +100,16 @@ class ImageProcessing(Node):
         self.distance_in_meters_filtered = self.daf()
 
     def daf(self):
-        # 1. Ring‑Buffer aktualisieren
+        # 1. Ring‑Puffer aktualisieren
         self.third_data  = self.second_data
         self.second_data = self.first_data
         self.first_data  = self.distance_in_meters_unfiltered
 
-        # 2. Das *neuste* gültige Ergebnis zurückgeben
+        # 2. Das neuste gültige Ergebnis zurückgeben
         for v in (self.first_data, self.second_data, self.third_data):
-            if v != -1.0:          # gibt den neuesten Wert zurück ungleich null
+            if v != -1.0:          # gibt den neuesten Wert zurück, ungleich null
                 return v
-        return -1.0                 # <-- alle drei == -1.0
+        return -1.0                 # alle drei == -1.0
 
 def main(args=None):
     rclpy.init(args=args)

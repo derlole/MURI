@@ -17,11 +17,16 @@ class CameraReadOut(Node):
         """
         super().__init__('camera_read_out')
         self.publisher = self.create_publisher(Image, '/muri_image_raw', 10)
-        timer_time = 1/30 # sek
+        timer_time = 1/30   # sek
 
-        path_camera = 0 # '/dev/video0' 
+        path_camera = 0     # /dev/video0 
 
-        self.img = cv.VideoCapture(path_camera)
+        try:
+            self.img = cv.VideoCapture(path_camera)
+        except Exception as e:
+            self.get_logger().error(f'Fehler beim Initialisieren der Kamera: {str(e)}')
+            raise e
+        
         #self.img.set(cv.CAP_PROP_FRAME_WIDTH, 1920)
         #self.img.set(cv.CAP_PROP_FRAME_HEIGHT, 1080)
         self.img.set(cv.CAP_PROP_BUFFERSIZE, 1)
@@ -32,25 +37,28 @@ class CameraReadOut(Node):
 
     def timer_callback(self):
         """
-        Timer callback that captures a frame from the camera and publishes it.
+        Timer callback that takes a frame from the camera and publishes it.
         """
-        bridge = CvBridge()
-        msg = bridge.cv2_to_imgmsg(self.read_camera(), encoding='mono8')
-        self.publisher.publish(msg)
-        #self.get_logger().info('Bild wird verschickt...')
+        try:
+            bridge = CvBridge()
+            msg = bridge.cv2_to_imgmsg(self.read_camera(), encoding='mono8')
+            self.publisher.publish(msg)
+            #self.get_logger().info('Bild wird verschickt...')
+        except AttributeError as e:
+            self.get_logger().info("Falscher Wert wurde versucht über die Bridge zu senden")
 
     def read_camera(self):
         """
         Read a single frame from the default video device.
         """
-
         success, frame = self.img.read()
-
-        frame_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
 
         if not success:
             self.get_logger().info('Bild konnte nicht gelesen werden')
             return None
+        
+        frame_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+
         return frame_gray
     
 def main(args=None):
