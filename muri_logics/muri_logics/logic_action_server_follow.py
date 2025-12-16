@@ -188,7 +188,9 @@ class FollowLogic(ExtendedLogicInterface):
 
             case FollowStates.FOLLOWMOVE:
                 print("FOLOWMOVE")
+                print(self.__dominantArucoID)
                 avz, lvx = self.calculate()
+                print("Angular Velo: " + str(avz) + " Linear Velo: " + str(lvx))
                 self.__outputFollow.values = (lvx, None, avz, self.__distanceInMeter)
                 self.__outputFollow.isValid = True
                 if self.__dominantArucoID == 0:
@@ -203,9 +205,11 @@ class FollowLogic(ExtendedLogicInterface):
                 self.__outputFollow.isValid = True
 
             case FollowStates.SUCCESS:
+                print("Success")
                 self.__outputFollow.values = (0.0, 0.0, 0.0, 0.0)
                 self.__outputFollow.isValid = True
 
             case FollowStates.FAILED:
+                print("Failed")
                 self.__outputFollow.values = (0.0, 0.0, 0.0, 0.0)
                 self.__outputFollow.isValid = True
