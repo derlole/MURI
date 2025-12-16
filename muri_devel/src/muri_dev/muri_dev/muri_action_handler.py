@@ -121,7 +121,8 @@ class MuriActionHandler(Node):
         self._init_send_promise.add_done_callback(self.init_goal_response_callback)
 
     def follow_feedback_callback(self, feedback_msg):
-        self.get_logger().info('Follow: ' + str(feedback_msg))
+        # self.get_logger().info('Follow: ' + str(feedback_msg))
+        pass
 
     def drive_feedback_callback(self, feedback_msg):
         pass
@@ -184,6 +185,7 @@ class MuriActionHandler(Node):
         self.main_controller.setGoalStautusFinished(True)
         self.get_logger().info('Follow result: {0}'.format(result))
         self.main_controller.setGoalSuccess(result.success)
+        self.send_drive_goal()
 
     def drive_result_callback(self, promise):
         result = promise.result().result
