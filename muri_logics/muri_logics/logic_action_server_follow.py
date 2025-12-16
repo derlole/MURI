@@ -189,8 +189,8 @@ class FollowLogic(ExtendedLogicInterface):
             case FollowStates.FOLLOWMOVE:
                 print("FOLOWMOVE")
                 avz, lvx = self.calculate()
-                self.__outputFollow.isValid = True
                 self.__outputFollow.values = (lvx, None, avz, self.__distanceInMeter)
+                self.__outputFollow.isValid = True
                 if self.__dominantArucoID == 0:
                     self.__stateFollow = FollowStates.SUCCESS
                 
@@ -198,14 +198,14 @@ class FollowLogic(ExtendedLogicInterface):
                     self.__stateFollow = FollowStates.FAILED
 
             case FollowStates.ABORT: #TODO Nützlich? 
-                self.__outputFollow.isValid = True
                 print("ABORT")
                 self.__outputFollow.values = (0.0, 0.0, 0.0, 0.0)
+                self.__outputFollow.isValid = True
 
             case FollowStates.SUCCESS:
-                self.__outputFollow.isValid = True
                 self.__outputFollow.values = (0.0, 0.0, 0.0, 0.0)
+                self.__outputFollow.isValid = True
 
             case FollowStates.FAILED:
-                self.__outputFollow.isValid = True
                 self.__outputFollow.values = (0.0, 0.0, 0.0, 0.0)
+                self.__outputFollow.isValid = True
