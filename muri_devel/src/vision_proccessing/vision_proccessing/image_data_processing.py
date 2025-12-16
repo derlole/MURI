@@ -64,7 +64,7 @@ class ImageProcessing(Node):
         try:
             cv_raw_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='mono8')
         except Exception as e:
-            self.get_logger().info("Fehler bei der Bildübertragung")
+            self.get_logger().error("Fehler bei der Bildübertragung")
         #self.get_logger().info('Bild empfangen!')
         self.pic_to_data(cv_raw_image)
         pub_pic_data = PictureData()

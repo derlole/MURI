@@ -45,7 +45,7 @@ class CameraReadOut(Node):
             self.publisher.publish(msg)
             #self.get_logger().info('Bild wird verschickt...')
         except AttributeError as e:
-            self.get_logger().info("Falscher Wert wurde versucht über die Bridge zu senden")
+            self.get_logger().error("Falscher Wert wurde versucht über die Bridge zu senden")
 
     def read_camera(self):
         """
@@ -54,7 +54,7 @@ class CameraReadOut(Node):
         success, frame = self.img.read()
 
         if not success:
-            self.get_logger().info('Bild konnte nicht gelesen werden')
+            self.get_logger().error('Bild konnte nicht gelesen werden')
             return None
         
         frame_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
