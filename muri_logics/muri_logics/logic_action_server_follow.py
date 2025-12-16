@@ -159,7 +159,7 @@ class FollowLogic(ExtendedLogicInterface):
 
 
 
-        if self.__distanceInMeter < 0: #TODO Evtl.
+        if self.__distanceInMeter < 0 or self.__dominantArucoID == 9999:
             linearVelocety = 0.0
             angularVelocety = 0.0
 

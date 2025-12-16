@@ -1,5 +1,5 @@
 import math
-
+import time
 from enum import Enum
 from muri_logics.logic_interface import ExtendedLogicInterface, Out
 from muri_logics.general_funcs import quaternion_to_yaw
@@ -97,6 +97,7 @@ class MainController(ExtendedLogicInterface):
     def reset(self):
         """Reset the logic processing to its initial state."""
         self.__state = MainStates.IDLE
+        print("Switching to IDLE due to RESET")
         self.__output.resetOut()
         self._memorized_return_state = None
         self._o_l_x = 0.0
@@ -133,6 +134,7 @@ class MainController(ExtendedLogicInterface):
         match self.__state:
             case MainStates.INIT:
                 self.__state = MainStates.IDLE
+                print("Switching to IDLE state from INIT")
 
             case MainStates.IDLE:
                 pass
@@ -142,31 +144,35 @@ class MainController(ExtendedLogicInterface):
                 
                 if self._goal_status_fin and self._goal_success:
                     self.__state = MainStates.DRIVE
+                    print("Switching to DRIVE state from INIT_ROBOT")
                     self._goal_status_fin = False
                     self._goal_success = False
                     self.__output.values = 1
                 
                 elif self._goal_status_fin and not self._goal_success:
                     self.__state = MainStates.FAILED
+                    print("Switching to FAILED state from INIT_ROBOT")
                     self._goal_status_fin = False
                     self._goal_success = False
 
             case MainStates.DRIVE:
                 self.__output.isValid = True
-                # print(str(self._dominant_aruco_id) + str(type(self._dominant_aruco_id)))
                 if self._dominant_aruco_id == 69:
                     self.__state = MainStates.FOLLOW
+                    print("Switching to FOLLOW state")
                     self.__output.values = 3
                     return
 
                 if self._goal_status_fin and self._goal_success:
                     self.__state = MainStates.TURN
+                    print("Switching to TURN state")
                     self._goal_status_fin = False
                     self._goal_success = False
                     self.__output.values = 2
 
                 elif self._goal_status_fin and not self._goal_success:
                     self.__state = MainStates.FAILED
+                    print("Switching to FAILED state from DRIVE")
                     self._goal_status_fin = False
                     self._goal_success = False
                 
@@ -175,26 +181,26 @@ class MainController(ExtendedLogicInterface):
                 
                 if self._goal_status_fin and self._goal_success:
                     self.__state = MainStates.DRIVE
+                    print("Switching to DRIVE state from TURN")
                     self._goal_status_fin = False
                     self._goal_success = False
                     self.__output.values = 1
 
                 elif self._goal_status_fin and not self._goal_success:
                     self.__state = MainStates.FAILED
+                    print("Switching to FAILED state from TURN")
                     self._goal_status_fin = False
                     self._goal_success = False
 
             case MainStates.FOLLOW:
                 self.__output.isValid = True
 
-                if self._dominant_aruco_id == 0 or self._dominant_aruco_id == 9999:
-                    self.__state = MainStates.DRIVE
-                
                 if self._goal_status_fin:
                     self.__state = MainStates.DRIVE
+                    print("Switching to DRIVE state from FOLLOW")
+                    time.sleep(2.0)   # give some time to stabilize
                     self._goal_status_fin = False
                     self._goal_success = False
-                    self.__output.values = 1 
     
 
             case MainStates.PAUSE:

@@ -63,6 +63,9 @@ class DriveActionServer(Node):
         if self._goal_handle is None or not self._goal_handle.is_active:
             return
         
+        if self._last_picture_data.dominant_aruco_id == 69:
+            return
+
         if self._goal_handle.is_cancel_requested:
             self.get_logger().info('Canc: drive-goal.')
             self._goal_handle.canceled()

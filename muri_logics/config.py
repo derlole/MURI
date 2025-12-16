@@ -46,7 +46,7 @@ KP_INIT = 0.2
 KP_DRIVE = 2.0
 KP_TURN = 2.0
 KP_FOLLOW_ANGULAR = 0.2
-KP_FOLLOW_LINEAR = 0.2
+KP_FOLLOW_LINEAR = 1.1
 
 ###################### Termination conditions #######################
 
