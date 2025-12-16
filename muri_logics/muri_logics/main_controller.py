@@ -190,16 +190,11 @@ class MainController(ExtendedLogicInterface):
                 if self._dominant_aruco_id == 0 or self._dominant_aruco_id == 9999:
                     self.__state = MainStates.DRIVE
                 
-                if self._goal_status_fin and self._goal_success:
+                if self._goal_status_fin:
                     self.__state = MainStates.DRIVE
                     self._goal_status_fin = False
                     self._goal_success = False
-                    self.__output.values = 1
-                
-                elif self._goal_status_fin and not self._goal_success:
-                    self.__state = MainStates.FAILED
-                    self._goal_status_fin = False
-                    self._goal_success = False    
+                    self.__output.values = 1 
     
 
             case MainStates.PAUSE:

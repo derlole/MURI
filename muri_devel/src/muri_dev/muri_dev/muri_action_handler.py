@@ -185,7 +185,6 @@ class MuriActionHandler(Node):
         self.main_controller.setGoalStautusFinished(True)
         self.get_logger().info('Follow result: {0}'.format(result))
         self.main_controller.setGoalSuccess(result.success)
-        self.send_drive_goal()
 
     def drive_result_callback(self, promise):
         result = promise.result().result
