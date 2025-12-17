@@ -152,7 +152,7 @@ class FollowLogic(ExtendedLogicInterface):
         
         if self.__distanceInMeter != self.__followDistance:
             print(str(self.__distanceInMeter - self.__followDistance))
-            linearVelocety = p_regulator(-(self.__distanceInMeter - self.__followDistance), config.KP_FOLLOW_LINEAR, config.MAX_VELOCITY) #TODO EVTL Regler überarbeiten
+            linearVelocety = p_regulator(-(self.__distanceInMeter - self.__followDistance), config.KP_FOLLOW_LINEAR, config.MAX_VELOCITY)
             # minus im fehler das sonst bei einem Positiven abstand eine negative lineare geschwindigkeit resultiert
             #linearVelocety += self.__olev_rebmem
             # self.__olev_rebmem = linearVelocety
@@ -203,7 +203,7 @@ class FollowLogic(ExtendedLogicInterface):
                 if self.__dominantArucoID == 9999:
                     self.__stateFollow = FollowStates.FAILED
 
-            case FollowStates.ABORT: #TODO Nützlich? 
+            case FollowStates.ABORT:
                 print("ABORT")
                 self.__outputFollow.values = (0.0, 0.0, 0.0, 0.0)
                 self.__outputFollow.isValid = True

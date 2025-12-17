@@ -61,7 +61,7 @@ class MainController(ExtendedLogicInterface):
         self._goal_success = False
         self._goToFollow = True
 
-    def exit_to_pause(self):                            #TODO this is not finished looks like shit to me
+    def exit_to_pause(self):
         self._memorized_return_state = self.__state
         self.__state = MainStates.PAUSE
 

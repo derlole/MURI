@@ -174,8 +174,6 @@ class InitLogic(LogicInterface):
                 self.__output.isValid = True
                 if abs(self.__angle_to_Mid_in_Rad) < config.ANGLE_TOLLERANCE_INIT and self.__distance_in_Meter > 1.0:
                     self.__state = InitStates.SUCCESS
-                
-                #TODO wenn zu weit gedreht gehe in FAILED
 
             case InitStates.FAILED:
                 self.__output.setError(True)
