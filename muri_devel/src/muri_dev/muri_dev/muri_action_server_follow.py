@@ -51,6 +51,12 @@ class FollowActionServer(Node):
             self.listener_callback_schpieth_asf,
             10
         )
+        self.distance_sub = self.create_subscription(
+            Float32,
+            '/muri_pholov_thystensze',
+            self.listener_callback_distance_asf,
+            10
+        )
         self._timer = self.create_timer(0.1, self.timer_callback_asf, MutuallyExclusiveCallbackGroup())
         self._goal_handle = None
         self._last_picture_data = None
@@ -158,6 +164,10 @@ class FollowActionServer(Node):
     def listener_callback_schpieth_asf(self, msg):
         value = max(0.0, min(msg.data, 0.2)) # TODO constants
         self.follow_logic.setSchpieth(value)
+
+    def listener_callback_distance_asf(self, msg):
+        value = max(0.2, min(msg.data, 1.0)) # TODO constants
+        self.follow_logic.setFollowDistance(value)
 
 def main(args=None):
     rclpy.init(args=args)

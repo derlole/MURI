@@ -2,7 +2,6 @@ import rclpy
 from rclpy.action import ActionClient
 from rclpy.node import Node
 from nav_msgs.msg import Odometry
-# from geometry_msgs.msg import Twist
 from muri_dev_interfaces.action import DRIVE, TURN, INIT, FOLLOW
 from muri_dev_interfaces.msg import PictureData
 from rclpy.executors import ExternalShutdownException
@@ -49,7 +48,7 @@ class MuriActionHandler(Node):
 
         if not out.outValid():
             return 
-        # print(str(out.values))
+        
         if not out.values == {}:
             if out.values['ASToCall'] == 0:
                 self.send_init_goal()
@@ -186,7 +185,6 @@ class MuriActionHandler(Node):
         self.main_controller.setGoalStautusFinished(True)
         self.get_logger().info('Follow result: {0}'.format(result))
         self.noDriveGoalAccept = False
-        # self.send_drive_goal()
 
     def drive_result_callback(self, promise):
         result = promise.result().result
@@ -207,25 +205,6 @@ class MuriActionHandler(Node):
         self.main_controller.setGoalStautusFinished(True)
         self.get_logger().info('Init result: {0}'.format(result))
 
-    # def cancle_drive_and_call_follow(self):
-    #      if hasattr(self, "_drive_goal_handle") and self._drive_goal_handle is not None:
-    #         self.get_logger().info("Requesting drive-goal cancel...")
-    #         future = self._drive_goal_handle.cancel_goal_async()
-    #         future.add_done_callback(self.cancel_done_callback_call_follow)
-
-    # def cancel_done_callback_call_follow(self, future):
-    #     self.get_logger().info(f"Cancled drive goal")
-    #     self.send_follow_goal()
-
-    # def cancle_follow_goal_call_drive(self):
-    #     if hasattr(self, "_follow_goal_handle") and self._follow_goal_handle is not None:
-    #         self.get_logger().info("Requesting follow-goal cancel...")
-    #         future = self._follow_goal_handle.cancel_goal_async()
-    #         future.add_done_callback(self.cancel_done_callback_follow)
-
-    # def cancel_done_callback_follow(self, future):
-    #     self.get_logger().info(f"Follow goal cancel result: {future.result()}")
-
     def cancle_drive_goal(self):
         if hasattr(self, "_drive_goal_handle") and self._drive_goal_handle is not None:
             self.get_logger().info("Requesting drive-goal cancel...")
@@ -234,8 +213,6 @@ class MuriActionHandler(Node):
 
     def finish_drive_state(self, promise):
         self.get_logger().info("Canceled drive Goal.")
-        # self.main_controller.setGoalSuccess(False)
-        # self.main_controller.setGoalStautusFinished(True)
 
 
 def main(args=None):

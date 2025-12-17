@@ -154,10 +154,6 @@ class FollowLogic(ExtendedLogicInterface):
             print(str(self.__distanceInMeter - self.__followDistance))
             linearVelocety = p_regulator(-(self.__distanceInMeter - self.__followDistance), config.KP_FOLLOW_LINEAR, config.MAX_VELOCITY)
             # minus im fehler das sonst bei einem Positiven abstand eine negative lineare geschwindigkeit resultiert
-            #linearVelocety += self.__olev_rebmem
-            # self.__olev_rebmem = linearVelocety
-
-
 
         if self.__distanceInMeter < 0 or self.__dominantArucoID == 9999:
             linearVelocety = 0.0
