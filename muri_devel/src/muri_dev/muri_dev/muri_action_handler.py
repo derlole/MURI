@@ -8,6 +8,7 @@ from rclpy.executors import ExternalShutdownException
 from muri_logics.main_controller import MainController, MainStates
 from muri_logics.logic_interface import ExtendedLogicInterface
 from rclpy.executors import MultiThreadedExecutor
+from rclpy.callback_groups import MutuallyExclusiveCallbackGroup 
 
 
 class MuriActionHandler(Node):
@@ -23,6 +24,7 @@ class MuriActionHandler(Node):
         self.last_picture_data = None
         self.noDriveGoalAccept = False
         self.main_controller: ExtendedLogicInterface = logic
+        self.ignorNextDriveGoalStatus = False
 
         self.picture_sub = self.create_subscription(
             PictureData,
@@ -36,7 +38,7 @@ class MuriActionHandler(Node):
             self.listener_callback_odom_ah,
             10
         )
-        self.timer = self.create_timer(0.1, self.main_loop_ah)
+        self.timer = self.create_timer(0.1, self.main_loop_ah, MutuallyExclusiveCallbackGroup())
 
     def main_loop_ah(self):
         self.main_controller.state_machine()
@@ -188,9 +190,12 @@ class MuriActionHandler(Node):
 
     def drive_result_callback(self, promise):
         result = promise.result().result
-        self.main_controller.setGoalSuccess(result.success)
-        self.main_controller.setGoalStautusFinished(True)
         self.get_logger().info('Drive result: {0}'.format(result))
+        if not self.ignorNextDriveGoalStatus:       
+            self.main_controller.setGoalSuccess(result.success)
+            self.main_controller.setGoalStautusFinished(True)
+
+        self.ignorNextDriveGoalStatus = False
         
 
     def turn_result_callback(self, promise):
@@ -213,6 +218,9 @@ class MuriActionHandler(Node):
 
     def finish_drive_state(self, promise):
         self.get_logger().info("Canceled drive Goal.")
+        self.main_controller.setGoalSuccess(False)
+        self.main_controller.setGoalStautusFinished(True)
+        self.ignorNextDriveGoalStatus = True
 
 
 def main(args=None):
@@ -220,9 +228,9 @@ def main(args=None):
 
     logic = MainController()
     muri_action_handler = MuriActionHandler(logic)
-
-    try:
-        executor = MultiThreadedExecutor()
+    executor = MultiThreadedExecutor(num_threads=4)
+    
+    try:    
         rclpy.spin(muri_action_handler, executor=executor)
     except (KeyboardInterrupt, ExternalShutdownException):
         muri_action_handler.get_logger().info('Interrupt received at MuriActionHandler, shutting down.')
