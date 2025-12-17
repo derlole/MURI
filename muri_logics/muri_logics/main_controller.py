@@ -175,7 +175,8 @@ class MainController(ExtendedLogicInterface):
                         self.__state = MainStates.FOLLOW
                         print("Switching to FOLLOW state from DRIVE")
                         self._goToFollow = False
-
+                        return
+                    
                     self.__state = MainStates.FAILED
                     print("Switching to FAILED state from DRIVE")
                     self._goal_status_fin = False
@@ -203,7 +204,6 @@ class MainController(ExtendedLogicInterface):
                 if self._goal_status_fin:
                     self.__state = MainStates.DRIVE
                     print("Switching to DRIVE state from FOLLOW")
-                    time.sleep(2.0)   # give some time to stabilize
                     self._goal_status_fin = False
                     self._goal_success = False
     
