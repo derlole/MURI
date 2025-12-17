@@ -59,7 +59,7 @@ class MainController(ExtendedLogicInterface):
         self._distance_in_meters = 0.0
         self._goal_status_fin = False
         self._goal_success = False
-        self._goToFollow = True
+        self._goToFollow = False
 
     def exit_to_pause(self):
         self._memorized_return_state = self.__state
@@ -158,11 +158,13 @@ class MainController(ExtendedLogicInterface):
 
             case MainStates.DRIVE:
                 self.__output.isValid = True
-                if self._dominant_aruco_id == 69:
+                if self._dominant_aruco_id == 69 and not self._goToFollow:
                     self._goToFollow = True
                     self.__output.values = 4
 
-                if self._goal_status_fin and self._goal_success:
+
+
+                if self._goal_status_fin and self._goal_success and (not self._goToFollow):
                     self.__state = MainStates.TURN
                     print("Switching to TURN state")
                     self._goal_status_fin = False

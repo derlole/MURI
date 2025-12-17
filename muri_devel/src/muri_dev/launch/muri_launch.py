@@ -27,12 +27,12 @@ def generate_launch_description():
             name='muri_action_server_follow',
             output='log'
         ),
-        Node(
-            package='muri_dev',
-            executable='muri_action_handler',
-            name='muri_action_handler',
-            output='log'
-        ),
+        # Node(
+        #     package='muri_dev',
+        #     executable='muri_action_handler',
+        #     name='muri_action_handler',
+        #     output='screen'
+        # ),
         Node(
             package='vision_proccessing',
             executable='image_data_processing',
