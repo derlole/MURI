@@ -59,6 +59,7 @@ class MainController(ExtendedLogicInterface):
         self._distance_in_meters = 0.0
         self._goal_status_fin = False
         self._goal_success = False
+        self._goToFollow = True
 
     def exit_to_pause(self):                            #TODO this is not finished looks like shit to me
         self._memorized_return_state = self.__state
@@ -158,10 +159,8 @@ class MainController(ExtendedLogicInterface):
             case MainStates.DRIVE:
                 self.__output.isValid = True
                 if self._dominant_aruco_id == 69:
-                    self.__state = MainStates.FOLLOW
-                    print("Switching to FOLLOW state")
-                    self.__output.values = 3
-                    return
+                    self._goToFollow = True
+                    self.__output.values = 4
 
                 if self._goal_status_fin and self._goal_success:
                     self.__state = MainStates.TURN
@@ -171,6 +170,12 @@ class MainController(ExtendedLogicInterface):
                     self.__output.values = 2
 
                 elif self._goal_status_fin and not self._goal_success:
+                    if self._goToFollow:
+                        self.__output.values = 3
+                        self.__state = MainStates.FOLLOW
+                        print("Switching to FOLLOW state from DRIVE")
+                        self._goToFollow = False
+
                     self.__state = MainStates.FAILED
                     print("Switching to FAILED state from DRIVE")
                     self._goal_status_fin = False

@@ -61,7 +61,10 @@ class MuriActionHandler(Node):
                 self.send_turn_goal()
 
             if out.values['ASToCall'] == 3:
-                self.cancle_drive_and_call_follow()
+                self.send_follow_goal()
+
+            if out.values['ASToCall'] == 4:
+                self.cancle_drive_goal()
 
 
     def listener_callback_picture_data_ah(self, msg):
@@ -204,24 +207,35 @@ class MuriActionHandler(Node):
         self.main_controller.setGoalStautusFinished(True)
         self.get_logger().info('Init result: {0}'.format(result))
 
-    def cancle_drive_and_call_follow(self):
-         if hasattr(self, "_drive_goal_handle") and self._drive_goal_handle is not None:
+    # def cancle_drive_and_call_follow(self):
+    #      if hasattr(self, "_drive_goal_handle") and self._drive_goal_handle is not None:
+    #         self.get_logger().info("Requesting drive-goal cancel...")
+    #         future = self._drive_goal_handle.cancel_goal_async()
+    #         future.add_done_callback(self.cancel_done_callback_call_follow)
+
+    # def cancel_done_callback_call_follow(self, future):
+    #     self.get_logger().info(f"Cancled drive goal")
+    #     self.send_follow_goal()
+
+    # def cancle_follow_goal_call_drive(self):
+    #     if hasattr(self, "_follow_goal_handle") and self._follow_goal_handle is not None:
+    #         self.get_logger().info("Requesting follow-goal cancel...")
+    #         future = self._follow_goal_handle.cancel_goal_async()
+    #         future.add_done_callback(self.cancel_done_callback_follow)
+
+    # def cancel_done_callback_follow(self, future):
+    #     self.get_logger().info(f"Follow goal cancel result: {future.result()}")
+
+    def cancle_drive_goal(self):
+        if hasattr(self, "_drive_goal_handle") and self._drive_goal_handle is not None:
             self.get_logger().info("Requesting drive-goal cancel...")
             future = self._drive_goal_handle.cancel_goal_async()
-            future.add_done_callback(self.cancel_done_callback_call_follow)
+            future.add_done_callback(self.finish_drive_state)
 
-    def cancel_done_callback_call_follow(self, future):
-        self.get_logger().info(f"Cancled drive goal")
-        self.send_follow_goal()
-
-    def cancle_follow_goal_call_drive(self):
-        if hasattr(self, "_follow_goal_handle") and self._follow_goal_handle is not None:
-            self.get_logger().info("Requesting follow-goal cancel...")
-            future = self._follow_goal_handle.cancel_goal_async()
-            future.add_done_callback(self.cancel_done_callback_follow)
-
-    def cancel_done_callback_follow(self, future):
-        self.get_logger().info(f"Follow goal cancel result: {future.result()}")
+    def finish_drive_state(self, promise):
+        self.get_logger.info("Canceled drive Goal.")
+        self.main_controller.setGoalSuccess(False)
+        self.main_controller.setGoalStautusFinished(True)
 
 
 def main(args=None):
