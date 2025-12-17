@@ -175,6 +175,8 @@ class MainController(ExtendedLogicInterface):
                         self.__state = MainStates.FOLLOW
                         print("Switching to FOLLOW state from DRIVE")
                         self._goToFollow = False
+                        self._goal_status_fin = False
+                        self._goal_success = False
                         return
                     
                     self.__state = MainStates.FAILED
