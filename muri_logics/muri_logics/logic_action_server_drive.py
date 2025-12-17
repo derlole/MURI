@@ -81,7 +81,7 @@ class DriveLogic(LogicInterface):
         self.__output = DriveOut()
         self.__state = DriveStates.INIT
         self.__first_Theta = None
-        self.__schpieth = 0.0 # TODO constants
+        self.__schpieth = config.MINIMAL_SPEED_TO_SET 
         self.state_machine()
 
 

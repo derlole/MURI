@@ -9,6 +9,7 @@ from muri_dev_interfaces.action import DRIVE
 from muri_dev_interfaces.msg import PictureData
 from muri_logics.logic_action_server_drive import DriveLogic, DriveStates
 from muri_logics.logic_interface import LogicInterface
+import config
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup 
 import time
 
@@ -158,7 +159,7 @@ class DriveActionServer(Node):
         self.drive_logic.setCameraData(msg.angle_in_rad, msg.distance_in_meters)
 
     def listener_callback_schpieth_asd(self, msg):
-        value = max(0.0, min(msg.data, 0.2)) # TODO constants
+        value = max(config.MINIMAL_SPEED_TO_SET, min(msg.data, config.MAXIMAL_SPEED_TO_SET))
         self.drive_logic.setSchpieth(value)
         
 def main(args=None):

@@ -9,6 +9,7 @@ from muri_dev_interfaces.action import FOLLOW
 from muri_dev_interfaces.msg import PictureData
 from muri_logics.logic_action_server_follow import FollowLogic, FollowStates
 from muri_logics.logic_interface import ExtendedLogicInterface
+import config
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup 
 import time
 
@@ -162,11 +163,11 @@ class FollowActionServer(Node):
         self.follow_logic.setOdomData(msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.orientation)
         
     def listener_callback_schpieth_asf(self, msg):
-        value = max(0.0, min(msg.data, 0.2)) # TODO constants
+        value = max(config.MINIMAL_SPEED_TO_SET, min(msg.data, config.MAXIMAL_SPEED_TO_SET))
         self.follow_logic.setSchpieth(value)
 
     def listener_callback_distance_asf(self, msg):
-        value = max(0.2, min(msg.data, 1.0)) # TODO constants
+        value = max(config.MINIMAL_DISTANCE_FOLLOW, min(msg.data, config.MAXIMAL_DISTANCE_FOLLOW))
         self.follow_logic.setFollowDistance(value)
 
 def main(args=None):
