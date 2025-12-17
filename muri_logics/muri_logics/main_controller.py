@@ -205,6 +205,7 @@ class MainController(ExtendedLogicInterface):
 
                 if self._goal_status_fin:
                     self.__state = MainStates.DRIVE
+                    self.__output.values = 1
                     print("Switching to DRIVE state from FOLLOW")
                     self._goal_status_fin = False
                     self._goal_success = False

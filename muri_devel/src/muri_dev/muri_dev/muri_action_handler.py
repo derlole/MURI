@@ -234,8 +234,8 @@ class MuriActionHandler(Node):
 
     def finish_drive_state(self, promise):
         self.get_logger().info("Canceled drive Goal.")
-        self.main_controller.setGoalSuccess(False)
-        self.main_controller.setGoalStautusFinished(True)
+        # self.main_controller.setGoalSuccess(False)
+        # self.main_controller.setGoalStautusFinished(True)
 
 
 def main(args=None):
