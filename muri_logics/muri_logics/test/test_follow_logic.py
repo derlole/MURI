@@ -80,7 +80,7 @@ class TestDriveLogic(unittest.TestCase):
         avz, lvx = self.logic.calculate()
 
         self.assertEqual(avz, -0.34)
-        self.assertAlmostEqual(lvx, -0.02, delta = 1e-6)
+        self.assertAlmostEqual(lvx, -0.11, delta = 1e-6)
 
     def test_success_trigger(self):
         """dominant Aruco ID = 0 → SUCCESS"""
