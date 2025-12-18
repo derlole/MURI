@@ -77,6 +77,7 @@ class MuriActionHandler(Node):
         self.last_odom = msg
         self.main_controller.setOdomData(msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.orientation)
 
+
     def send_drive_goal(self):
         self.get_logger().info('Sending drive goal...')
 
@@ -121,6 +122,7 @@ class MuriActionHandler(Node):
         self._init_send_promise = self._action_client_init.send_goal_async(init_goal, feedback_callback=self.init_feedback_callback)
         self._init_send_promise.add_done_callback(self.init_goal_response_callback)
 
+
     def follow_feedback_callback(self, feedback_msg):
         # self.get_logger().info('Follow: ' + str(feedback_msg))
         pass
@@ -136,6 +138,7 @@ class MuriActionHandler(Node):
     def init_feedback_callback(self, feedback_msg):
         pass 
         # self.get_logger().info('Init: ' + str(feedback_msg))
+
 
     def drive_goal_response_callback(self, promise):
         self._drive_goal_handle = promise.result()
@@ -181,6 +184,7 @@ class MuriActionHandler(Node):
         self._follow_result_promise = self._follow_goal_handle.get_result_async()
         self._follow_result_promise.add_done_callback(self.follow_result_callback)
 
+
     def follow_result_callback(self, promise):
         result = promise.result().result
         self.main_controller.setGoalSuccess(result.success)
@@ -197,7 +201,6 @@ class MuriActionHandler(Node):
 
         self.ignorNextDriveGoalStatus = False
         
-
     def turn_result_callback(self, promise):
         result = promise.result().result
         self.main_controller.setGoalSuccess(result.success)
@@ -209,6 +212,7 @@ class MuriActionHandler(Node):
         self.main_controller.setGoalSuccess(result.success)
         self.main_controller.setGoalStautusFinished(True)
         self.get_logger().info('Init result: {0}'.format(result))
+
 
     def cancle_drive_goal(self):
         if hasattr(self, "_drive_goal_handle") and self._drive_goal_handle is not None:
