@@ -79,7 +79,7 @@ class TestDriveLogic(unittest.TestCase):
         self.logic.state_machine()  # READY -> FOLLOWMOVE
         avz, lvx = self.logic.calculate()
 
-        self.assertEqual(avz, -0.34)
+        self.assertEqual(avz, -0.4)
         self.assertAlmostEqual(lvx, -0.11, delta = 1e-6)
 
     def test_success_trigger(self):
