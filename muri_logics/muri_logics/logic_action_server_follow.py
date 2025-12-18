@@ -103,8 +103,8 @@ class FollowLogic(ExtendedLogicInterface):
 
     def reset(self):
         """Reset the logic processing to its initial state."""
-        self.__positionX = 0.0
-        self.__positionY = 0.0
+        self.__position_x = 0.0
+        self.__position_y = 0.0
         self.__positionTheta = 0.0
         self.__angleToMidInRad = 0.0
         self.__distanceInMeter = 0.0
@@ -119,22 +119,22 @@ class FollowLogic(ExtendedLogicInterface):
         self.__followDistance = d 
 
     def setOdomData(self, x, y, t):
-        """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
-        self.__positionX = x
-        self.__positionY = y
+        """Sets the Data of the actual Position of the Robot, for the Processing Logic"""
+        self.__position_x = x
+        self.__position_y = y
         self.__positionTheta = quaternion_to_yaw(t)
 
     def setCameraData(self, angleIR, distanceIM): 
-        """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
+        """Sets the Data of the actual Position of the Robot, for the Processing Logic"""
         self.__angleToMidInRad = angleIR
         self.__distanceInMeter = distanceIM
 
     def setArucoData(self, id):
-        """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
+        """Sets the Data of the actual Position of the Robot, for the Processing Logic"""
         self.__dominantArucoID = id
 
     def setSchpieth(self, v):
-        """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
+        """Sets the Data of the actual Position of the Robot, for the Processing Logic"""
         if(self.__stateFollow == FollowStates.FOLLOWMOVE):
             return
         
@@ -171,8 +171,8 @@ class FollowLogic(ExtendedLogicInterface):
             case FollowStates.INIT:
                 print("INIT")
                 self.__outputFollow.values = (0.0, 0.0, 0.0, 0.0)
-                self.__positionX = 0.0
-                self.__positionY = 0.0
+                self.__position_x = 0.0
+                self.__position_y = 0.0
                 self.__positionTheta = 0.0
                 self.__stateFollow = FollowStates.IDLE
 
@@ -215,4 +215,4 @@ class FollowLogic(ExtendedLogicInterface):
                 print("Failed")
                 self.__outputFollow.values = (0.0, 0.0, 0.0, 0.0)
                 self.__outputFollow.isValid = True
-                self.__stateFollow = FollowStates.IDLE
+                self.__stateFollow = FollowStates.IDLE # Return to IDLE after failure because the definition of a failure is losing the target -> calling Drive again.

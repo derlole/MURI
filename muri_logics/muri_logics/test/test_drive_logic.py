@@ -22,7 +22,7 @@ class TestDriveLogic(unittest.TestCase):
         self.assertEqual(self.logic.getActiveState(), DriveStates.IDLE)
 
         self.assertTrue(self.logic.setActive())
-        self.assertEqual(self.logic.getActiveState(), DriveStates.RAEDY)
+        self.assertEqual(self.logic.getActiveState(), DriveStates.READY)
 
     def test_set_active_wrong_state(self):
         """Activation fails if not in IDLE."""

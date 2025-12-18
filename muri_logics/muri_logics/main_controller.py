@@ -108,18 +108,18 @@ class MainController(ExtendedLogicInterface):
         self._distance_in_meters = 0.0
 
     def setOdomData(self, x, y, t):
-        """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
+        """Sets the data of the actual position of the robot, for the processing logic"""
         self._o_l_x = x
         self._o_l_y = y
         self._o_t = t
 
     def setCameraData(self, angle_in_rad, distance_in_meters): 
-        """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
+        """Sets the data of the camera, for the processing logic"""
         self._angle_in_rad = angle_in_rad
         self._distance_in_meters = distance_in_meters
 
     def setArucoData(self, dominant_aruco_id):
-        """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
+        """Sets the data of the detected aruco-marker, for the processing logic"""
         self._dominant_aruco_id = dominant_aruco_id
 
     def setPaused(self):

@@ -22,9 +22,8 @@ class MuriActionHandler(Node):
 
         self.last_odom = None
         self.last_picture_data = None
-        self.noDriveGoalAccept = False
         self.main_controller: ExtendedLogicInterface = logic
-        self.ignorNextDriveGoalStatus = False
+        self.ignor_next_drive_goal_status = False
 
         self.picture_sub = self.create_subscription(
             PictureData,
@@ -95,7 +94,6 @@ class MuriActionHandler(Node):
 
     def send_follow_goal(self):
         self.get_logger().info('Sending follow goal...')
-        self.noDriveGoalAccept = True
         follow_goal = FOLLOW.Goal()
 
         self._action_client_follow.wait_for_server()
@@ -190,16 +188,15 @@ class MuriActionHandler(Node):
         self.main_controller.setGoalSuccess(result.success)
         self.main_controller.setGoalStautusFinished(True)
         self.get_logger().info('Follow result: {0}'.format(result))
-        self.noDriveGoalAccept = False
 
     def drive_result_callback(self, promise):
         result = promise.result().result
         self.get_logger().info('Drive result: {0}'.format(result))
-        if not self.ignorNextDriveGoalStatus:       
+        if not self.ignor_next_drive_goal_status:       
             self.main_controller.setGoalSuccess(result.success)
             self.main_controller.setGoalStautusFinished(True)
 
-        self.ignorNextDriveGoalStatus = False
+        self.ignor_next_drive_goal_status = False
         
     def turn_result_callback(self, promise):
         result = promise.result().result
@@ -224,7 +221,7 @@ class MuriActionHandler(Node):
         self.get_logger().info("Canceled drive Goal.")
         self.main_controller.setGoalSuccess(False)
         self.main_controller.setGoalStautusFinished(True)
-        self.ignorNextDriveGoalStatus = True
+        self.ignor_next_drive_goal_status = True
 
 
 def main(args=None):

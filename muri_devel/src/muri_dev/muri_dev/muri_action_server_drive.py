@@ -50,7 +50,7 @@ class DriveActionServer(Node):
         )
         self.schpieth_sup = self.create_subscription(
             Float32,
-            '/schpieth_supervision',
+            '/muri_speed',
             self.listener_callback_schpieth_asd,
             10
         )

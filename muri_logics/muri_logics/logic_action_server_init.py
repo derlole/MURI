@@ -100,8 +100,8 @@ class InitLogic(LogicInterface):
 
     def reset(self):
         """Reset the logic processing to its initial state."""
-        self.__positionX = 0.0
-        self.__positionY = 0.0
+        self.__position_x = 0.0
+        self.__position_y = 0.0
         self.__positionTheta = 0.0
         self.__firstTheta = None
         self.__angle_to_Mid_in_Rad = 0.0
@@ -110,14 +110,14 @@ class InitLogic(LogicInterface):
         self.__state = InitStates.IDLE
 
     def setOdomData(self, x, y, t):
-        """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
-        self.__positionX = x
-        self.__positionY = y
+        """Sets the data of the actual position of the robot, for the processing logic"""
+        self.__position_x = x
+        self.__position_y = y
         self.__positionTheta = quaternion_to_yaw(t)
 
 
     def setCameraData(self, angleIR, distanceIM):
-        """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
+        """Sets the Data of the camera, for the processing logic"""
         self.__angle_to_Mid_in_Rad = angleIR
         self.__distance_in_Meter = distanceIM
 
@@ -153,8 +153,8 @@ class InitLogic(LogicInterface):
             case InitStates.INIT:
                 print('state init_INIT')
                 self.__output.values = (0.0, 0.0, 0.0, 0.0)
-                self.__positionX = 0.0
-                self.__positionY = 0.0
+                self.__position_x = 0.0
+                self.__position_y = 0.0
                 self.__positionTheta = None
                 self.__angle_to_Mid_in_Rad = None
                 self.__distance_in_Meter = None

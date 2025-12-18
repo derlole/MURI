@@ -103,8 +103,8 @@ class TurnLogic(LogicInterface):
     
     def reset(self):
         """Reset the logic processing to its initial state."""
-        self.__position_X = 0.0
-        self.__position_Y = 0.0
+        self.__position_x = 0.0
+        self.__position_y = 0.0
         self.__position_Theta = 0.0
         self.__first_Theta = None
         self.__angle_to_Mid_in_Rad = 0.0
@@ -114,14 +114,14 @@ class TurnLogic(LogicInterface):
 
     
     def setOdomData(self, x, y, t,):
-        """Sets the Data of the actual Position of the Robot, for the Processing Logic"""
-        self.__position_X = x
-        self.__position_Y = y
+        """Sets the data of the actual position of the robot, for the processing logic"""
+        self.__position_x = x
+        self.__position_y = y
         self.__position_Theta = quaternion_to_yaw(t)
 
     
     def setCameraData(self, angleTM, distanceIM): 
-        """Sets the Data of the actual Position of the Robot, for the Processing Logic"""
+        """Sets the data of the camera, for the processing logic"""
         self.__angle_to_Mid_in_Rad = angleTM
         self.__distance_in_meter = distanceIM
 
@@ -129,7 +129,7 @@ class TurnLogic(LogicInterface):
     def calculate(self):
         """Calculate commands for angular velocity based on the current orientation and also reurns the turnd angle.
         The function rotates the robot toward the target if the angular deviation exceeds a tolerance.
-        A proportional controller is used to determine the angular velocity.""" #TODO
+        A proportional controller is used to determine the angular velocity.""" # TODO
 
         angularVelocityZ = 0.0
         tuerndAngle = self.__position_Theta - self.__first_Theta
@@ -157,8 +157,8 @@ class TurnLogic(LogicInterface):
             case TurnStates.INIT:
                 print('state turn-INIT')
                 self.__output.values = (0.0, 0.0, 0.0, 0.0)
-                self.__position_X = 0.0
-                self.__position_Y = 0.0
+                self.__position_x = 0.0
+                self.__position_y = 0.0
                 self.__position_Theta = 0.0
                 self.__angle_to_Mid_in_Rad = None
                 self.__distance_in_meter = None

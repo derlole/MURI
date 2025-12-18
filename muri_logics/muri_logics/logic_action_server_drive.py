@@ -9,8 +9,8 @@ class DriveStates(Enum):
     IDLE = 1
     FAILED = 2
     SUCCESS = 3
-    RAEDY = 4
-    DRIVEMOVE = 5
+    READY = 4
+    DRIVEMOVE = 5 
 
 
 class DriveOut(Out):
@@ -29,7 +29,6 @@ class DriveOut(Out):
     def isValid(self, hiV):
         """Set the isValid"""
         self.__isValid = hiV
-
 
     @property
     def values(self):
@@ -53,18 +52,15 @@ class DriveOut(Out):
         if dr is not None:
             self.__values['distance_remaining'] = dr
 
-
     def resetOut(self):
         """Reset the output to its initial state."""
         self.values = (0.0, 0.0, 0.0, 0.0)
         self.__error = None
         self.__isValid = False
 
-
     def outValid(self):
         """Check if the output is valid."""
         return self.__isValid
-
 
     def getError(self):
         """Retrieve any error state."""
@@ -80,7 +76,7 @@ class DriveLogic(LogicInterface):
     def __init__(self):
         self.__output = DriveOut()
         self.__state = DriveStates.INIT
-        self.__first_Theta = None
+        self.__first_Theta = None # TODO change to __first_theta (small t for snake notation)
         self.__schpieth = config.MINIMAL_SPEED_TO_SET 
         self.state_machine()
 
@@ -93,7 +89,7 @@ class DriveLogic(LogicInterface):
     def setActive(self):
         """Set the active state of the logic processing."""
         if self.__state == DriveStates.IDLE:
-            self.__state = DriveStates.RAEDY
+            self.__state = DriveStates.READY
             return True
         return False
 
@@ -105,8 +101,8 @@ class DriveLogic(LogicInterface):
 
     def reset(self):
         """Reset the logic processing to its initial state."""
-        self.__position_X = 0.0
-        self.__position_Y = 0.0
+        self.__position_x = 0.0
+        self.__position_y = 0.0
         self.__position_Theta = 0.0
         self.__first_Theta = None
         self.__output.resetOut()
@@ -114,16 +110,16 @@ class DriveLogic(LogicInterface):
 
 
     def setOdomData(self, x, y, t):
-        """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
-        self.__position_X = x
-        self.__position_Y = y
+        """Sets the data of the actual position of the robot, for the processing logic"""
+        self.__position_x = x
+        self.__position_y = y
         self.__position_Theta = quaternion_to_yaw(t)
 
 
-    def setCameraData(self, angleIR, distanceIM): 
-        """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
-        self.__angle_to_Mid_in_Rad = angleIR
-        self.__distance_in_Meter = distanceIM
+    def setCameraData(self, angle_in_rad, distance_in_meter): 
+        """Sets the data of the camera, for the processing logic"""
+        self.__angle_to_mid_in_Rad = angle_in_rad
+        self.__distance_in_meter = distance_in_meter
 
     def setSchpieth(self, s):
         """Sets the Schpieth Value for Driving Logic"""
@@ -133,23 +129,23 @@ class DriveLogic(LogicInterface):
         """Calculate commands for angular and linear velocity based on the current orientation and distance to the target.
         The function rotates the robot toward the target if the angular deviation exceeds a tolerance.
         A proportional controller is used to determine the angular velocity."""
-        angular_Velocity = 0.0
-        linear_Velocity = 0.0
+        angular_velocity = 0.0
+        linear_velocity = 0.0
 
-        if abs(self.__angle_to_Mid_in_Rad) > config.ANGLE_TOLLERANCE_DRIVE and self.__distance_in_Meter > config.GOAL_DISTANCE:
-            angular_Velocity = p_regulator(self.__angle_to_Mid_in_Rad, config.KP_DRIVE, config.MAX_ANGLE_VELOCITY_DRIVE)
+        if abs(self.__angle_to_mid_in_Rad) > config.ANGLE_TOLLERANCE_DRIVE and self.__distance_in_meter > config.GOAL_DISTANCE:
+            angular_velocity = p_regulator(self.__angle_to_mid_in_Rad, config.KP_DRIVE, config.MAX_ANGLE_VELOCITY_DRIVE)
 
-        if self.__distance_in_Meter > config.GOAL_DISTANCE: 
-            linear_Velocity = self.__schpieth
+        if self.__distance_in_meter > config.GOAL_DISTANCE: 
+            linear_velocity = self.__schpieth
 
         else:
-            linear_Velocity = 0.0
+            linear_velocity = 0.0
 
-        if self.__distance_in_Meter == -1:
-            linear_Velocity = 0.0
-            angular_Velocity = 0.0
+        if self.__distance_in_meter == -1.0:
+            linear_velocity = 0.0
+            angular_velocity = 0.0
 
-        return angular_Velocity, linear_Velocity
+        return angular_velocity, linear_velocity
     
 
     def state_machine(self):
@@ -160,24 +156,24 @@ class DriveLogic(LogicInterface):
                 case DriveStates.INIT:
                     print('state drive-INIT')
                     self.__output.values = (0.0, 0.0, 0.0, 0.0)
-                    self.__position_X = 0.0
-                    self.__position_Y = 0.0
+                    self.__position_x = 0.0
+                    self.__position_y = 0.0
                     self.__position_Theta = 0.0
                     self.__state = DriveStates.IDLE
 
                 case DriveStates.IDLE:
                     pass
 
-                case DriveStates.RAEDY:
+                case DriveStates.READY:
                     if self.__first_Theta is None:
                         self.__first_Theta = self.__position_Theta
                     self.__state = DriveStates.DRIVEMOVE
 
                 case DriveStates.DRIVEMOVE:
                     avz, lv = self.calculate()
-                    self.__output.values = (lv, None, avz, self.__distance_in_Meter)
+                    self.__output.values = (lv, None, avz, self.__distance_in_meter)
                     self.__output.isValid = True
-                    if self.__distance_in_Meter < config.GOAL_DISTANCE and self.__distance_in_Meter != -1.0:
+                    if self.__distance_in_meter < config.GOAL_DISTANCE and self.__distance_in_meter != -1.0:
                         self.__state = DriveStates.SUCCESS
 
                 case DriveStates.FAILED:

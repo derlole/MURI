@@ -61,16 +61,16 @@ class LogicInterface(ABC):
 
     @abstractmethod
     def setOdomData(x: float, y:float, t: float):
-        """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
+        """Sets the data of the actual position of the robot, for the processing logic"""
         pass
 
     @abstractmethod
     def setCameraData(angle_in_rad: float, distance_in_meters: float): 
-        """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
+        """Sets the data of the camera, for the processing logic"""
         pass 
 
 class ExtendedLogicInterface(LogicInterface):
     @abstractmethod
     def setArucoData(dominant_aruco_id: int):
-        """Sets the Data of the actual Position of the Robot, for the Processing Locig"""
+        """Sets the data of the detected aruco-marker, for the processing logic"""
         pass
