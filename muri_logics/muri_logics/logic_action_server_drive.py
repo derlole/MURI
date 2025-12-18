@@ -76,7 +76,7 @@ class DriveLogic(LogicInterface):
     def __init__(self):
         self.__output = DriveOut()
         self.__state = DriveStates.INIT
-        self.__first_Theta = None # TODO change to __first_theta (small t for snake notation)
+        self.__first_theta = None 
         self.__schpieth = config.MINIMAL_SPEED_TO_SET 
         self.state_machine()
 
@@ -104,7 +104,7 @@ class DriveLogic(LogicInterface):
         self.__position_x = 0.0
         self.__position_y = 0.0
         self.__position_Theta = 0.0
-        self.__first_Theta = None
+        self.__first_theta = None
         self.__output.resetOut()
         self.__state = DriveStates.IDLE
 
@@ -165,8 +165,8 @@ class DriveLogic(LogicInterface):
                     pass
 
                 case DriveStates.READY:
-                    if self.__first_Theta is None:
-                        self.__first_Theta = self.__position_Theta
+                    if self.__first_theta is None:
+                        self.__first_theta = self.__position_Theta
                     self.__state = DriveStates.DRIVEMOVE
 
                 case DriveStates.DRIVEMOVE:

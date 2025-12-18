@@ -79,7 +79,7 @@ class TurnLogic(LogicInterface):
     def __init__(self):
         self.__output = TurnOut()
         self.__state = TurnStates.INIT
-        self.__first_Theta = None
+        self.__first_theta = None
         self.state_machine()
 
     
@@ -106,7 +106,7 @@ class TurnLogic(LogicInterface):
         self.__position_x = 0.0
         self.__position_y = 0.0
         self.__position_Theta = 0.0
-        self.__first_Theta = None
+        self.__first_theta = None
         self.__angle_to_Mid_in_Rad = 0.0
         self.__distance_in_meter = 0.0
         self.__output.resetOut()
@@ -132,7 +132,7 @@ class TurnLogic(LogicInterface):
         A proportional controller is used to determine the angular velocity.""" # TODO
 
         angularVelocityZ = 0.0
-        tuerndAngle = self.__position_Theta - self.__first_Theta
+        tuerndAngle = self.__position_Theta - self.__first_theta
         
         if abs(tuerndAngle) > math.pi:
             tuerndAngle = tuerndAngle + 2 * math.pi
@@ -168,8 +168,8 @@ class TurnLogic(LogicInterface):
                 pass 
 
             case TurnStates.RAEDY:
-                if self.__first_Theta is None:
-                    self.__first_Theta = self.__position_Theta
+                if self.__first_theta is None:
+                    self.__first_theta = self.__position_Theta
                 self.__state = TurnStates.TURNMOVE
 
             case TurnStates.TURNMOVE:

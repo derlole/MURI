@@ -100,7 +100,7 @@ def calculate(self):
 - `INIT` → `IDLE` → `RAEDY` → `DRIVEMOVE` → `SUCCESS`/`FAILED`
 
 **Zentrale Variablen**:
-- `__first_Theta`: Initiale Orientierung (als Referenz erfasst)
+- `__first_theta`: Initiale Orientierung (als Referenz erfasst)
 - `__angle_to_Mid_in_Rad`: Winkelabweichung zum Ziel
 - `__distance_in_Meter`: Verbleibende Entfernung zum Ziel
 
@@ -142,7 +142,7 @@ def calculate(self):
 - `INIT` → `IDLE` → `RAEDY` → `TURNMOVE` → `SUCCESS`/`FAILED`
 
 **Zentrale Variablen**:
-- `__first_Theta`: Initiale Orientierung bei Drehbeginn
+- `__first_theta`: Initiale Orientierung bei Drehbeginn
 - `__angle_to_Mid_in_Rad`: Winkelabweichung zum Ziel
 - `__distance_in_meter`: Verbleibende Entfernung zum Ziel
 
