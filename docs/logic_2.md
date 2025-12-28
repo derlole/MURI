@@ -320,23 +320,23 @@ def calculate(self):
 ```
 INIT → IDLE
     ↓
-INIT_ROBOT (ASToCall=0)
+INIT_ROBOT
     ├─ Erfolg → DRIVE
     └─ Fehler → FAILED
 
-DRIVE (ASToCall=1)
+DRIVE 
     ├─ Aruco-ID=69 erkannt → Vorbereitung für FOLLOW
     ├─ Erfolg ohne Follow → TURN
     ├─ Erfolg mit Follow-Trigger → FOLLOW
     └─ Fehler → FAILED
 
-TURN (ASToCall=2)
+TURN 
     ├─ Erfolg → DRIVE
     └─ Fehler → FAILED
 
-FOLLOW (ASToCall=3)
+FOLLOW 
     ├─ Erfolg/Abschluss → DRIVE
-    └─ (Fehler wird intern verwaltet)
+    └─ (Fehler wird intern verwaltet) #TODO
 
 SUCCESS / FAILED
 ```
@@ -391,7 +391,7 @@ def exit_to_pause():
 ```
 
 **Zielverwaltung**:
-- Verwendet `setGoalStautusFinished(bool)` zum Empfangen des Abschlussstatus ⚠️ **Tippfehler im Namen**
+- Verwendet `setGoalStautusFinished(bool)` zum Empfangen des Abschlussstatus 
 - Verwendet `setGoalSuccess(bool)` zum Empfangen des Erfolgs-/Fehlerstatus
 - Verwendet `setArucoData(id)` zum Empfangen der Aruco-Marker-ID
 - Setzt Flags nach Zustandsübergängen zurück
@@ -458,7 +458,7 @@ Das System basiert auf einem `config`-Modul mit folgenden Parametern:
 
 ### DriveLogic
 - `ANGLE_TOLLERANCE_DRIVE`: Winkeltoleranz für Winkelkorrektur
-- `KP_DRIVE`: Proportionalverstärkung für Winkelkorrektur
+- `KP_DRIVE`: Proportionalverstärkung 
 - `MAX_ANGLE_VELOCITY_DRIVE`: Maximale Winkelgeschwindigkeit
 - `MAX_VELOCITY`: Maximale Vorwärtsfahrgeschwindigkeit
 - `GOAL_DISTANCE`: Ziel-Distanz
