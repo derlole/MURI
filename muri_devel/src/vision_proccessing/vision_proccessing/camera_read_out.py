@@ -27,8 +27,6 @@ class CameraReadOut(Node):
             self.get_logger().error(f'Fehler beim Initialisieren der Kamera: {str(e)}')
             raise e
         
-        #self.img.set(cv.CAP_PROP_FRAME_WIDTH, 1920)
-        #self.img.set(cv.CAP_PROP_FRAME_HEIGHT, 1080)
         self.img.set(cv.CAP_PROP_BUFFERSIZE, 1)
         
         self.data = self.create_timer(timer_time, self.timer_callback)

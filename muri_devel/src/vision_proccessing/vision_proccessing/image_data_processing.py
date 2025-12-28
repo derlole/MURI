@@ -60,7 +60,6 @@ class ImageProcessing(Node):
         msg : sensor_msgs.msg.Image
             Raw image message from the camera.
         """
-        self.data = msg
         try:
             cv_raw_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='mono8')
         except Exception as e:
@@ -97,9 +96,9 @@ class ImageProcessing(Node):
 
         self.distance_in_milimeters, self.angle_in_rad, self.marker_id = self.proc_AMD.aruco_detection(data_img)
         self.distance_in_meters_unfiltered = self.distance_in_milimeters/1000
-        self.distance_in_meters_filtered = self.daf()
+        self.distance_in_meters_filtered = self.filter_distance()
 
-    def daf(self):
+    def filter_distance(self):
         # 1. Ring‑Puffer aktualisieren
         self.third_data  = self.second_data
         self.second_data = self.first_data
