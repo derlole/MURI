@@ -20,7 +20,7 @@
 ## 1. Projektübersicht
 
 ### 1.1 Ziele
-- Entwicklung eines autonomen mobilen Roboters (MURI) zur Navigation und Objektverfolgung
+- Entwicklung eines autonomen mobilen Roboters MURI (Mechanische Untergrund Ratte für Inspektionen) zur Navigation und Objektverfolgung
 - Implementierung einer hierarchischen State-Machine-basierte Steuerungslogik
 - Integration mit ROS2 für Echtzeitfähigkeit und Modularität
 - Unterstützung für Kamera-basierte Zielerfassung und Aruco-Marker-Verfolgung
@@ -32,66 +32,66 @@
 - **Dokumentation**: Design-Spezifikationen, Testpläne, Deployment-Guides
 
 ### 1.3 Stakeholder
-- Entwicklungsteam (Robotik)
-- Testengineer
-- Integrationsteam (ROS2/Hardware)
-- Projektmanagement
+- Entwicklungsteam 
+    - Braun Linus
+    - Keppler Benjamin
+    - Moser Louis
+
+- Auftraggeber
+    - Prof. Dr. Mathias Lorenzen
 
 ---
 
 ## 2. Meilensteine und Zeitplan
 
-### Phase 1: Architektur & Design (M1-M2)
+### Phase 1: Projektinitialisierung & Planung (KW43-KW44/2025)
 | Meilenstein | Termin | Status | Beschreibung |
 |------------|--------|--------|------------|
-| M1.1 | KW1 | ✅ | System-Architektur Definition |
-| M1.2 | KW2 | ✅ | State-Machine Design finalisiert |
-| M1.3 | KW3 | ⏳ | Interface-Spezifikation abgeschlossen |
-| M1.4 | KW4 | ⏳ | Reglerauslegung durchgeführt |
+| M1.1 | KW43 (23.10.25) | ✅ | Einarbeitung ROS2 abgeschlossen, Roboter über ROS ansprechbar |
+| M1.2 | KW44 (30.10.25) | ✅ | Projektplan/Projektarchitektur erstellt und abgestimmt |
 
-### Phase 2: Implementierung (M2-M4)
+### Phase 2: Repository-Setup & Architektur (KW45/2025)
 | Meilenstein | Termin | Status | Beschreibung |
 |------------|--------|--------|------------|
-| M2.1 | KW5 | ✅ | InitLogic implementiert |
-| M2.2 | KW6 | ✅ | DriveLogic implementiert |
-| M2.3 | KW7 | ✅ | TurnLogic implementiert |
-| M2.4 | KW8 | ✅ | FollowLogic implementiert |
-| M2.5 | KW9 | ✅ | MainController implementiert |
+| M2.1 | KW45 (06.11.25) | ✅ | Repository initialisiert, Ordner- und Dateistruktur entsprechend Softwarearchitektur aufgesetzt |
 
-### Phase 3: Integration (M4-M5)
+### Phase 3: Basis-Fahrfunktionalität (KW46-KW47/2025)
 | Meilenstein | Termin | Status | Beschreibung |
 |------------|--------|--------|------------|
-| M3.1 | KW10 | ⏳ | ROS2 Action Server Integration |
-| M3.2 | KW11 | ⏳ | Vision-Processor Integration |
-| M3.3 | KW12 | ⏳ | /odom Topic Anbindung |
-| M3.4 | KW13 | ⏳ | /cmd_vel Publisher Integration |
+| M3.1 | KW47 (20.11.25) | ✅ | Allgemeine Fahrfunktionalität implementiert (Geschwindigkeitssteuerung, Lageregelung) |
+| M3.2 | KW48 (27.11.25) | ✅ | Unit-Tests und Debugging für Basis-Fahrfunktionalität abgeschlossen |
 
-### Phase 4: Test & Validierung (M5-M6)
+### Phase 4: ArUco-Erkennung & Folgemanöver (KW49-KW51/2025)
 | Meilenstein | Termin | Status | Beschreibung |
 |------------|--------|--------|------------|
-| M4.1 | KW14 | ⏳ | Unit-Tests für alle Module |
-| M4.2 | KW15 | ⏳ | Integration-Tests |
-| M4.3 | KW16 | ⏳ | Field-Tests |
-| M4.4 | KW17 | ⏳ | Performance-Benchmarks |
+| M4.1 | KW49 (04.12.25) | ⚠️ | ArUco-ID-Unterscheidung und Robotererkennung implementiert (60% abgeschlossen) |
+| M4.2 | KW51 (18.12.25) | ✅ | Folgemanöver-Code vollständig implementiert und integriert |
+| M4.3 | KW52 (23.12.25) | ⏳ | Testing und Debugging für Folgemanöver (75% abgeschlossen, 1 offenes Issue) |
 
-### Phase 5: Dokumentation & Release (M6-M7)
+### Phase 5: Finalisierung & Dokumentation (KW1-KW3/2026)
 | Meilenstein | Termin | Status | Beschreibung |
 |------------|--------|--------|------------|
-| M5.1 | KW18 | ⏳ | API-Dokumentation finalisiert |
-| M5.2 | KW19 | ⏳ | Deployment-Guide erstellt |
-| M5.3 | KW20 | ⏳ | Release Notes v2.0.0 |
-| M5.4 | KW21 | ⏳ | Final Review & Freeze |
+| M5.1 | KW2 (02.01.26) | ⏳ | Restliche Tests abgeschlossen, alle funktionalen Anforderungen validiert |
+| M5.2 | KW3 (21.01.26) | ⏳ | Gesamtdokumentation finalisiert (Projektplan, Architektur, technische Herleitungen, Systemauswertung) |
+| M5.3 | KW3 (21.01.26) | ⏳ | Build-/Install-Anleitung und Test-Dokumentation erstellt |
+| M5.4 | KW3 (21.01.26) | 🎯 | **Abschlusspräsentation und finale Abgabe** |
+
+---
+
+**Legende:**
+- ✅ Abgeschlossen (100%)
+- ⚠️ In Arbeit mit Verzögerung
+- ⏳ Geplant/In Bearbeitung
+- 🎯 Kritischer Meilenstein (Deadline)
 
 ---
 
 ## 3. Geplante Aktualisierungen & Fehlerbehandlung
 
-### 3.1 Kritische Fehler (Priorität: P1)
+### 3.1 Fehler (Priorität: P1)
 | Fehler | Modul | Auswirkung | Status | Zielversion |
 |--------|-------|-----------|--------|------------|
-| TurnOut Key-Inkonsistenz (`turened_angle` vs `turned_angle`) | TurnLogic | Output fehlerhaft | 🔴 Open | v2.0.1 |
 | Method-Name Tippfehler (`setGoalStautusFinished`) | MainController | API-Inkonsistenz | 🟡 Known | v2.0.1 |
-| RAEDY→READY State-Fehler (InitLogic, TurnLogic) | Init/TurnLogic | Verwirrend | 🟡 Known | v2.0.1 |
 
 ### 3.2 Feature-Enhancements (Priorität: P2)
 | Feature | Beschreibung | Abhängigkeiten | Status | Zielversion |
@@ -125,7 +125,7 @@ MURI v2.0.1 (Hotfix - geplant)
 MURI v2.1.0 (Feature-Release - geplant)
 ├── Pause-Mechanism
 ├── Logging-System
-├── Error-Recovery
+├ ── Error-Recovery
 └── Documentation Updates
 ```
 
@@ -134,11 +134,11 @@ MURI v2.1.0 (Feature-Release - geplant)
 ## 4. Ressourcenplanung
 
 ### 4.1 Team
-- **Robotik-Engineer**: 2 FTE (Development)
-- **Software-Engineer**: 1 FTE (Integration)
-- **Test-Engineer**: 1 FTE (QA/Validation)
-- **Technischer Writer**: 0.5 FTE (Documentation)
-- **Hardware-Engineer**: 0.5 FTE (Support)
+- **Robotik-Engineer**: ───┐
+- **Software-Engineer**: ──|
+- **Test-Engineer**: ──────├─── 3 FTE (Entwiklungsteam)
+- **Technischer Writer**: ─|
+- **Hardware-Engineer**: ──┘ 
 
 ### 4.2 Infrastruktur
 - Entwicklung: Linux-Workstations mit ROS2
@@ -152,6 +152,8 @@ MURI v2.1.0 (Feature-Release - geplant)
 
 ## 1. Architektur-Übersicht
 
+![Softweare Architektur Übersicht](<softweare_architektur.png>)
+
 ### 1.1 Schichtmodell
 
 ```
@@ -159,16 +161,16 @@ MURI v2.1.0 (Feature-Release - geplant)
 │                   ROS2 Interface Layer                  │
 │    (Action Servers, Topics, Services)                   │
 ├─────────────────────────────────────────────────────────┤
-│            High-Level Control Layer                      │
-│         (MainController State Machine)                   │
+│            High-Level Control Layer                     │
+│         (MainController State Machine)                  │
 ├─────────────────────────────────────────────────────────┤
-│          Behavior Logic Layer                            │
-│  (InitLogic, DriveLogic, TurnLogic, FollowLogic)       │
+│          Behavior Logic Layer                           │
+│  (InitLogic, DriveLogic, TurnLogic, FollowLogic)        │
 ├─────────────────────────────────────────────────────────┤
-│            Foundation Layer                              │
-│   (Interfaces, Common Functions, Configuration)          │
+│            Foundation Layer                             │
+│   (Interfaces, Common Functions, Configuration)         │
 ├─────────────────────────────────────────────────────────┤
-│            Hardware Abstraction Layer                    │
+│            Hardware Abstraction Layer                   │
 │    (Sensors, Odometry, Motors, Camera)                  │
 └─────────────────────────────────────────────────────────┘
 ```
@@ -178,8 +180,8 @@ MURI v2.1.0 (Feature-Release - geplant)
 ```
 muri_logics/
 ├── logic_interface.py          # Basis-Interfaces
-├── general_funcs.py             # Gemeinsame Funktionen
-├── config.py                    # Konfigurationsparameter
+├── general_funcs.py            # Gemeinsame Funktionen
+├── config.py                   # Konfigurationsparameter
 ├── init_logic.py               # InitLogic-Modul
 ├── drive_logic.py              # DriveLogic-Modul
 ├── turn_logic.py               # TurnLogic-Modul
@@ -187,7 +189,7 @@ muri_logics/
 └── main_controller.py          # MainController
 ```
 
-### 1.3 Datenfluss-Diagramm
+### 1.3 Datenfluss-Diagramm #TODO Richtig anpassen
 
 ```
 Sensoren & Input
@@ -195,7 +197,6 @@ Sensoren & Input
 ┌─────────────────────────────────┐
 │  /camera_data                   │
 │  /odom (Odometrie)              │
-│  /aruco_markers                 │
 └──────────────┬──────────────────┘
                ↓
         MainController
@@ -295,12 +296,12 @@ class ExtendedLogicInterface(LogicInterface):
 **State-Graph**:
 ```
 INIT → IDLE → INIT_ROBOT → DRIVE ↔ TURN
-                                    ↓
-                                 FOLLOW ↓
-                                    └──→ (zurück zu DRIVE)
+                              ↓
+                           FOLLOW 
+                              └──→ (zurück zu DRIVE)
 ```
 
-### 2.4 ROS2 Action Server Layer
+### 2.4 ROS2 Action Server Layer #TODO past das? --> anpassen
 
 ```
 Action Server Architecture:
@@ -574,7 +575,7 @@ Mit Negation:
 
 ---
 
-# Technische Herleitungen
+# Technische Herleitungen #TODO kommlett überarbeiten
 
 ## 1. Quaternion zu Yaw-Konversion
 
@@ -607,16 +608,13 @@ import math
 
 def quaternion_to_yaw(quaternion):
     """Konvertiert Quaternion (x,y,z,w) zu Yaw [rad]"""
-    x, y, z, w = quaternion
+    q = quaternion
     
-    # Formel 1: Direkter Weg
-    yaw = math.atan2(2*(w*z + x*y), 1 - 2*(y**2 + z**2))
-    
-    # Normalisieren auf [-π, π]
-    if yaw > math.pi:
-        yaw -= 2 * math.pi
-    elif yaw < -math.pi:
-        yaw += 2 * math.pi
+    # Formel
+    siny_cosp = 2.0 * (q.w * q.z + q.x * q.y)
+    cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
+
+    yaw = math.atan2(siny_cosp, cosy_cosp)
     
     return yaw
 ```
@@ -987,7 +985,7 @@ Test: Init → Drive → Turn → Success
 ## Dokumente und Referenzen
 
 **Siehe auch**:
-- `logic.md` - Vollständige Logik-Dokumentation
+- `logic_2.md` - Vollständige Logik-Dokumentation
 - `ros.md` - ROS2 Integration
 - `config.py` - Alle Tuning-Parameter
 - `test/` - Unit & Integration Tests

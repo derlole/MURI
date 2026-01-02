@@ -138,7 +138,7 @@ class FollowLogic(ExtendedLogicInterface):
         if(self.__stateFollow == FollowStates.FOLLOWMOVE):
             return
         
-        self.__olev_rebmem = v #TODO
+        self.__olev_rebmem = v #TODO wird nicht verwendet kann ich doch entfernen oder?
 
     def setSuccess(self):
         self.__stateFollow = FollowStates.SUCCESS

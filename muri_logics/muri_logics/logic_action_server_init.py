@@ -11,7 +11,7 @@ class InitStates(Enum):
     IDLE = 1
     FAILED = 2
     SUCCESS = 3
-    RAEDY = 4 
+    READY = 4 
     INITMOVE = 5
 
 class InitOut(Out):
@@ -90,7 +90,7 @@ class InitLogic(LogicInterface):
     def setActive(self):
         """Set the active state of the logic processing."""
         if self.__state == InitStates.IDLE:
-            self.__state = InitStates.RAEDY
+            self.__state = InitStates.READY
             return True
         return False
 
@@ -163,7 +163,7 @@ class InitLogic(LogicInterface):
             case InitStates.IDLE:
                 pass
 
-            case InitStates.RAEDY:
+            case InitStates.READY:
                 if self.__firstTheta is None:
                     self.__firstTheta = self.__positionTheta
                 self.__state = InitStates.INITMOVE

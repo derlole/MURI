@@ -10,7 +10,7 @@ class TurnStates(Enum):
     IDLE = 1
     FAILED = 2
     SUCCESS = 3
-    RAEDY = 4
+    READY = 4
     TURNMOVE = 5
 
 
@@ -52,7 +52,7 @@ class TurnOut(Out):
             self.__values['angular_velocity_z'] = avz
 
         if ta is not None:
-            self.__values['turened_angle'] = ta
+            self.__values['turned_angle'] = ta
 
     def resetOut(self):
         """Reset the output to its initial state."""
@@ -91,7 +91,7 @@ class TurnLogic(LogicInterface):
     def setActive(self):
         """Set the active state of the logic processing."""
         if self.__state == TurnStates.IDLE:
-            self.__state = TurnStates.RAEDY
+            self.__state = TurnStates.READY
             return True
         return False
 
@@ -129,7 +129,7 @@ class TurnLogic(LogicInterface):
     def calculate(self):
         """Calculate commands for angular velocity based on the current orientation and also reurns the turnd angle.
         The function rotates the robot toward the target if the angular deviation exceeds a tolerance.
-        A proportional controller is used to determine the angular velocity.""" # TODO
+        A proportional controller is used to determine the angular velocity."""
 
         angularVelocityZ = 0.0
         tuerndAngle = self.__position_Theta - self.__first_theta
@@ -167,7 +167,7 @@ class TurnLogic(LogicInterface):
             case TurnStates.IDLE:
                 pass 
 
-            case TurnStates.RAEDY:
+            case TurnStates.READY:
                 if self.__first_theta is None:
                     self.__first_theta = self.__position_Theta
                 self.__state = TurnStates.TURNMOVE

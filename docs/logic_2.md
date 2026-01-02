@@ -243,7 +243,7 @@ def calculate(self):
 - `__distanceInMeter`: Aktuelle Entfernung zum verfolgten Ziel
 - `__dominantArucoID`: ID des erkannten Aruco-Markers
 - `__followDistance`: Sollabstand zum verfolgten Objekt (default: 0.2m)
-- `__olev_rebmem`: Gespeicherte Geschwindigkeit (nicht während FOLLOWMOVE änderbar) #TODO
+- `__olev_rebmem`: Gespeicherte Geschwindigkeit (nicht während FOLLOWMOVE änderbar) #TODO gibts doch nocht mehr oder
 
 **Ausgabewerte**:
 - `linear_velocity_x`: Vorwärtsgeschwindigkeitsbefehl [m/s]
@@ -336,7 +336,7 @@ TURN
 
 FOLLOW 
     ├─ Erfolg/Abschluss → DRIVE
-    └─ (Fehler wird intern verwaltet) #TODO
+    └─ (Fehler wird intern verwaltet) #TODO past das ?
 
 SUCCESS / FAILED
 ```
@@ -581,17 +581,6 @@ if output.isValid:
 
 ## Bekannte Probleme und TODOs
 
-### Kritische Fehler (müssen behoben werden)
-
-1. **TurnLogic**: Inkonsistenz in Output-Schlüssel
-   - `values.setter` verwendet: `'turened_angle'` ❌
-   - `resetOut()` verwendet: `'turned_angle'` ❌
-   - **Fix**: Beide auf `'turned_angle'` vereinheitlichen
-
-2. **MainController**: Tippfehler in Methodenname
-   - `setGoalStautusFinished()` sollte `setGoalStatusFinished()` sein
-   - **Impact**: Funktioniert, aber inkonsistent
-
 ### Design-TODOs
 
 3. **InitLogic**: Fehlende FAILED-Zustandslogik für übermäßige Rotation
@@ -703,26 +692,22 @@ INIT ──→ IDLE ──(setActive)──→ READY ──→ FOLLOWMOVE ──
                                                       └─→ ABORT
 ```
 
-### MainController
+### MainController #TODO doch so in ordnung oder ? 
 ```
-INIT ──→ IDLE ──(setActive)──→ INIT_ROBOT
-                                    │
-                           ┌────────┴─────────┐
-                           │                  │
-                        SUCCESS           FAILED
-                           │
-                           ↓
-                        DRIVE ←──┐
-                           │      │
-                        TURN ─────┤
-                           │      │
-                      (wenn Ziel erreicht)
-                           │
-                        FOLLOW ──┐
-                                  │
-                           └──────┘
-```
-
+INIT ──> IDLE ──(setActive)──> INIT_ROBOT
+                                       │
+                              ┌────────┴─────────┐
+                              │                  │
+                            SUCCESS           FAILED
+                               |
+                               ↓
+   ┌──────────────────────> DRIVE <───┐
+   |                           |      |
+   |    ┌──(if ArucoID is 69)──┤      |
+   |    ↓                      ↓      |    
+   | FOLLOW                  TURN ────┘
+   |    | 
+   └────┘                   
 ---
 
 ## Änderungshistorie und Versioning

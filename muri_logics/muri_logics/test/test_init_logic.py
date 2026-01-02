@@ -22,7 +22,7 @@ class TestInitLogic(unittest.TestCase):
         self.assertEqual(self.logic.getActiveState(), InitStates.IDLE)
 
         self.assertTrue(self.logic.setActive())
-        self.assertEqual(self.logic.getActiveState(), InitStates.RAEDY)
+        self.assertEqual(self.logic.getActiveState(), InitStates.READY)
 
     def test_set_active_wrong_state(self):
         """Activation fails if not in IDLE."""

@@ -22,7 +22,7 @@ class TestTurnLogic(unittest.TestCase):
         self.assertEqual(self.logic.getActiveState(), TurnStates.IDLE)
 
         activated = self.logic.setActive()
-        self.assertEqual(self.logic.getActiveState(), TurnStates.RAEDY)
+        self.assertEqual(self.logic.getActiveState(), TurnStates.READY)
 
     def test_set_active_wrong_state(self):
         """Activation fails if not in IDLE"""
