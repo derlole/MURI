@@ -12,6 +12,7 @@
 2. [Software-Architektur](#software-architektur)
 3. [Designentscheidungen](#designentscheidungen)
 4. [Technische Herleitungen](#technische-herleitungen)
+5. [Lessons Learned](#Lessons-Learned)
 
 ---
 
@@ -135,9 +136,9 @@ MURI v2.1.0 (Feature-Release - geplant)
 
 ### 4.1 Team
 - **Robotik-Engineer**: ───┐
-- **Software-Engineer**: ──|
-- **Test-Engineer**: ──────├─── 3 FTE (Entwiklungsteam)
-- **Technischer Writer**: ─|
+- **Software-Engineer**: ──┤
+- **Test-Engineer**: ─────┤─── 3 FTE (Entwiklungsteam)
+- **Technischer Writer**: ──┤
 - **Hardware-Engineer**: ──┘ 
 
 ### 4.2 Infrastruktur
@@ -948,6 +949,70 @@ Test: Init → Drive → Turn → Success
 - Verschiedene Boden-Beschaffenheit
 - Verschiedene Zielentfernungen
 - Multi-Modul-Übergang testen
+
+---
+
+# Lessons Learned
+## 1. Python Logic (Init, Drive, Turn, Follow)
+
+
+### 1.1 Interface-Design 
+Vorteile der einheitlichen Schnittstelle:
+
+- Alle Module implementieren identische Methoden (getOut(), setActive(), state_machine())
+- Konsistente API erleichtert Verständnis und Wartung
+- MainController kann Module austauschen ohne Code-Änderungen
+- Neue Module in 2-4 Stunden implementierbar durch vorgegebene Struktur
+- Klare Trennung von Input/Output über standardisierte Datenklassen
+
+#### Lesson Learned:  
+Investition in durchdachte Interfaces zu Projektbeginn ermöglicht schnelle Erweiterungen während der gesamten Entwicklung
+
+### 1.2 Unit-Test
+Schnelle Fehlererkennung durch automatisierte Tests  
+Vorteile:
+
+- Sofortige Rückmeldung bei Funktionsänderungen
+- Fehler werden vor Integration in Gesamtsystem erkannt
+- Refactoring ohne Angst vor unerkannten Nebenwirkungen
+- Module können isoliert ohne ROS2-Umgebung getestet werden
+- Jeder State-Übergang systematisch validierbar
+- Dokumentation des erwarteten Verhaltens durch Tests
+
+#### Lesson Learned:  
+Unit-Tests als Sicherheitsnetz ermöglichen schnelle Iteration und verhindern zeitraubende Debugging-Sessions auf dem Roboter
+
+### 1.3 Modulare Aufgabentrennung
+Separate Module für Init, Drive, Turn, Follow  
+Vorteile der Trennung:
+
+- Jedes Modul hat klar definierte Verantwortung
+- Änderungen in einem Modul beeinflussen andere nicht
+- Bugs sind leicht zu lokalisieren
+- Neue Verhaltensweisen einzelner module einfach implementierbar
+- Neue Module leicht hinzufügbar
+- Wiederverwendbarkeit einzelner Module in anderen Projekten
+
+#### Lesson Learned:  
+Klare Aufgabentrennung beschleunigt Entwicklung, Debugging und Erweiterung erheblich
+
+### 1.4 Weitere-Erkentnisse
+#### Config-File (config.py):  
+- Zentrale Parameter-Verwaltung ermöglicht schnelles Tuning ohne Code-Änderung
+- Experimente in "Minuten" statt "Stunden"
+#### Gemeinsame Funktionen (general_funcs.py):  
+- Vermeidung von Code-Duplikation
+- Konsistentes Verhalten über alle Module
+#### State Machine Pattern:  
+- Vorhersagbares und nachvollziehbares Verhalten
+- Einfaches Debugging durch klare Zustandsverfolgung
+- Systematische Testabdeckung aller Übergänge
+
+
+## 2. Camera
+
+## 3. ROS 
+
 
 ---
 

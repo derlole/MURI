@@ -583,16 +583,15 @@ if output.isValid:
 
 ### Design-TODOs
 
-3. **InitLogic**: Fehlende FAILED-Zustandslogik für übermäßige Rotation
-4. **MainController**: 
+1. **InitLogic**: Fehlende FAILED-Zustandslogik für übermäßige Rotation
+2. **MainController**: 
    - `PAUSE`-Zustand nicht vollständig implementiert
    - `_memorized_return_state` wird deklariert, aber nicht genutzt
 
 ### Verbesserungsmöglichkeiten
 
-5. **Error-Handling**: Fehlerbehandlung in FAILED-Zuständen ausbaubar
-6. **Logging**: Debug-Print-Statements könnten durch strukturiertes Logging ersetzt werden
-7. **Konfiguration**: Toleranzen sollten dynamisch adjustierbar sein
+1. **Error-Handling**: Fehlerbehandlung in FAILED-Zuständen ausbaubar
+2. **Logging**: Debug-Print-Statements könnten durch strukturiertes Logging ersetzt werden
 
 ---
 
@@ -609,7 +608,7 @@ if output.isValid:
 
 ---
 
-## Best Practices
+## Best Practices #TODO beispiele driennen lassen? 
 
 1. **Immer `isValid` prüfen**, bevor Ausgabewerte verwendet werden
    ```python
@@ -708,7 +707,7 @@ INIT ──> IDLE ──(setActive)──> INIT_ROBOT
    | FOLLOW                  TURN ────┘
    |    | 
    └────┘                   
----
+```
 
 ## Änderungshistorie und Versioning
 
@@ -729,23 +728,23 @@ INIT ──> IDLE ──(setActive)──> INIT_ROBOT
 
 ## FAQ
 
-**F: Was ist der Unterschied zwischen `distance = -1.0` und `aruco_id = 9999`?**
+**F: Was ist der Unterschied zwischen `distance = -1.0` und `aruco_id = 9999`?**  
 A: `-1.0` ist ein Fehler der Kamera/Vision (kein Ziel erkannt). `9999` ist ein Abbruch-Befehl im Follow-Modus (Ziel verloren oder Abbruch-Signal).
 
-**F: Wie kann ich die Fahrtgeschwindigkeit ändern?**
+**F: Wie kann ich die Fahrtgeschwindigkeit ändern?**  
 A: In DriveLogic: `drive_logic.setSchpieth(new_speed)` (nur außerhalb DRIVEMOVE)
 In FollowLogic: `follow_logic.setSchpieth(new_speed)` (nur außerhalb FOLLOWMOVE)
 
-**F: Was sind typische Werte für die Toleranzen?**
+**F: Was sind typische Werte für die Toleranzen?**  
 A: Abhängig vom Roboter, typischerweise:
 - `ANGLE_TOLLERANCE_*`: 0.1 - 0.3 rad (5-17°)
 - `GOAL_DISTANCE`: 0.1 - 0.5 m
 - `ORIANTATION_DISTANCE`: 1.0 m
 
-**F: Wie triggert man den Follow-Modus?**
+**F: Wie triggert man den Follow-Modus?**  
 A: Aruco-Marker mit ID `69` im DRIVE-State erkennen. MainController schaltet automatisch um.
 
-**F: Was passiert bei Fehler in FollowLogic?**
+**F: Was passiert bei Fehler in FollowLogic?**  
 A: Bei `aruco_id = 9999` → FAILED → zurück zu IDLE → MainController kehrt zu DRIVE zurück.
 
 ---
