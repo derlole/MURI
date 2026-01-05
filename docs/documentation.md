@@ -103,7 +103,7 @@
 
 ### 3.3 Bekannte Limitierungen
 - **FollowLogic**: Nur ein Marker gleichzeitig verfolgbar
-- **DriveLogic**: Keine Kollisionserkennung
+- **DriveLogic**: Keine Kollisionserkennung (ralativ)
 - **MainController**: PAUSE-Zustand nicht persistent
 - **Allgemein**: Keine Multi-Robot-Koordination
 
@@ -128,23 +128,6 @@ MURI v2.1.0 (Feature-Release - geplant)
 ├ ── Error-Recovery
 └── Documentation Updates
 ```
-
----
-
-## 4. Ressourcenplanung
-
-### 4.1 Team
-- **Robotik-Engineer**: ───┐
-- **Software-Engineer**: ──┤
-- **Test-Engineer**: ─────┤─── 3 FTE (Entwiklungsteam)
-- **Technischer Writer**: ──┤
-- **Hardware-Engineer**: ──┘ 
-
-### 4.2 Infrastruktur
-- Entwicklung: Linux-Workstations mit ROS2
-- Testing: 2x Roboter-Prototypen
-- CI/CD: GitHub Actions
-- Dokumentation: GitBook / ReadTheDocs
 
 ---
 
@@ -296,7 +279,7 @@ INIT → IDLE → INIT_ROBOT → DRIVE ↔ TURN
 
 ## 4. Datenfluss und Timing
 
-### 4.1 Kontrollschleife (Control Loop)
+### 4.1 Kontrollschleife
 
 ```
 ┌─────────────────────────────────────────────────┐
@@ -321,12 +304,6 @@ INIT → IDLE → INIT_ROBOT → DRIVE ↔ TURN
 │    └─ Action-Feedback aktualisieren             │
 └─────────────────────────────────────────────────┘
 ```
-
-**Timing-Anforderungen**:
-- Control-Loop: 100 Hz
-- Vision-Input: 30 Hz
-- Odometrie-Input: 100 Hz
-- Output-Publikation: 100 Hz
 
 ---
 
@@ -709,90 +686,9 @@ DRIVE State
 
 ---
 
-## 7. Fehlercodes und Fehlerbehandlung
+## 7. Validierungs- und Teststrategien
 
-### 7.1 Spezielle Werte
-
-| Wert | Kontext | Bedeutung | Behandlung |
-|------|---------|-----------|-----------|
-| distance = -1.0 | Camera | Fehler/kein Ziel | Stop-Befehl |
-| aruco_id = -1 | Camera | Kein Marker | Ignorieren |
-| aruco_id = 0 | FollowLogic | Success-Code | → SUCCESS State |
-| aruco_id = 69 | DRIVE | Follow-Trigger | Setze _goToFollow |
-| aruco_id = 9999 | FollowLogic | Fehler/Abbruch | → FAILED State |
-
-### 7.2 Error-Recovery-Strategie
-
-```
-FAILED State erreicht
-├─ Fehler loggen
-├─ Module zurücksetzen
-├─ Zu IDLE zurückspringen
-└─ Externe Recovery initiieren
-    └─ Neuversuch oder Abbruch
-```
-
----
-
-## 8. Performance-Charakteristiken
-
-### 8.1 Rechenlast pro Modul
-
-| Modul | calculate() | state_machine() | Gesamt |
-|-------|------------|-----------------|--------|
-| InitLogic | ~0.1ms | ~0.05ms | ~0.15ms |
-| DriveLogic | ~0.1ms | ~0.05ms | ~0.15ms |
-| TurnLogic | ~0.1ms | ~0.05ms | ~0.15ms |
-| FollowLogic | ~0.15ms | ~0.05ms | ~0.2ms |
-| MainController | ~0.05ms | ~0.1ms | ~0.15ms |
-| **Gesamt** | | | **~0.8ms** |
-
-**Zielbudget**: 10ms (100 Hz Control-Loop)
-**Verfügbar**: 10ms - 0.8ms = 9.2ms (92% Reserve) ✓
-
-### 8.2 Speicher-Footprint
-
-```
-Pro Modul:
-- State-Machine: ~100 bytes
-- Output-Object: ~200 bytes
-- Variables: ~300 bytes
-├─ Gesamt/Modul: ~600 bytes
-└─ 5 Module: ~3 KB
-
-Overhead (Config, Interfaces): ~2 KB
-Gesamt: ~5 KB (sehr sparsam)
-```
-
----
-
-## 9. Skalierungsüberlegungen
-
-### 9.1 Hinzufügen neuer Verhaltensmodi
-
-**Neue Logic hinzufügen**:
-1. Neue Klasse: `NewLogic(LogicInterface)`
-2. 6 States implementieren
-3. `calculate()` und `state_machine()` füllen
-4. Im MainController: Neuer State + Übergang
-5. Neuer Action Server in ROS2
-
-**Aufwand**: ~2-4 Stunden pro Modul
-
-### 9.2 Multi-Roboter-Koordination
-
-**Aktuell**: Nicht unterstützt
-
-**Zukünftige Lösung**:
-- Leader-Follower Architektur
-- Shared MainController für Koordination
-- Broadcast von Goal-Status zwischen Robots
-
----
-
-## 10. Validierungs- und Teststrategien
-
-### 10.1 Unit-Tests pro Modul
+### 7.1 Unit-Tests pro Modul
 
 ```python
 # Beispiel: InitLogic Test
@@ -815,7 +711,7 @@ def test_init_logic_alignment():
     assert output.values['turned_angle'] == 0
 ```
 
-### 10.2 Integrations-Tests
+### 7.2 Integrations-Tests
 
 ```
 Test: Init → Drive → Turn → Success
@@ -826,12 +722,11 @@ Test: Init → Drive → Turn → Success
 5. Final-Output validieren
 ```
 
-### 10.3 Field-Tests
+### 7.3 Field-Tests
 
 - Verschiedene Lichtverhältnisse
 - Verschiedene Boden-Beschaffenheit
 - Verschiedene Zielentfernungen
-- Multi-Modul-Übergang testen
 
 ---
 
@@ -899,44 +794,20 @@ Klare Aufgabentrennung beschleunigt Entwicklung, Debugging und Erweiterung erheb
 
 ---
 
-## Zusammenfassung der Design-Philosophie
-
-```
-1. CLARITÄT
-   ├─ State Machines für determinism
-   ├─ Klare Module/Verantwortungen
-   └─ Explizite Input/Output-Schnittstellen
-
-2. EINFACHHEIT
-   ├─ P-Regler statt PID
-   ├─ Keine komplexen Algorithmen
-   └─ Wartbarkeit über Optimierung
-
-3. ROBUSTHEIT
-   ├─ Wrap-Around Handling
-   ├─ Fehler-Codes (distance=-1.0, id=9999)
-   └─ SUCCESS/FAILED-States
-
-4. SKALIERBARKEIT
-   ├─ Modularer Aufbau
-   ├─ Erweiterbare Interfaces
-   └─ Hierarchische Steuerung
-
-5. TESTBARKEIT
-   ├─ Isolierbare Module
-   ├─ Deterministische Ausgabe
-   └─ Simulierbare Eingaben
-```
-
----
-
 ## Dokumente und Referenzen
 
-**Siehe auch**:
-- `logic_2.md` - Vollständige Logik-Dokumentation
-- `ros.md` - ROS2 Integration
-- `config.py` - Alle Tuning-Parameter
-- `test/` - Unit & Integration Tests
+**Siehe auch**:  
+
+Documentation:  
+[logic_2.md](logic_2)  
+[ros.md](ros.md)  
+[config.py](../muri_logics/config.py)  
+
+Unit-Tests:  
+[test_init_logic.py](../muri_logics/muri_logics/test/test_init_logic.py)  
+[test_drive_logic.py](../muri_logics/muri_logics/test/test_drive_logic.py)  
+[test_turn_logic.py](../muri_logics/muri_logics/test/test_turn_logic.py)  
+[test_follow_logic.py](../muri_logics/muri_logics/test/test_follow_logic.py)  
 
 ---
 
