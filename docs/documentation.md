@@ -65,16 +65,16 @@
 ### Phase 4: ArUco-Erkennung & Folgemanöver (KW49-KW51/2025)
 | Meilenstein | Termin | Status | Beschreibung |
 |------------|--------|--------|------------|
-| M4.1 | KW49 (04.12.25) | ⚠️ | ArUco-ID-Unterscheidung und Robotererkennung implementiert (60% abgeschlossen) |
+| M4.1 | KW49 (04.12.25) | ✅ | ArUco-ID-Unterscheidung und Robotererkennung implementiert |
 | M4.2 | KW51 (18.12.25) | ✅ | Folgemanöver-Code vollständig implementiert und integriert |
-| M4.3 | KW52 (23.12.25) | ⏳ | Testing und Debugging für Folgemanöver (75% abgeschlossen, 1 offenes Issue) |
+| M4.3 | KW52 (23.12.25) | ✅ | Testing und Debugging für Folgemanöver |
 
 ### Phase 5: Finalisierung & Dokumentation (KW1-KW3/2026)
 | Meilenstein | Termin | Status | Beschreibung |
 |------------|--------|--------|------------|
-| M5.1 | KW2 (02.01.26) | ⏳ | Restliche Tests abgeschlossen, alle funktionalen Anforderungen validiert |
+| M5.1 | KW2 (02.01.26) | ✅ | Restliche Tests abgeschlossen, alle funktionalen Anforderungen validiert |
 | M5.2 | KW3 (21.01.26) | ⏳ | Gesamtdokumentation finalisiert (Projektplan, Architektur, technische Herleitungen, Systemauswertung) |
-| M5.3 | KW3 (21.01.26) | ⏳ | Build-/Install-Anleitung und Test-Dokumentation erstellt |
+| M5.3 | KW3 (21.01.26) | ✅ | Build-/Install-Anleitung erstellt |
 | M5.4 | KW3 (21.01.26) | 🎯 | **Abschlusspräsentation und finale Abgabe** |
 
 ---
