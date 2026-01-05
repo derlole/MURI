@@ -631,7 +631,6 @@ INIT ──> IDLE ──(setActive)──> INIT_ROBOT
 - ✅ Fehlerbehandlung (Distance=-1.0, Aruco=9999) dokumentiert
 - ✅ `setSchpieth()`-Verhalten in DriveLogic dokumentiert
 - ✅ Kritische Fehler kennzeichnet und Fixes vorgeschlagen
-- ⚠️ Tippfehler in MainController (`setGoalStautusFinished`) dokumentiert
 
 ---
 

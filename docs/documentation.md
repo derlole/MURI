@@ -92,7 +92,6 @@
 ### 3.1 Fehler (Priorität: P1)
 | Fehler | Modul | Auswirkung | Status | Zielversion |
 |--------|-------|-----------|--------|------------|
-| Method-Name Tippfehler (`setGoalStautusFinished`) | MainController | API-Inkonsistenz | 🟡 Known | v2.0.1 |
 
 ### 3.2 Feature-Enhancements (Priorität: P2)
 | Feature | Beschreibung | Abhängigkeiten | Status | Zielversion |

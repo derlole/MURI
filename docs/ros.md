@@ -648,7 +648,6 @@ Konsistente Logging-Konventionen:
 ### 4. Bekannte Issues
 
 - **Typo in TurnActionServer:** Parameter heißt `locic` statt `logic`
-- **Typo in MuriActionHandler:** Methode heißt `setGoalStautusFinished` statt `setGoalStatusFinished`
 - **Typo in FollowActionServer:** Variable heißt `excecutor` statt `executor`
 - **Inkonsistente Wait-Bedingung:** InitActionServer wartet auf `_goal_result`, andere auf `_goal_exiting`
 

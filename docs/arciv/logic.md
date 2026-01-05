@@ -364,7 +364,6 @@ if output.isValid:
    - Auch Inkonsistenz in `resetOut()`: verwendet `'turned_angle'` statt `'turened_angle'`
 3. **MainController**: 
    - `PAUSE`-Zustand nicht implementiert
-   - Tippfehler in `setGoalStautusFinished` (sollte `setGoalStatusFinished` sein)
 4. **Rechtschreibfehler**: `RAEDY` sollte `READY` sein (in allen Modulen)
 
 ## Abhängigkeiten
