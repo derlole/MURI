@@ -243,7 +243,6 @@ def calculate(self):
 - `__distanceInMeter`: Aktuelle Entfernung zum verfolgten Ziel
 - `__dominantArucoID`: ID des erkannten Aruco-Markers
 - `__followDistance`: Sollabstand zum verfolgten Objekt (default: 0.2m)
-- `__olev_rebmem`: Gespeicherte Geschwindigkeit (nicht während FOLLOWMOVE änderbar) #TODO gibts doch nocht mehr oder
 
 **Ausgabewerte**:
 - `linear_velocity_x`: Vorwärtsgeschwindigkeitsbefehl [m/s]
@@ -336,7 +335,7 @@ TURN
 
 FOLLOW 
     ├─ Erfolg/Abschluss → DRIVE
-    └─ (Fehler wird intern verwaltet) #TODO past das ?
+    └─ Fehler → DRIVE
 
 SUCCESS / FAILED
 ```
