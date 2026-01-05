@@ -8,13 +8,13 @@ Die `AMD` (ArUco Marker Detection) Klasse kapselt die OpenCV ArUco-Erkennungslog
 - **Distanz**: Entfernung vom Roboter zum Marker (Z-Koordinate)
 - **Winkel**: Horizontaler Winkelversatz vom Roboter zum Marker (Y-Rotation)
 
-Die Klasse unterstützt mehrere Marker mit unterschiedlichen physischen Größen und verwendet vorkalibrierte Kameraparameter für präzise 3D-Positionsschätzung.
+Die Klasse unterstützt mehrere Marker mit unterschiedlichen physischen Größen und verwendet vorkalibrierte Kameraparameter. Weitere Marker können in der config.py eingetragen werden.
 
 ## Systemintegration
 
 Die AMD-Klasse wird in einem dedizierten ROS2-Node aufgerufen, der die detektierten Aruco-Daten (Marker-ID, Distanz, Winkel) über Topics publisht. Diese publizierten Daten werden dann von anderen Ros2 teilen verwendet.
 
-Die Klasse selbst ist unabhängig von ROS2 und dient ausschließlich der Bildverarbeitung und Positionsberechnung.
+Die Klasse selbst ist unabhängig von ROS2 und dient ausschließlich der Bildverarbeitung, Positionsberechnung und ID-Erkennung.
 
 ## Klasseninitialisierung
 
@@ -51,14 +51,11 @@ def init(self):
 `self.camera_matrix`:
 - 3×3-Matrix mit intrinsischen Kameraparametern (Brennweite, optischer Mittelpunkt)
 - Wurde durch separate Kamera-Kalibrierung für die verwendete Kamera ermittelt
-- Format: `[[fx, 0, cx], [0, fy, cy], [0, 0, 1]]`
-- Typ: `numpy.float32`
 
 `self.dist_coeffs`:
 - Verzerrungskoeffizienten der Kamera (radiale und tangentiale Verzerrung)
-- Kompensiert Linsenverzerrungen für präzise 3D-Positionsberechnung
+
 - Wurde durch separate Kamera-Kalibrierung ermittelt
-- Typ: `numpy.float32`
 
 **Detector-Objekt (`self.detector`)**:
 - OpenCV `ArucoDetector`-Instanz mit Standard-Detektionsparametern
@@ -119,15 +116,11 @@ index_to_use = index_69 if index_69 is not None else index_0
 ```
 
 **Entscheidungslogik**:
-- Wenn **nur Marker 69** erkannt wird → Folgemanöver wird ausgelöst
-- Wenn **nur Marker 0** erkannt wird → Roboter fährt einfach zum Ziel (durchs Rohr bis zum anderen Ende)
+- Wenn **nur Marker 69** erkannt wird → Marker 69 wird weitergegeben
+- Wenn **nur Marker 0** erkannt wird → Marker 0 wird weitergegeben
 - Wenn **beide Marker gleichzeitig** erkannt werden → Marker 69 wird priorisiert, Marker 0 wird ignoriert
 - Wenn **kein relevanter Marker** erkannt wird → Fehlerwert wird zurückgegeben
 
-**Systemintegration**:
-- Marker 69 triggert im MainController den Übergang zum FOLLOW-Zustand
-- Marker 0 wird für Standard-Navigationsziele verwendet
-- Die Priorisierung stellt sicher, dass Follow-Modus immer Vorrang hat
 
 ### Fehlerbehandlung
 
@@ -194,8 +187,6 @@ success, _, self.tvec = cv.solvePnP(obj_points,
 **Eingaben**:
 - `obj_points`: 3D-Koordinaten der Marker-Ecken in Millimetern
 - `corners[index_to_use][0]`: Detektierte 2D-Bildkoordinaten der Marker-Ecken
-- `self.camera_matrix`: Intrinsische Kameraparameter
-- `self.dist_coeffs`: Linsenverzerrungskoeffizienten
 
 **Ausgabe**:
 - `self.tvec`: Translationsvektor [x, y, z] vom Kamera-Koordinatensystem zum Marker
@@ -277,15 +268,15 @@ def calculate_angle_to_marker(self):
 
 Die Methode konstruiert ein rechtwinkliges Dreieck im Kamera-Koordinatensystem:
 
-                Kamera
-                  *
-                 /|
-                /α|
-  x_offset     /  | distance (Z-Achse)
-(Gegenkathete)/   | (Ankathete)
-             /    |
-            /     |
-Marker     --------
+                     Kamera
+                      *
+                     /|
+                    /α|  
+         x_offset  /  | distance (Z-Achse)
+    (Gegenkathete)/   | (Ankathete) 
+                 /    |  
+                /     |  
+    Marker     --------  
 
 
 **Koordinatensystem**:
@@ -743,7 +734,7 @@ def pic_to_data(self, data_img):
 
 ### `filter_distance()` 
 
-**Zweck**: Ring-Buffer-Filter für Distanzwerte (Last-Valid-Value-Filter).
+**Zweck**: Buffer-Filter für Distanzwerte (Last-Valid-Value-Filter).
 
 ```python
 def filter_distance(self):
@@ -759,7 +750,7 @@ def filter_distance(self):
 ```
 
 **Funktionsweise**:
-1. **Buffer-Shift**: Werte wandern durch den Ring-Buffer (newest → oldest)
+1. **Buffer-Shift**: Werte wandern durch den Buffer (newest → oldest)
 2. **Neuesten gültigen Wert finden**: Iteriere von neu nach alt
 3. **Rückgabe**: Ersten Wert ≠ -1.0, oder -1.0 falls alle ungültig
 
