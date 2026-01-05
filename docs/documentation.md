@@ -190,39 +190,6 @@ muri_logics/
 └── main_controller.py          # MainController
 ```
 
-### 1.3 Datenfluss-Diagramm #TODO Richtig anpassen
-
-```
-Sensoren & Input
-    ↓
-┌─────────────────────────────────┐
-│  /camera_data                   │
-│  /odom (Odometrie)              │
-└──────────────┬──────────────────┘
-               ↓
-        MainController
-               ↓
-        ┌──────┴──────┐
-        ↓             ↓
-    Initiative    Behavior Modules
-    Phase      ┌────────────────┐
-               │                │
-               ↓                ↓
-          DriveLogic    FollowLogic
-          TurnLogic
-               │                │
-               └────────┬───────┘
-                        ↓
-            ┌───────────────────────┐
-            │ /cmd_vel Publisher    │
-            │ (linear_velocity_x,   │
-            │  angular_velocity_z)  │
-            └───────────────────────┘
-                        ↓
-                    Hardware
-             (Motor Controller, Robot)
-```
-
 ---
 
 ## 2. Komponentenbeschreibung
@@ -300,25 +267,6 @@ INIT → IDLE → INIT_ROBOT → DRIVE ↔ TURN
                               ↓
                            FOLLOW 
                               └──→ (zurück zu DRIVE)
-```
-
-### 2.4 ROS2 Action Server Layer #TODO past das? --> anpassen
-
-```
-Action Server Architecture:
-
-┌──────────────────────────────────────┐
-│   MuriActionHandler (Main)           │
-├──────────────────────────────────────┤
-│  ├─ InitActionServer                 │
-│  ├─ DriveActionServer                │
-│  ├─ TurnActionServer                 │
-│  └─ FollowActionServer               │
-└──────────────────────────────────────┘
-       ↓
-   MainController
-       ↓
-   Logic Modules
 ```
 
 ---
@@ -405,7 +353,7 @@ Action Server Architecture:
 
 ### 1.2 State-Struktur
 
-Alle Module verwenden 6-7 Standard-States:
+Alle Module verwenden 6 Standard-States:
 ```
 INIT → IDLE → READY → *MOVE → SUCCESS/FAILED
 ```

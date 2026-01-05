@@ -2,7 +2,7 @@
 
 ## Überblick
 
-Diese Dokumentation beschreibt die Implementierung einer ROS2-basierten Action Server Architektur für die Steuerung eines autonomen Roboters namens "MURI". Das System besteht aus drei spezialisierten Action Servern (INIT, DRIVE, TURN) und einem zentralen Action Handler, der die Koordination übernimmt.
+Diese Dokumentation beschreibt die Implementierung einer ROS2-basierten Action Server Architektur für die Steuerung eines autonomen Roboters namens "MURI". Das System besteht aus vier spezialisierten Action Servern (INIT, DRIVE, TURN, FOLLOW) und einem zentralen Action Handler, der die Koordination übernimmt.
 
 ## Systemarchitektur
 
@@ -11,30 +11,31 @@ Diese Dokumentation beschreibt die Implementierung einer ROS2-basierten Action S
 1. **InitActionServer** - Initialisierung des Roboters
 2. **DriveActionServer** - Fahrbewegungen
 3. **TurnActionServer** - Drehbewegungen
-4. **MuriActionHandler** - Zentrale Koordination und Steuerung
+4. **FollowActionServer** - Verfolgung von Objekten
+5. **MuriActionHandler** - Zentrale Koordination und Steuerung
 
 ### Kommunikationsdiagramm
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    MuriActionHandler                        │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐       │
-│  │ Init Client  │  │ Drive Client │  │ Turn Client  │       │
-│  └──────┬───────┘  └───────┬──────┘  └────────┬─────┘       │
-└─────────┼──────────────────┼──────────────────┼─────────────┘
-          │                  │                  │
-          ▼                  ▼                  ▼
-┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
-│ InitActionServer│ │DriveActionServer│ │ TurnActionServer│
-└─────────┬───────┘ └─────────┬───────┘ └─────────┬───────┘
-          │                   │                   │
-          └───────────────────┴───────────────────┘
-                              │
-                              ▼
-                         /cmd_vel
-                              │
-                              ▼
-                      Roboter Hardware
+┌─────────────────────────────────────────────────────────────────────┐
+│                        MuriActionHandler                            │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐ │
+│  │ Init Client  │  │ Drive Client │  │ Turn Client  │  │Follow Client │ │
+│  └──────┬───────┘  └───────┬──────┘  └────────┬─────┘  └──────┬───────┘ │
+└─────────┼──────────────────┼──────────────────┼───────────────┼─────────┘
+          │                  │                  │                │
+          ▼                  ▼                  ▼                ▼
+┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
+│ InitActionServer│ │DriveActionServer│ │ TurnActionServer│ │FollowActionServer│
+└─────────┬───────┘ └─────────┬───────┘ └─────────┬───────┘ └─────────┬───────┘
+          │                   │                   │                   │
+          └───────────────────┴───────────────────┴───────────────────┘
+                                      │
+                                      ▼
+                                 /cmd_vel
+                                      │
+                                      ▼
+                              Roboter Hardware
 ```
 
 ## Detaillierte Komponentenbeschreibung
@@ -241,7 +242,110 @@ TURN.Result()
 
 ---
 
-### 4. MuriActionHandler
+### 4. FollowActionServer
+
+**Zweck:** Verfolgt einem erkannten Aruco Marker.
+
+#### Konfiguration
+
+- **Node-Name:** `muri_follow_action_server`
+- **Action-Typ:** `FOLLOW`
+- **Action-Name:** `muri_follow`
+- **Publisher:** `/cmd_vel` (Twist)
+- **Subscriber:** 
+  - `/odom` (Odometry)
+  - `/muri_picture_data` (PictureData)
+  - `/muri_speed` (Float32)
+  - `/muri_follow_distance` (Float32)
+- **Timer-Rate:** 10 Hz (0.1s)
+
+#### Klassenstruktur
+
+```python
+class FollowActionServer(Node):
+    def __init__(self, logic: ExtendedLogicInterface)
+```
+
+**Parameter:**
+- `logic`: ExtendedLogicInterface-Implementierung für die Zustandsmaschine
+
+#### Wichtige Methoden
+
+##### `timer_callback_asf()`
+Hauptschleife, die mit 10 Hz aufgerufen wird:
+- Prüft ob ein aktives Goal vorhanden ist
+- Verarbeitet Cancel-Anfragen
+- Führt Zustandsmaschine aus (`state_machine()`)
+- Publiziert Geschwindigkeitsbefehle an `/cmd_vel`
+- Sendet Feedback zum Client
+- Behandelt SUCCESS/FAILED-Zustände
+
+##### `execute_callback(goal_handle)`
+Blockierender Callback für die Goal-Ausführung:
+- Setzt `_goal_handle` für den Timer
+- Wartet bis Goal abgeschlossen ist
+- Gibt Ergebnis zurück
+
+##### `goal_callback(goal_request)`
+Entscheidet über Annahme/Ablehnung neuer Goals:
+- Lehnt ab, wenn bereits ein Goal aktiv ist
+- Resettet und aktiviert Logic bei Annahme
+- Gibt `GoalResponse.ACCEPT` oder `GoalResponse.REJECT` zurück
+
+##### `cancel_callback(goal_handle)`
+Behandelt Cancel-Anfragen:
+- Setzt Logic auf Success
+- Gibt `CancelResponse.ACCEPT` zurück
+
+##### `listener_callback_odom_asf(msg)`
+Verarbeitet Odometry-Daten:
+- Speichert Position (x, y) und Orientierung
+- Übergibt Daten an Logic-Komponente
+
+##### `listener_callback_picture_data_asf(msg)`
+Verarbeitet Kamera-Daten:
+- Speichert Winkel und Distanz
+- Übergibt Daten an Logic-Komponente
+- Setzt Aruco-Daten
+
+##### `listener_callback_schpieth_asf(msg)`
+Verarbeitet Geschwindigkeits-Daten:
+- Begrenzt Wert auf konfigurierte Limits
+- Übergibt an Logic-Komponente
+
+##### `listener_callback_distance_asf(msg)`
+Verarbeitet Follow-Distanz-Daten:
+- Begrenzt Wert auf konfigurierte Limits
+- Übergibt an Logic-Komponente
+
+#### Feedback
+
+```python
+FOLLOW.Feedback()
+    - distance_to_target: float  # Distanz zum Zielobjekt
+```
+
+#### Result
+
+```python
+FOLLOW.Result()
+    - success: bool  # True bei Erfolg, False bei Fehler
+```
+
+#### Zustände
+
+- **SUCCESS:** Verfolgung erfolgreich abgeschlossen
+- **FAILED:** Fehler bei der Verfolgung
+
+#### Besonderheiten
+
+- Verwendet `MutuallyExclusiveCallbackGroup` für Thread-Sicherheit
+- Nur ein aktives Goal gleichzeitig
+- Bezieht zusätzliche Parameter wie Geschwindigkeit und Follow-Distanz ein
+
+---
+
+### 5. MuriActionHandler
 
 **Zweck:** Zentrale Steuerungseinheit, die entscheidet, welcher Action Server wann aufgerufen wird.
 
@@ -252,6 +356,7 @@ TURN.Result()
   - `muri_drive` (DRIVE)
   - `muri_turn` (TURN)
   - `muri_init` (INIT)
+  - `muri_follow` (FOLLOW)
 - **Subscriber:**
   - `/odom` (Odometry)
   - `/muri_picture_data` (PictureData)
@@ -284,6 +389,8 @@ def main_loop_ah(self):
             self.send_drive_goal()
         elif out.values['ASToCall'] == 2:
             self.send_turn_goal()
+        elif out.values['ASToCall'] == 3:
+            self.send_follow_goal()
 ```
 
 **Ablauf:**
@@ -342,6 +449,19 @@ def send_turn_goal(self):
     self._turn_send_promise.add_done_callback(self.turn_goal_response_callback)
 ```
 
+##### `send_follow_goal()`
+```python
+def send_follow_goal(self):
+    follow_goal = FOLLOW.Goal()
+    
+    self._action_client_follow.wait_for_server()
+    self._follow_send_promise = self._action_client_follow.send_goal_async(
+        follow_goal,
+        feedback_callback=self.follow_feedback_callback
+    )
+    self._follow_send_promise.add_done_callback(self.follow_goal_response_callback)
+```
+
 #### Callback-Struktur
 
 Für jeden Action Client existiert eine dreistufige Callback-Struktur:
@@ -379,6 +499,7 @@ def drive_result_callback(self, promise):
 def listener_callback_picture_data_ah(self, msg):
     self.last_picture_data = msg
     self.main_controller.setCameraData(msg.angle_in_rad, msg.distance_in_meters)
+    self.main_controller.setArucoData(msg.dominant_aruco_id)
 
 def listener_callback_odom_ah(self, msg):
     self.last_odom = msg
@@ -421,7 +542,8 @@ class Output:
 - `angular_velocity_z`: Winkelgeschwindigkeit
 - `distance_remaining`: Verbleibende Distanz (DRIVE)
 - `turned_angle`: Gedrehter Winkel (INIT/TURN)
-- `ASToCall`: Auszuführender Action Server (0=INIT, 1=DRIVE, 2=TURN)
+- `distance_to_robot`: Distanz zum Roboter (FOLLOW)
+- `ASToCall`: Auszuführender Action Server (0=INIT, 1=DRIVE, 2=TURN, 3=FOLLOW)
 
 ---
 
@@ -432,7 +554,7 @@ class Output:
 Alle Nodes nutzen `MultiThreadedExecutor` für parallele Verarbeitung:
 
 ```python
-executor = MultiThreadedExecutor(num_threads=4)  # DriveActionServer, InitActionServer
+executor = MultiThreadedExecutor(num_threads=4)  # DriveActionServer, InitActionServer, FollowActionServer
 executor = MultiThreadedExecutor()               # TurnActionServer (Standard-Threads)
 ```
 
@@ -454,6 +576,13 @@ Dies verhindert parallele Ausführung von Callbacks innerhalb derselben Gruppe.
 ```python
 angle_in_rad: float      # Winkel zum erkannten Objekt
 distance_in_meters: float # Distanz zum erkannten Objekt
+dominant_aruco_id: int   # ID des dominanten Aruco-Markers
+```
+
+### Float32 (std_msgs/Float32)
+
+```python
+data: float  # Fließkommazahl für Geschwindigkeit oder Distanz
 ```
 
 ---
@@ -520,6 +649,7 @@ Konsistente Logging-Konventionen:
 
 - **Typo in TurnActionServer:** Parameter heißt `locic` statt `logic`
 - **Typo in MuriActionHandler:** Methode heißt `setGoalStautusFinished` statt `setGoalStatusFinished`
+- **Typo in FollowActionServer:** Variable heißt `excecutor` statt `executor`
 - **Inkonsistente Wait-Bedingung:** InitActionServer wartet auf `_goal_result`, andere auf `_goal_exiting`
 
 ---
@@ -541,14 +671,16 @@ muri_dev_interfaces
     - action/DRIVE
     - action/TURN
     - action/INIT
+    - action/FOLLOW
     - msg/PictureData
 
 muri_logics
     - logic_action_server_drive (DriveLogic, DriveStates)
     - logic_action_server_turn (TurnLogic, TurnStates)
     - logic_action_server_init (InitLogic, InitStates)
+    - logic_action_server_follow (FollowLogic, FollowStates)
     - main_controller (MainController, MainStates)
-    - logic_interface (LogicInterface)
+    - logic_interface (LogicInterface, ExtendedLogicInterface)
 ```
 
 ---
@@ -557,11 +689,12 @@ muri_logics
 
 ### Launch-Reihenfolge
 
-1. **Action Server starten:**
+1. **Action Server starten:** # TODO
    ```bash
    ros2 run <package> init_action_server
    ros2 run <package> drive_action_server
    ros2 run <package> turn_action_server
+   ros2 run <package> follow_action_server
    ```
 
 2. **Action Handler starten:**
@@ -615,6 +748,6 @@ Für Fragen zur Implementierung oder Logic-Komponenten, siehe:
 
 ## Version
 
-Dokumentiert am: 2025-11-25
+Dokumentiert am: 2026-01-05
 ROS2 Version: Humble Hawksbill
 Python Version: 3.10.12

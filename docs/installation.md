@@ -8,7 +8,7 @@ Make sure that your System meets following requirements:
 
 3. You have globally installed python3 with the public pip (or other python package manager) packages installed: cv2
 
-4. You have installed ROS2 on the Turtlebot.
+4. You have installed ROS2 and python-opencv2 on the Turtlebot.
 
 5. You have acces to install further packages via pip.
 
@@ -26,6 +26,5 @@ source install/setup.bash
 cd MURI/muri_logics
 pip install -e .
 
-5. If your System needs different requirements e.g Camera Calibaration or any regulator parameters go into MURI/muri_logics and change the needed parameters
+5. If your System needs different requirements e.g. Camera Calibaration or any regulator parameters go into MURI/muri_logics/config.py and change the needed parameters
 
-6. 
