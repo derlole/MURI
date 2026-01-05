@@ -41,7 +41,7 @@ class TestTurnLogic(unittest.TestCase):
         self.assertEqual(out.values['linear_velocity_x'], expected_out)
         self.assertEqual(out.values['linear_velocity_y'], expected_out)
         self.assertEqual(out.values['angular_velocity_z'], expected_out)
-        self.assertEqual(out.values['turened_angle'], expected_out)
+        self.assertEqual(out.values['turned_angle'], expected_out)
 
     def test_setOdomData(self):
         """Tests if setOdomData updates the position values correctly."""
