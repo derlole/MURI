@@ -525,66 +525,12 @@ Siehe `ros.md` für Details zur ROS2-Integration.
 
 ---
 
-## Verwendungsbeispiel (Standalone)
-
-```python
-# Controller initialisieren
-main_ctrl = MainController()
-init_logic = InitLogic()
-drive_logic = DriveLogic()
-turn_logic = TurnLogic()
-follow_logic = FollowLogic()
-
-# In der Steuerungsschleife:
-main_ctrl.setOdomData(x, y, quaternion)
-main_ctrl.setCameraData(angle, distance)
-main_ctrl.setArucoData(aruco_id)
-main_ctrl.state_machine()
-
-output = main_ctrl.getOut()
-if output.isValid:
-    active_module = output.values['ASToCall']
-    
-    # Entsprechendes Modul aktivieren
-    if active_module == 0:  # InitLogic
-        init_logic.setActive()
-        init_logic.setOdomData(x, y, quaternion)
-        init_logic.setCameraData(angle, distance)
-        init_logic.calculate()
-        init_logic.state_machine()
-        commands = init_logic.getOut()
-        
-    elif active_module == 1:  # DriveLogic
-        drive_logic.setActive()
-        drive_logic.setOdomData(x, y, quaternion)
-        drive_logic.setCameraData(angle, distance)
-        drive_logic.calculate()
-        drive_logic.state_machine()
-        commands = drive_logic.getOut()
-        
-    elif active_module == 3:  # FollowLogic
-        follow_logic.setActive()
-        follow_logic.setOdomData(x, y, quaternion)
-        follow_logic.setCameraData(angle, distance)
-        follow_logic.setArucoData(aruco_id)
-        follow_logic.calculate()
-        follow_logic.state_machine()
-        commands = follow_logic.getOut()
-    
-    # Befehle publishen
-    if commands.isValid:
-        publish_velocity_commands(commands.values)
-```
-
----
-
 ## Bekannte Probleme und TODOs
 
 ### Design-TODOs
 
 1. **InitLogic**: Fehlende FAILED-Zustandslogik für übermäßige Rotation
 2. **MainController**: 
-   - `PAUSE`-Zustand nicht vollständig implementiert
    - `_memorized_return_state` wird deklariert, aber nicht genutzt
 
 ### Verbesserungsmöglichkeiten
@@ -607,56 +553,23 @@ if output.isValid:
 
 ---
 
-## Best Practices #TODO beispiele driennen lassen? 
+## Best Practices
 
 1. **Immer `isValid` prüfen**, bevor Ausgabewerte verwendet werden
-   ```python
-   if output.isValid:
-       # Befehle sicher verwenden
-   ```
 
 2. **Module zurücksetzen** vor Reaktivierung, um sauberen Zustand zu gewährleisten
-   ```python
-   logic.reset()
-   logic.setActive()
-   ```
 
 3. **Zustandsübergänge überwachen** für Debugging
-   ```python
-   current_state = logic.getActiveState()
-   print(f"Module State: {current_state}")
-   ```
 
-4. **Toleranzen angemessen konfigurieren** für die Fähigkeiten des Roboters
-   - Zu kleine Toleranzen → Oszillationen und Ineffizienz
-   - Zu große Toleranzen → Ungenauigkeit
+4. **Toleranzen angemessen konfigurieren** angepasst je nach situation
 
 5. **FAILED-Zustände behandeln** im Produktionscode
-   ```python
-   if module.getActiveState() == ModuleStates.FAILED:
-       # Recovery-Strategie aktivieren
-   ```
 
 6. **`getActiveState()` verwenden**, um Modulstatus zu überwachen
-   ```python
-   if logic.getActiveState() == DesiredState:
-       # Nächste Aktion durchführen
-   ```
 
 7. **Fehlerbehandlung bei Kameradaten**
-   - Distance = -1.0 signalisiert Kamerafehler
-   - Aruco-ID = 9999 signalisiert Ziel verloren
-   - Aruco-ID = -1 signalisiert kein Marker erkannt
 
-8. **FollowLogic-Geschwindigkeit**: `setSchpieth()` nur außerhalb FOLLOWMOVE-State aufrufen
-   ```python
-   if follow_logic.getActiveState() != FollowStates.FOLLOWMOVE:
-       follow_logic.setSchpieth(new_speed)
-   ```
-
-9. **MainController Aruco-Trigger**: Aruco-ID=69 triggert automatisch Follow-Modus
-   - Wird intern in DRIVE erkannt
-   - Kein manuelles Setzen von `_goToFollow` nötig
+8. **MainController Aruco-Trigger**: Aruco-ID=69 triggert automatisch 
 
 ---
 
@@ -690,22 +603,19 @@ INIT ──→ IDLE ──(setActive)──→ READY ──→ FOLLOWMOVE ──
                                                       └─→ ABORT
 ```
 
-### MainController #TODO doch so in ordnung oder ? 
+### MainController 
 ```
 INIT ──> IDLE ──(setActive)──> INIT_ROBOT
-                                       │
-                              ┌────────┴─────────┐
-                              │                  │
-                            SUCCESS           FAILED
-                               |
-                               ↓
-   ┌──────────────────────> DRIVE <───┐
-   |                           |      |
-   |    ┌──(if ArucoID is 69)──┤      |
-   |    ↓                      ↓      |    
-   | FOLLOW                  TURN ────┘
-   |    | 
-   └────┘                   
+                                       │                             
+                                       |
+                                       ↓
+           ┌──────────────────────> DRIVE <───┐
+           |                           |      |
+           |    ┌──(if ArucoID is 69)──┤      |
+           |    ↓                      ↓      |    
+           | FOLLOW                  TURN ────┘
+           |    | 
+           └────┘                   
 ```
 
 ## Änderungshistorie und Versioning

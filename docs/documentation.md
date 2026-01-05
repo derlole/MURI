@@ -400,23 +400,6 @@ output = max(-max_vel, min(output, max_vel))
 # Verhindert Übersteuerung
 ```
 
-### 2.2 Kp-Wert Auslegung
-
-**Methode**: Empirisches Tuning (Ziegler-Nichols Light)
-
-**Prozess**:
-1. Kp = 0.5 starten (konservativ)
-2. Inkrementelle Erhöhung (+0.1) bis Oszillation auftritt
-3. Kp auf 50% der Oszillations-Kp setzen
-4. Mit echtem Robot validieren
-
-**Typische Werte**:
-- `KP_INIT`: 1.5 (schnelle Ausrichtung)
-- `KP_DRIVE`: 0.8 (sanfte Winkelkorrektur während Fahrt)
-- `KP_TURN`: 1.2 (genaue Rotation)
-- `KP_FOLLOW_ANGULAR`: 1.0 (stabile Verfolgung)
-- `KP_FOLLOW_LINEAR`: 0.5 (sanfte Abstandsanpassung)
-
 ---
 
 ## 3. Hierarchische Steuerungsarchitektur
@@ -463,13 +446,6 @@ MainController (Orchestrator)
 3. **Performance**: Schnell zu erkennen (OpenCV optimiert)
 4. **Standardisiert**: IEEE-Standard, weit verbreitet
 5. **Kosteneffizient**: Einfach druckbar
-
-**Marker-IDs und Bedeutungen**:
-- `ID = -1`: Kein Marker erkannt
-- `ID = 69`: Trigger für Follow-Modus (spezial)
-- `ID = 0`: Success-Code in FollowLogic
-- `ID = 9999`: Fehler/Abbruch-Code
-
 ---
 
 ## 5. DriveLogic Schpieth-Parameter
@@ -483,15 +459,6 @@ MainController (Orchestrator)
 2. **Sicherheit**: Langsamer fahren in kritischen Situationen
 3. **Optimierung**: Schneller fahren auf freien Flächen
 4. **Testbarkeit**: Verschiedene Geschwindigkeiten einfach testen
-
-**Implementierung**:
-```python
-def setSchpieth(self, s):
-    """Nur außerhalb DRIVEMOVE änderbar"""
-    if self.__state != DriveStates.DRIVEMOVE:
-        self.__schpieth = s
-```
-
 ---
 
 ## 6. FollowLogic Abstands-P-Regler
@@ -557,11 +524,10 @@ import math
 
 def quaternion_to_yaw(quaternion):
     """Konvertiert Quaternion (x,y,z,w) zu Yaw [rad]"""
-    q = quaternion
     
     # Formel
-    siny_cosp = 2.0 * (q.w * q.z + q.x * q.y)
-    cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
+    siny_cosp = 2.0 * (quaternion.w * quaternion.z + quaternion.x * quaternion.y)
+    cosy_cosp = 1.0 - 2.0 * (quaternion.y * quaternion.y + quaternion.z * quaternion.z)
 
     yaw = math.atan2(siny_cosp, cosy_cosp)
     
@@ -627,51 +593,21 @@ def calculate(self):
 Soll-Winkel → P-Regler → angular_velocity
     Error = Soll - Ist
     Output = -Kp * Error
-    
-    Kp groß (z.B. 1.5):
-    ├─ Schnelle Reaktion
-    ├─ Aber: Überschwinger & Oszillationen
-    └─ Nicht für kontinuierliche Bewegung ideal
 
 Soll-Distanz → P-Regler → linear_velocity
     Error = Soll - Ist
     Output = -Kp * Error
 ```
 
-### 3.2 Wahl der Reglerparameter
+### 3.2 Kp-Wert Auslegung
 
-**Für InitLogic (reine Rotation)**:
-- Kp = 1.5 (aggresiv)
-- Grund: Schnell ausgerichtet, minimale Wartezeit
-- Test: Mit 0.5 rad Fehler → 0.75 rad/s Output ✓
+**Methode**: Empirisches Tuning (Ziegler-Nichols Light)
 
-**Für DriveLogic (Fahrt + Winkelkorrektur)**:
-- Kp_Angular = 0.8 (sanfter)
-- Grund: Sollte nicht zu aggressiv korrigieren während Fahrt
-- Test: Mit 0.5 rad Fehler → 0.4 rad/s Output ✓
-
-**Für FollowLogic (stabile Verfolgung)**:
-- Kp_Angular = 1.0, Kp_Linear = 0.5
-- Grund: Asymmetrisch (Rotation wichtiger als Distanz)
-- Test: Stabile Verfolgung ohne Oszillationen ✓
-
-### 3.3 Reglervalidierung
-
-```
-Schrittantwort-Test:
-1. Fehler = 1.0 rad setzen
-2. Output messen
-3. Überprüfen:
-   - Keine Oszillation
-   - Schnelle Konvergenz (< 2 Sek)
-   - Steady-State Error ≈ 0
-
-Erwartete Ergebnisse (Kp=1.0):
-- t=0ms: Error=1.0, Output=-1.0
-- t=100ms: Error≈0.7, Output≈-0.7
-- t=500ms: Error≈0.1, Output≈-0.1
-- t=1000ms: Error≈0.0, Output≈0.0
-```
+**Prozess**:
+1. Kp = 0.5 starten (konservativ)
+2. Inkrementelle Erhöhung (+0.1) bis Oszillation auftritt
+3. Kp auf 50% der Oszillations-Kp setzen
+4. Mit echtem Robot validieren
 
 ---
 
