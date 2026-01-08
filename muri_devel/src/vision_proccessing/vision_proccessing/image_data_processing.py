@@ -99,7 +99,7 @@ class ImageProcessing(Node):
         self.distance_in_meters_filtered = self.filter_distance()
 
     def filter_distance(self):
-        # 1. Ring‑Puffer aktualisieren
+        # 1. Buffer aktualisieren
         self.third_data  = self.second_data
         self.second_data = self.first_data
         self.first_data  = self.distance_in_meters_unfiltered
