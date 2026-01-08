@@ -95,6 +95,15 @@ Bei Fragen oder Problemen:
 - **Issues**: GitHub-Issues für Bug-Reports
 - **Team**: Entwicklungsteam (siehe [Projektplan](docs/documentation.md))
 
+## Autoren und Verantwortlichkeiten (inlk. der Dokumentation und Unit-tests)
+
+- **Vision-System (Code und Dokumentation)**: Linus Braun
+- **Logikbausteine**: Louis Moser
+- **ROS2-Integration**: Benjamin Keppler
+- **Gemeinsame Dokumentation und Main Controller**: Gemeinsam geschrieben
+
+### Für eine detailliertere Aufschlüsselung der geschriebenen Codezeilen pro Person können gerne die Git-Commits eingesehen werden. Dabei ist jedoch zu beachten, dass bei gemeinsamen Programmiersitzungen oft an einem Rechner gemeinsam gearbeitet wurde.
+
 ## Lizenz
 
 Dieses Projekt ist Teil einer universitären Arbeit und nicht für kommerzielle Nutzung freigegeben.

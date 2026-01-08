@@ -16,6 +16,14 @@
 
 ---
 
+## Zugehörige Projektdokumentationen
+[logic_2.md](logic_2)  
+[ros.md](ros.md)  
+[config.py](../muri_logics/config.py)  
+
+
+---
+
 # Projektplan
 
 ## 1. Projektübersicht
@@ -789,7 +797,61 @@ Klare Aufgabentrennung beschleunigt Entwicklung, Debugging und Erweiterung erheb
 
 ## 2. Camera
 
-## 3. ROS 
+## 3. ROS
+### 3.1 Softwarearchitektur vor Implementierung
+Bedeutung einer frühzeitig geplanten ROS-Architektur:
+
+- Klare Aufteilung in Nodes, Topics, Services und Actions
+- Gemeinsames Verständnis im Projektteam über Datenflüsse
+- Vermeidung späterer, aufwendiger Architekturänderungen
+- Verantwortlichkeiten einzelner Komponenten klar definiert
+- Grundlage für skalierbare und wartbare Systeme
+
+#### Lesson Learned:  
+Bei Frameworks ist es besonders wichtig, **vor der Implementierung eine durchdachte Softwarearchitektur zu entwerfen**, um dem Projektteam eine gemeinsame Orientierung zu geben und spätere strukturelle Probleme zu vermeiden
+
+---
+
+### 3.2 Frühzeitige Interface-Erstellung
+Vorteile einer frühzeitig definierten Schnittstellenstruktur:
+
+- Einheitliche Message-Typen und klare Kommunikationsverträge
+- Austauschbarkeit einzelner Nodes ohne Anpassung anderer Komponenten
+- Reduzierte Kopplung zwischen Modulen
+- Vereinfachte Teamarbeit durch klare Erwartungen an Ein- und Ausgaben
+- Langfristige Stabilität des Gesamtsystems
+
+#### Lesson Learned:  
+Eine **frühzeitig durchdachte Interface-Erstellung** hilft, langfristig Problemen vorzubeugen und reduziert den Wartungsaufwand erheblich
+
+---
+
+### 3.3 Integrationsstrategie (Big-Bang vs. Inkrementell)
+Erfahrungen aus der Systemintegration:
+
+- Big-Bang-Integrationen sind schwer planbar und fehleranfällig
+- Fehlerursachen sind bei später Gesamtintegration schwer zu lokalisieren
+- Hoher Koordinationsaufwand im Team notwendig
+- Funktioniert nur, wenn sich das gesamte Team der Risiken bewusst ist
+- Kontinuierliche Gegenmaßnahmen und Tests erforderlich
+
+#### Lesson Learned:  
+**Big-Bang-Integrationen sind sehr aufwendig** und funktionieren nur dann, wenn sich das gesamte Team der Nachteile bewusst ist und aktiv gegen entstehende Probleme anarbeitet
+
+---
+
+### 3.4 Dokumentation & Framework-Verständnis
+Bedeutung guter Dokumentation bei der Arbeit mit ROS:
+
+- Fehlende oder unklare Dokumentation verlangsamt die Entwicklung stark
+- Innovative Nutzung von Frameworks erfordert tiefes Systemverständnis
+- Implizite Annahmen führen schnell zu Fehlkonfigurationen
+- Eigene Dokumentation wird essenziell bei unklaren Framework-Details
+- Wissenstransfer im Team ohne Dokumentation kaum möglich
+
+#### Lesson Learned:  
+**Schlecht dokumentierte Frameworks führen zu großen Problemen**, insbesondere dann, wenn sie innovativ oder außerhalb typischer Anwendungsfälle genutzt werden
+
 
 
 ---
