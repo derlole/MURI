@@ -83,7 +83,7 @@ class FollowLogic(ExtendedLogicInterface):
         self.__stateFollow = FollowStates.INIT
         self.__firstTheta = None
         self.__followDistance = 0.2
-        self.__olev_rebmem = 0.0
+        self.__max_linear_speed = 0.0
         self.state_machine()
 
     def getOut(self):
@@ -135,6 +135,7 @@ class FollowLogic(ExtendedLogicInterface):
 
     def setSchpieth(self, v):
         """Sets the Data of the actual Position of the Robot, for the Processing Logic"""
+        self.__max_linear_speed = v
         if(self.__stateFollow == FollowStates.FOLLOWMOVE):
             return
         
@@ -151,7 +152,7 @@ class FollowLogic(ExtendedLogicInterface):
         
         if self.__distanceInMeter != self.__followDistance:
             print(str(self.__distanceInMeter - self.__followDistance))
-            linearVelocety = p_regulator(-(self.__distanceInMeter - self.__followDistance), config.KP_FOLLOW_LINEAR, config.MAX_VELOCITY)
+            linearVelocety = p_regulator(-(self.__distanceInMeter - self.__followDistance), config.KP_FOLLOW_LINEAR, self.__max_linear_speed)
             # minus im fehler das sonst bei einem Positiven abstand eine negative lineare geschwindigkeit resultiert
 
         if self.__distanceInMeter < 0 or self.__dominantArucoID == 9999:

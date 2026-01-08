@@ -23,7 +23,7 @@ Die Klasse selbst ist unabhängig von ROS2 und dient ausschließlich der Bildver
 **Zweck**: Initialisiert den ArUco-Detektor mit vorkonfigurierten Kameraparametern und Marker-Größen.
 
 ```python
-def init(self):
+def __init__(self):
     # Marker-Größen aus der Konfiguration laden
     self.marker_sizes = config.MARKER_SIZES
     aruco_dict = aruco.getPredefinedDictionary(aruco.DICT_5X5_1000)
@@ -367,8 +367,8 @@ Der `CameraReadOut`-Node erfasst kontinuierlich Bilder von der Roboter-Kamera un
 ### Konstruktor `__init__()`
 
 ```python
-def init(self):
-    super().init('camera_read_out')
+def __init__(self):
+    super().__init__('camera_read_out')
     self.publisher = self.create_publisher(Image, '/muri_image_raw', 10)
     timer_time = 1/30 # 30 Hz
     path_camera = 0 # /dev/video0
@@ -535,7 +535,7 @@ Der `ImageProcessing`-Node ist die zentrale Bildverarbeitungs-Pipeline zwischen 
 **Hauptfunktionen**:
 - Subscription auf `/muri_image_raw` (Kamerabilder)
 - ArUco-Marker-Detektion via AMD-Klasse
-- Distanzfilterung mit Ring-Buffer (3 Werte)
+- Distanzfilterung mit Buffer (3 Werte)
 - Fehlerüberwachung (10-Frame-Schwellwert)
 - Publikation auf `/muri_picture_data` (PictureData)
 
@@ -559,8 +559,8 @@ Der Node bildet die Brücke zwischen Kamera-Hardware und Steuerungslogik.
 ### Konstruktor `__init__()`
 
 ```python
-def init(self):
-    super().init('image_processing')
+def __init__(self):
+    super().__init__('image_processing')
     self.bridge = CvBridge()
     self.distance_in_meters_unfiltered = None
     self.distance_in_meters_filtered = None
@@ -592,7 +592,7 @@ self.publisher = self.create_publisher(
 - `self.angle_in_rad`: Horizontaler Winkel zum Marker [rad]
 - `self.distance_in_milimeters`: Rohdistanz in Millimetern
 - `self.distance_in_meters_unfiltered`: Konvertierte ungefilterte Distanz [m]
-- `self.distance_in_meters_filtered`: Gefilterte Distanz nach Ring-Buffer [m]
+- `self.distance_in_meters_filtered`: Gefilterte Distanz nach Buffer [m]
 
 **Fehlerüberwachung**:
 - `self.error`: Boolean-Flag für kritische Fehler
@@ -600,7 +600,7 @@ self.publisher = self.create_publisher(
 - **Schwellwert**: 10 konsekutive Fehler → `error = True`
 - **Zweck**: Erkennung von Kamera-/Verbindungsproblemen
 
-**Ring-Buffer für Distanzfilterung**:
+**Buffer für Distanzfilterung**:
 - `self.first_data`: Neuester Distanzwert [m]
 - `self.second_data`: Vorletzter Distanzwert [m]
 - `self.third_data`: Drittletzter Distanzwert [m]
@@ -637,7 +637,7 @@ int32 dominant_aruco_id
 **Felder**:
 - `error`: Fehler-Flag (True nach 10 konsekutiven Frame-Verlusten)
 - `angle_in_rad`: Winkel zum Marker [rad] (von AMD)
-- `distance_in_meters`: **Gefilterte** Distanz [m] (nach Ring-Buffer)
+- `distance_in_meters`: **Gefilterte** Distanz [m] (nach Buffer)
 - `dominant_aruco_id`: Marker-ID (69, 0, oder 9999 bei Fehler)
 
 ### Default-Werte
@@ -652,7 +652,7 @@ int32 dominant_aruco_id
 - Balance zwischen Robustheit und Fehler-Reaktionszeit
 - Bei 30 Hz entspricht das ~333 ms Fehlertoleranz
 
-**Ring-Buffer-Initialisierung = -1.0**:
+**Buffer-Initialisierung = -1.0**:
 - Ungültiger Wert (negative Distanz unmöglich)
 
 ---
@@ -717,7 +717,7 @@ def pic_to_data(self, data_img):
 1. **Fehlerüberwachung**: Bei `None`-Input Error-Counter inkrementieren
 2. **ArUco-Detektion**: AMD-Klasse aufrufen (gibt mm, rad, ID zurück)
 3. **Einheitenkonvertierung**: Millimeter → Meter
-4. **Distanzfilterung**: Ring-Buffer-Filter anwenden
+4. **Distanzfilterung**: Buffer-Filter anwenden
 
 **Error-Counter-Logik**:
 - Bei `data_img is None`: Counter +1
@@ -728,7 +728,7 @@ def pic_to_data(self, data_img):
 **Fehlerfall-Verhalten**:
 - Auch bei `data_img is None` wird `aruco_detection()` aufgerufen
 - AMD verwendet dann den alten/vorherigen Wert weiter
-- Ring-Buffer sorgt für Stabilität bei kurzzeitigen Ausfällen
+- Buffer sorgt für Stabilität bei kurzzeitigen Ausfällen
 
 ---
 
