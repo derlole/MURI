@@ -5,14 +5,9 @@ import math
 import config
 
 class AMD():
-    """Detektiert ArUco-Marker und berechnet 3D-Position (Distanz, Winkel)."""
-    
+    """ArUco-Marker-Detektor: Detektiert Marker in Bildern und berechnet ihre 3D-Position."""
     def __init__(self):
-        """Initialisiert Detektor mit Config-Parametern aus config.py.
-        
-        Lädt: MARKER_SIZES, CAMERA_MATRIX_RAW, DISTANCE_COEFFICIENT
-        Nutzt: DICT_5X5_1000, DetectorParameters()
-        """
+        """Lädt Kameraparameter und Marker-Größen aus config.py und initialisiert ArUco-Detektor."""
         # Marker-Größen aus der Konfiguration laden
         self.marker_sizes = config.MARKER_SIZES
         
@@ -26,16 +21,14 @@ class AMD():
         self.dist_coeffs = np.array(config.DISTANCE_COEFFICIENT, dtype=np.float32)
 
     def aruco_detection(self, img):
-        """Detektiert Marker und berechnet Position (Distanz, Winkel, ID).
+        """Detektiert Marker im Bild und berechnet 3D-Position und Winkel via solvePnP.
         
         Args:
-            img (numpy.ndarray): Grayscale-Bild
+            img (numpy.ndarray): Grayscale-Bild (single-channel, dtype=uint8)
         
         Returns:
             tuple: (distanz_mm, winkel_rad, marker_id)
-            
-        Fehlerfall: (-1000.0, π, 9999) bei Nicht-Detektion/Fehler
-        Priorität: Marker 69 > Marker 0
+                Fehlerfall: (-1000.0, π, 9999) bei Keine/ungültige Erkennung
         """
         frame_gray = img
         corners, ids, _ = self.detector.detectMarkers(frame_gray)
@@ -82,11 +75,11 @@ class AMD():
         return -1000.0, math.pi, 9999
     
     def calculate_angle_to_marker(self):
-        """Berechnet Yaw-Winkel (atan2 von X-Offset und Z-Distanz).
+        """Berechnet Yaw-Winkel zum Marker aus tvec mittels atan2.
         
         Returns:
-            float: Winkel in Rad [-π, π]
-                Positiv=rechts, Negativ=links, 0≈zentriert
+            float: Winkel in Radiant [-π, π]
+                (positiv=rechts, negativ=links, 0=zentriert)
         """
         distance = self.tvec[2][0]
         x_offset = self.tvec[0][0]

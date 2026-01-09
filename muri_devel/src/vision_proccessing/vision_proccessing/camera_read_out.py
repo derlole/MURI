@@ -6,10 +6,9 @@ import rclpy
 from rclpy.node import Node
 
 class CameraReadOut(Node):
-    """Liest Kamera (30 Hz) und publiziert Grayscale-Images."""
-    
+    """ROS2-Node: Erfasst Kamerabilder (30 Hz) und publiziert sie als Grayscale auf '/muri_image_raw'."""
     def __init__(self):
-        """Initialisiert Publisher (/muri_image_raw) und 30 Hz Timer."""
+        """Initialisiert ROS2-Publisher, Timer (30 Hz) und Kamera (/dev/video0)."""
         super().__init__('camera_read_out')
         self.publisher = self.create_publisher(Image, '/muri_image_raw', 10)
         timer_time = 1/30   # sek
@@ -29,7 +28,11 @@ class CameraReadOut(Node):
         self.get_logger().info('CameraReadOut-Node gestartet')
 
     def timer_callback(self):
-        """Publiziert Bild alle 1/30 Sekunden via CvBridge."""
+        """Wird von Timer aufgerufen (30 Hz): Erfasst Frame, konvertiert zu Grayscale, publiziert.
+        
+        Exceptions:
+            AttributeError: Wenn read_camera() None zurückgibt (ROS2-inkompatibel)
+        """
         try:
             bridge = CvBridge()
             msg = bridge.cv2_to_imgmsg(self.read_camera(), encoding='mono8')
@@ -39,10 +42,10 @@ class CameraReadOut(Node):
             self.get_logger().error("Falscher Wert wurde versucht über die Bridge zu senden")
 
     def read_camera(self):
-        """Liest Frame und konvertiert BGR → Grayscale.
+        """Liest Frame von Kamera und konvertiert BGR → Grayscale.
         
         Returns:
-            numpy.ndarray: Grayscale-Bild oder None bei Fehler
+            numpy.ndarray: Grayscale-Bild (shape=(h,w), dtype=uint8) oder None bei Fehler
         """
         success, frame = self.img.read()
 

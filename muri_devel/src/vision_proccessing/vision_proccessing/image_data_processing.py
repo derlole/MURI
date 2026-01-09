@@ -8,10 +8,9 @@ from rclpy.node import Node
 from vision.aruco_marker_detection import AMD
 
 class ImageProcessing(Node):
-    """Führt ArUco-Detektion durch und publiziert gefilterte Position."""
-    
+    """ROS2-Node: Detektiert ArUco-Marker, filtert Distanz, publiziert Ergebnisse auf '/muri_picture_data'."""
     def __init__(self):
-        """Initialisiert Subscriber (/muri_image_raw), Publisher (/muri_picture_data), AMD-Detektor."""
+        """Initialisiert ROS2-Subscriber/Publisher, AMD-Detektor, Distanz-Buffer und Error-Counter."""
         super().__init__('image_processing')
 
         self.bridge = CvBridge()
@@ -43,10 +42,10 @@ class ImageProcessing(Node):
             10)
 
     def listener_callback(self, msg):
-        """Verarbeitet Bild, erkundet Marker, publiziert PictureData.
+        """ROS2-Callback: Konvertiert Image-Message, führt Detektion durch, publiziert PictureData.
         
         Args:
-            msg (sensor_msgs.msg.Image): Grayscale-Bild
+            msg (sensor_msgs/Image): Eingehendes Grayscale-Bild von '/muri_image_raw'
         """
         try:
             cv_raw_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='mono8')
@@ -65,10 +64,10 @@ class ImageProcessing(Node):
         #self.get_logger().info('OpenCV-Daten wurden gepublished')
 
     def pic_to_data(self, data_img):
-        """Detektiert Marker, konvertiert Einheiten (mm→m), filtert Distanz.
+        """Ruft AMD auf, konvertiert mm→m, filtert Distanz mit 3-Wert-Buffer.
         
         Args:
-            data_img (numpy.ndarray | None): Grayscale-Bild oder None
+            data_img (numpy.ndarray | None): OpenCV-Grayscale-Bild von Bridge oder None
         """
         if data_img is None:
             self.get_logger().info('Kein Frame erhalten!')
@@ -82,10 +81,10 @@ class ImageProcessing(Node):
         self.distance_in_meters_filtered = self.filter_distance()
 
     def filter_distance(self):
-        """3-Wert Last-Valid-Value-Filter für Distanzstabilität.
+        """Last-Valid-Value-Filter: Gibt neuesten gültigen Distanzwert aus 3-Wert-Buffer.
         
         Returns:
-            float: Neueste gültige Distanz [m] oder -1.0
+            float: Gefilterte Distanz in Metern oder -1.0 wenn alle ungültig
         """
         # 1. Buffer aktualisieren
         self.third_data  = self.second_data

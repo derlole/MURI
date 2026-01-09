@@ -8,6 +8,15 @@ Design Entscheidungen technische Herleitung
 
 	camera_read_out:
 
+	Allgemein:
+
+		zwei getrennte Nodes zum Auslesen und Verarbeiten/publishen,
+			---> Ermöglicht es den Berechnungs teil extern auf anderem Gerät zu machen
+
+
+	camera_read_out:
+
+		in camera_read_out konvertiert das BIld vorab in Graustufen zur DAtenminderung
 		in camera_read_out konvertiert das BIld vorab in Graustufen zur DAtenminderung
 
 		Publishen mit der maximalen Wiedergabegeschwindkeit der KAmera ---> maximal verwendbare Bilde zu kriegen
@@ -62,6 +71,7 @@ lessons learned:
 		- BIldauflösung auch so gering halten wie möglich um daten zu mindern		
 	
 		
+	saubere Kalibrierung
 	saubere Kalibrierung
 	
 	
