@@ -14,6 +14,8 @@ from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
 import time
 
 class FollowActionServer(Node):
+    """ROS2 Action Server for following objects."""
+
     def __init__(self, logic: ExtendedLogicInterface):
         super().__init__('muri_follow_action_server')
 
@@ -64,6 +66,7 @@ class FollowActionServer(Node):
         self._last_odom = None
 
     def timer_callback_asf(self):
+        """Main timer callback for handling active follow goals."""
         if self._goal_handle is None or not self._goal_handle.is_active:
             return
         
@@ -120,6 +123,7 @@ class FollowActionServer(Node):
 
 
     def execute_callback(self, goal_handle):
+        """Execute callback for follow action."""
         self.get_logger().info('Exec: follow-goal.')
 
         self._goal_handle = goal_handle
@@ -133,6 +137,7 @@ class FollowActionServer(Node):
         return self._goal_result
 
     def goal_callback(self, goal_request):
+        """Goal callback for accepting/rejecting follow goals."""
         self.get_logger().info('Rec: follow-goal.')
 
         if self._goal_handle is not None and self._goal_handle.is_active:
@@ -147,28 +152,34 @@ class FollowActionServer(Node):
         return GoalResponse.ACCEPT
 
     def cancel_callback(self, goal_handle):
+        """Cancel callback for follow goals."""
         self.get_logger().info('Rec: cancel follow-goal.')
         self.follow_logic.setSuccess()
         return CancelResponse.ACCEPT
 
     def listener_callback_picture_data_asf(self, msg):
+        """Callback for picture data."""
         self._last_picture_data = msg
         self.follow_logic.setCameraData(msg.angle_in_rad, msg.distance_in_meters)
         self.follow_logic.setArucoData(msg.dominant_aruco_id)
 
     def listener_callback_odom_asf(self, msg):
+        """Callback for odometry data."""
         self._last_odom = msg
         self.follow_logic.setOdomData(msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.orientation)
         
     def listener_callback_schpieth_asf(self, msg):
+        """Callback for speed data."""
         value = max(config.MINIMAL_SPEED_TO_SET, min(msg.data, config.MAXIMAL_SPEED_TO_SET))
         self.follow_logic.setSchpieth(value)
 
     def listener_callback_distance_asf(self, msg):
+        """Callback for follow distance data."""
         value = max(config.MINIMAL_DISTANCE_FOLLOW, min(msg.data, config.MAXIMAL_DISTANCE_FOLLOW))
         self.follow_logic.setFollowDistance(value)
 
 def main(args=None):
+    """Main function to run the FollowActionServer."""
     rclpy.init(args=args)
     
     follow_action_server = FollowActionServer(FollowLogic())

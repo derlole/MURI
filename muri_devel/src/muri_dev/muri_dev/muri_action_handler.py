@@ -40,6 +40,7 @@ class MuriActionHandler(Node):
         self.timer = self.create_timer(0.1, self.main_loop_ah, MutuallyExclusiveCallbackGroup())
 
     def main_loop_ah(self):
+        """Main loop for handling action coordination."""
         self.main_controller.state_machine()
         out = self.main_controller.getOut()
 
@@ -68,16 +69,19 @@ class MuriActionHandler(Node):
 
 
     def listener_callback_picture_data_ah(self, msg):
+        """Callback for picture data."""
         self.last_picture_data = msg
         self.main_controller.setCameraData(msg.angle_in_rad, msg.distance_in_meters)
         self.main_controller.setArucoData(msg.dominant_aruco_id)
     
     def listener_callback_odom_ah(self, msg):
+        """Callback for odometry data."""
         self.last_odom = msg
         self.main_controller.setOdomData(msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.orientation)
 
 
     def send_drive_goal(self):
+        """Send a drive goal to the action server."""
         self.get_logger().info('Sending drive goal...')
 
         gx, gy, gt = self.main_controller.calculate_estimated_goal_pose(last_odom_x=self.last_odom.pose.pose.position.x, last_odom_y=self.last_odom.pose.pose.position.y, last_odom_quaternion=self.last_odom.pose.pose.orientation)  
@@ -93,6 +97,7 @@ class MuriActionHandler(Node):
         self.get_logger().info(f"Result of send_goal_async: {self._drive_send_promise}")
 
     def send_follow_goal(self):
+        """Send a follow goal to the action server."""
         self.get_logger().info('Sending follow goal...')
         follow_goal = FOLLOW.Goal()
 
@@ -101,6 +106,7 @@ class MuriActionHandler(Node):
         self._follow_send_promise.add_done_callback(self.follow_goal_response_callback)
 
     def send_turn_goal(self):
+        """Send a turn goal to the action server."""
         self.get_logger().info('Sending turn goal...')
 
         gx, gy, gt = self.main_controller.calculate_estimated_goal_pose(last_odom_x=self.last_odom.pose.pose.position.x, last_odom_y=self.last_odom.pose.pose.position.y, last_odom_quaternion=self.last_odom.pose.pose.orientation)  
@@ -112,6 +118,7 @@ class MuriActionHandler(Node):
         self._turn_send_promise.add_done_callback(self.turn_goal_response_callback)
 
     def send_init_goal(self):
+        """Send an init goal to the action server."""
         self.get_logger().info('Sending init goal...')
 
         init_goal = INIT.Goal()
@@ -122,23 +129,28 @@ class MuriActionHandler(Node):
 
 
     def follow_feedback_callback(self, feedback_msg):
+        """Feedback callback for follow action."""
         # self.get_logger().info('Follow: ' + str(feedback_msg))
         pass
 
     def drive_feedback_callback(self, feedback_msg):
+        """Feedback callback for drive action."""
         pass
         # self.get_logger().info('Drive: ' + str(feedback_msg))
 
     def turn_feedback_callback(self, feedback_msg):
+        """Feedback callback for turn action."""
         pass
         # self.get_logger().info('Turn: ' + str(feedback_msg))
 
     def init_feedback_callback(self, feedback_msg):
+        """Feedback callback for init action."""
         pass 
         # self.get_logger().info('Init: ' + str(feedback_msg))
 
 
     def drive_goal_response_callback(self, promise):
+        """Goal response callback for drive action."""
         self._drive_goal_handle = promise.result()
         if not self._drive_goal_handle.accepted:
             self.get_logger().info('Rej: drive-goal')
@@ -150,6 +162,7 @@ class MuriActionHandler(Node):
         self._drive_result_promise.add_done_callback(self.drive_result_callback)
 
     def turn_goal_response_callback(self, promise):
+        """Goal response callback for turn action."""
         self._turn_goal_handle = promise.result()
         if not self._turn_goal_handle.accepted:
             self.get_logger().info('Rej: turn-goal')
@@ -161,6 +174,7 @@ class MuriActionHandler(Node):
         self._turn_result_promise.add_done_callback(self.turn_result_callback)
 
     def init_goal_response_callback(self, promise):
+        """Goal response callback for init action."""
         self._init_goal_handle = promise.result()
         if not self._init_goal_handle.accepted:
             self.get_logger().info('Rej: init-goal')
@@ -172,6 +186,7 @@ class MuriActionHandler(Node):
         self._init_result_promise.add_done_callback(self.init_result_callback)
 
     def follow_goal_response_callback(self, promise):
+        """Goal response callback for follow action."""
         self._follow_goal_handle = promise.result()
         if not self._follow_goal_handle.accepted:
             self.get_logger().info('Rej: follow-goal')
@@ -184,12 +199,14 @@ class MuriActionHandler(Node):
 
 
     def follow_result_callback(self, promise):
+        """Result callback for follow action."""
         result = promise.result().result
         self.main_controller.setGoalSuccess(result.success)
         self.main_controller.setGoalStautusFinished(True)
         self.get_logger().info('Follow result: {0}'.format(result))
 
     def drive_result_callback(self, promise):
+        """Result callback for drive action."""
         result = promise.result().result
         self.get_logger().info('Drive result: {0}'.format(result))
         if not self.ignor_next_drive_goal_status:       
@@ -199,12 +216,14 @@ class MuriActionHandler(Node):
         self.ignor_next_drive_goal_status = False
         
     def turn_result_callback(self, promise):
+        """Result callback for turn action."""
         result = promise.result().result
         self.main_controller.setGoalSuccess(result.success)
         self.main_controller.setGoalStautusFinished(True)
         self.get_logger().info('Turn result: {0}'.format(result))
 
     def init_result_callback(self, promise):
+        """Result callback for init action."""
         result = promise.result().result
         self.main_controller.setGoalSuccess(result.success)
         self.main_controller.setGoalStautusFinished(True)
@@ -212,12 +231,14 @@ class MuriActionHandler(Node):
 
 
     def cancle_drive_goal(self):
+        """Cancel the current drive goal."""
         if hasattr(self, "_drive_goal_handle") and self._drive_goal_handle is not None:
             self.get_logger().info("Requesting drive-goal cancel...")
             future = self._drive_goal_handle.cancel_goal_async()
             future.add_done_callback(self.finish_drive_state)
 
     def finish_drive_state(self, promise):
+        """Finish the drive state after cancellation."""
         self.get_logger().info("Canceled drive Goal.")
         self.main_controller.setGoalSuccess(False)
         self.main_controller.setGoalStautusFinished(True)
@@ -225,6 +246,7 @@ class MuriActionHandler(Node):
 
 
 def main(args=None):
+    """Main function to run the MuriActionHandler."""
     rclpy.init(args=args)
 
     logic = MainController()

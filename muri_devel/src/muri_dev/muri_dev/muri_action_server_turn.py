@@ -12,6 +12,8 @@ from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
 import time
 
 class TurnActionServer(Node):
+    """ROS2 Action Server for turning the robot."""
+
     def __init__(self, locic: LogicInterface):
         super().__init__('muri_turn_action_server')
 
@@ -49,6 +51,7 @@ class TurnActionServer(Node):
         self._timer = self.create_timer(0.1, self.timer_callback_ast, MutuallyExclusiveCallbackGroup())
 
     def timer_callback_ast(self):
+        """Main timer callback for handling active turn goals."""
         if self._goal_handle is None or not self._goal_handle.is_active:
             return
         
@@ -103,6 +106,7 @@ class TurnActionServer(Node):
         out.resetOut()
 
     def execute_callback(self, goal_handle):
+        """Execute callback for turn action."""
         self.get_logger().info('Exec: turn-goal')
         self._goal_handle = goal_handle
         
@@ -115,6 +119,7 @@ class TurnActionServer(Node):
         return self._goal_result
 
     def goal_callback(self, goal_request):
+        """Goal callback for accepting/rejecting turn goals."""
         self.get_logger().info('Rec: turn-goal')
 
         if self._goal_handle is not None and self._goal_handle.is_active:
@@ -129,17 +134,21 @@ class TurnActionServer(Node):
         return GoalResponse.ACCEPT
 
     def cancel_callback(self, goal_handle):
+        """Cancel callback for turn goals."""
         self.get_logger().info('Rec: cancel turn-goal')
         return CancelResponse.ACCEPT
 
     def listener_callback_odom_ast(self, msg):
+        """Callback for odometry data."""
         self._last_odom = msg
         self.turn_logic.setOdomData(msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.orientation)
 
     def listener_callback_picture_data_ast(self, msg):
+        """Callback for picture data."""
         self._last_picture_data = msg
         self.turn_logic.setCameraData(msg.angle_in_rad, msg.distance_in_meters)
 def main(args=None):
+    """Main function to run the TurnActionServer."""
     rclpy.init(args=args)
 
     turn_action_server = TurnActionServer(TurnLogic())

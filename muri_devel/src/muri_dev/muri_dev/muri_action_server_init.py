@@ -12,6 +12,8 @@ from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
 import time
 
 class InitActionServer(Node):
+    """ROS2 Action Server for initializing the robot."""
+
     def __init__(self, logic: LogicInterface):
         super().__init__('muri_init_action_server')
 
@@ -49,6 +51,7 @@ class InitActionServer(Node):
         self._last_odom = None
 
     def timer_callback_asi(self):
+        """Main timer callback for handling init goals."""
         if self._goal_handle is None or not self._goal_handle.is_active:
             return
         
@@ -103,6 +106,7 @@ class InitActionServer(Node):
         out.resetOut()
 
     def execute_callback(self, goal_handle):
+        """Execute callback for init action."""
         self.get_logger().info('Exec: init-goal')
 
         self._goal_handle = goal_handle
@@ -116,6 +120,7 @@ class InitActionServer(Node):
         return self._goal_result
 
     def goal_callback(self, goal_request):
+        """Goal callback for accepting/rejecting init goals."""
         self.get_logger().info('Rec: init-goal')
 
         if self._goal_handle is not None and self._goal_handle.is_active:
@@ -130,18 +135,22 @@ class InitActionServer(Node):
         return GoalResponse.ACCEPT
 
     def cancel_callback(self, goal_handle):
+        """Cancel callback for init goals."""
         self.get_logger().info('Rec: cancel init-goal')
         return CancelResponse.ACCEPT
 
     def listener_callback_odom_asi(self, msg):
+        """Callback for odometry data."""
         self._last_odom = msg
         self.init_logic.setOdomData(msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.orientation)
 
     def listener_callback_picture_data_asi(self, msg):
+        """Callback for picture data."""
         self._last_picture_data = msg
         self.init_logic.setCameraData(msg.angle_in_rad, msg.distance_in_meters)
 
 def main(args=None):
+    """Main function to run the InitActionServer."""
     rclpy.init(args=args)
 
     init_action_server = InitActionServer(InitLogic())

@@ -16,6 +16,8 @@ import time
 ERR_THRESHOLD = 5
 
 class DriveActionServer(Node):
+    """ROS2 Action Server for driving the robot."""
+
     def __init__(self, logic: LogicInterface):
         super().__init__('muri_drive_action_server')
 
@@ -61,6 +63,7 @@ class DriveActionServer(Node):
         self.__err_out_counter = 0
 
     def timer_callback_asd(self):
+        """Main timer callback for handling active drive goals."""
         if self._goal_handle is None or not self._goal_handle.is_active:
             return
         
@@ -120,6 +123,7 @@ class DriveActionServer(Node):
         out.resetOut()
 
     def execute_callback(self, goal_handle):
+        """Execute callback for drive action."""
         self.get_logger().info('Exe: drive goal')
 
         self._goal_handle = goal_handle
@@ -133,6 +137,7 @@ class DriveActionServer(Node):
         return self._goal_result
 
     def goal_callback(self, goal_request):
+        """Goal callback for accepting/rejecting drive goals."""
         self.get_logger().info('Rec: drive-goal')
 
         if self._goal_handle is not None and self._goal_handle.is_active:
@@ -147,22 +152,27 @@ class DriveActionServer(Node):
         return GoalResponse.ACCEPT
 
     def cancel_callback(self, goal_handle):
+        """Cancel callback for drive goals."""
         self.get_logger().info('Rec: cancel drive-goal')
         return CancelResponse.ACCEPT
 
     def listener_callback_odom_asd(self, msg):
+        """Callback for odometry data."""
         self._last_odom = msg
         self.drive_logic.setOdomData(msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.orientation)
 
     def listener_callback_picture_data_asd(self, msg):
+        """Callback for picture data."""
         self._last_picture_data = msg
         self.drive_logic.setCameraData(msg.angle_in_rad, msg.distance_in_meters)
 
     def listener_callback_schpieth_asd(self, msg):
+        """Callback for speed data."""
         value = max(config.MINIMAL_SPEED_TO_SET, min(msg.data, config.MAXIMAL_SPEED_TO_SET))
         self.drive_logic.setSchpieth(value)
         
 def main(args=None):
+    """Main function to run the DriveActionServer."""
     rclpy.init(args=args)
 
     drive_action_server = DriveActionServer(DriveLogic())

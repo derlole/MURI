@@ -401,66 +401,14 @@ def main_loop_ah(self):
 
 #### Goal-Versendung
 
-##### `send_init_goal()`
-```python
-def send_init_goal(self):
-    init_goal = INIT.Goal()
-    self._action_client_init.wait_for_server()
-    self._init_send_promise = self._action_client_init.send_goal_async(
-        init_goal, 
-        feedback_callback=self.init_feedback_callback
-    )
-    self._init_send_promise.add_done_callback(self.init_goal_response_callback)
-```
+Der MuriActionHandler sendet Goals an die entsprechenden Action Server basierend auf dem Wert von `ASToCall` aus der MainController-Ausgabe. Der Ablauf für jeden Action Server ist wie folgt:
 
-##### `send_drive_goal()`
-```python
-def send_drive_goal(self):
-    gx, gy, gt = self.main_controller.calculate_estimated_goal_pose(
-        last_odom_x=self.last_odom.pose.pose.position.x,
-        last_odom_y=self.last_odom.pose.pose.position.y,
-        last_odom_quaternion=self.last_odom.pose.pose.orientation
-    )
-    drive_goal = DRIVE.Goal()
-    drive_goal.target_pose.x = float(gx)
-    drive_goal.target_pose.y = float(gy)
-    drive_goal.target_pose.theta = float(gt)
-    
-    self._action_client_drive.wait_for_server()
-    self._drive_send_promise = self._action_client_drive.send_goal_async(
-        drive_goal,
-        feedback_callback=self.drive_feedback_callback
-    )
-    self._drive_send_promise.add_done_callback(self.drive_goal_response_callback)
-```
+- **INIT Goal:** Ein leeres INIT.Goal() wird an den InitActionServer gesendet, um die Initialisierungssequenz zu starten.
+- **DRIVE Goal:** Die geschätzte Zielpose wird aus den Odometry-Daten berechnet, in ein DRIVE.Goal() gepackt und an den DriveActionServer gesendet.
+- **TURN Goal:** Der Zielwinkel wird aus der geschätzten Pose extrahiert, in ein TURN.Goal() gesetzt und an den TurnActionServer gesendet.
+- **FOLLOW Goal:** Ein leeres FOLLOW.Goal() wird an den FollowActionServer gesendet, um die Verfolgung zu starten.
 
-##### `send_turn_goal()`
-```python
-def send_turn_goal(self):
-    gx, gy, gt = self.main_controller.calculate_estimated_goal_pose(...)
-    turn_goal = TURN.Goal()
-    turn_goal.target_angle = float(gt)
-    
-    self._action_client_turn.wait_for_server()
-    self._turn_send_promise = self._action_client_turn.send_goal_async(
-        turn_goal,
-        feedback_callback=self.turn_feedback_callback
-    )
-    self._turn_send_promise.add_done_callback(self.turn_goal_response_callback)
-```
-
-##### `send_follow_goal()`
-```python
-def send_follow_goal(self):
-    follow_goal = FOLLOW.Goal()
-    
-    self._action_client_follow.wait_for_server()
-    self._follow_send_promise = self._action_client_follow.send_goal_async(
-        follow_goal,
-        feedback_callback=self.follow_feedback_callback
-    )
-    self._follow_send_promise.add_done_callback(self.follow_goal_response_callback)
-```
+Jeder Goal-Versand wartet darauf, dass der Server verfügbar ist, und registriert Feedback- und Response-Callbacks für die asynchrone Verarbeitung.
 
 #### Callback-Struktur
 
