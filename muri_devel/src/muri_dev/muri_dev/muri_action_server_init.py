@@ -1,3 +1,5 @@
+# Written, maintained and owned by Benjamin Keppler (MURI DEVELOPMENT TEAM)
+
 import rclpy
 from rclpy.action import ActionServer, CancelResponse, GoalResponse
 from rclpy.node import Node

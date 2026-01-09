@@ -1,3 +1,5 @@
+# Written, maintained and owned by Louis Moser, Linus Braun, Benjamin Keppler (MURI DEVELOPMENT TEAM)
+
 from launch import LaunchDescription
 from launch_ros.actions import Node
 

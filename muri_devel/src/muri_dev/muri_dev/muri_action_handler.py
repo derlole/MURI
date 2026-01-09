@@ -1,3 +1,5 @@
+# Written, maintained and owned by Louis Moser, Linus Braun, Benjamin Keppler (MURI DEVELOPMENT TEAM)
+
 import rclpy
 from rclpy.action import ActionClient
 from rclpy.node import Node
