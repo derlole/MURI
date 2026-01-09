@@ -1,24 +1,21 @@
+# Vision-System: Überblick & Grundkonzepte
+
 <!-- Written, maintained and owned by Linus Braun (MURI DEVELOPMENT TEAM) -->
 
-# ArUco Marker Detection Dokumentation
+## System-Übersicht
 
-## Übersicht
+Die Vision-Pipeline detektiert ArUco-Marker und berechnet deren 3D-Position (Distanz, Winkel) relativ zur Roboter-Kamera.
 
-Die `AMD` (ArUco Marker Detection) Klasse kapselt die OpenCV ArUco-Erkennungslogik zur Detektion von ArUco-Markern und Berechnung ihrer räumlichen Position relativ zur Roboter-Kamera. Die Klasse wird extern aufgerufen, um pro Detektionsaufruf folgende Informationen zu liefern:
+**Ausgabegröße pro Detektion**:
+- **Marker-ID**: 0 (Standard-Ziel) oder 69 (anderer Roboter)
+- **Distanz**: Z-Koordinate in Millimetern
+- **Winkel**: Horizontaler Yaw-Winkel in Radiant
 
-- **Marker-ID**: Identifikation des erkannten Markers
-- **Distanz**: Entfernung vom Roboter zum Marker (Z-Koordinate)
-- **Winkel**: Horizontaler Winkelversatz vom Roboter zum Marker (Y-Rotation)
+**Architektur**: Zwei ROS2-Nodes
+1. **CameraReadOut**: Bilderfassung (30 Hz) + Grayscale-Konvertierung
+2. **ImageProcessing**: ArUco-Detektion + Filterung + Publikation
 
-Die Klasse unterstützt mehrere Marker mit unterschiedlichen physischen Größen und verwendet vorkalibrierte Kameraparameter. Weitere Marker können in der config.py eingetragen werden.
-
-## Systemintegration
-
-Die AMD-Klasse wird in einem dedizierten ROS2-Node aufgerufen, der die detektierten Aruco-Daten (Marker-ID, Distanz, Winkel) über Topics publisht. Diese publizierten Daten werden dann von anderen Ros2 teilen verwendet.
-
-Die Klasse selbst ist unabhängig von ROS2 und dient ausschließlich der Bildverarbeitung, Positionsberechnung und ID-Erkennung.
-
-## Klasseninitialisierung
+---
 
 ### Konstruktor `__init__()`
 

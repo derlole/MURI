@@ -8,29 +8,10 @@ from rclpy.node import Node
 from vision.aruco_marker_detection import AMD
 
 class ImageProcessing(Node):
-    """ROS2-Node für ArUco-Marker-Detektion und Bildverarbeitung.
+    """Führt ArUco-Detektion durch und publiziert gefilterte Position."""
     
-    Empfängt Grayscale-Bilder vom CameraReadOut-Node über '/muri_image_raw',
-    führt ArUco-Marker-Detektion durch und publiziert verarbeitete Daten
-    (Distanz, Winkel, Marker-ID, Fehler) auf '/muri_picture_data'.
-    
-    Komponenten:
-    - Subscriber: '/muri_image_raw' (sensor_msgs/Image, Queue=10)
-    - Publisher: '/muri_picture_data' (muri_dev_interfaces/PictureData, Queue=10)
-    - AMD-Detektor: ArUco Marker Detection für Bildverarbeitung
-    - Buffer: 3-Wert-Filter für Distanzstabilität
-    - Fehlerüberwachung: error=True nach >10 konsekutiven Frame-Verlusten
-    """
     def __init__(self):
-        """Initialisiert den Image-Processing-Node und AMD-Detektor.
-        
-        Setzt auf:
-        - ROS2-Subscriber für '/muri_image_raw' (sensor_msgs/Image)
-        - ROS2-Publisher für '/muri_picture_data' (PictureData)
-        - AMD-Detektor für ArUco-Marker-Erkennung
-        - Distanz-Buffer mit 3 Werten für Last-Valid-Value-Filter
-        - Error-Counter mit Schwellwert von 10 Frames
-        """
+        """Initialisiert Subscriber (/muri_image_raw), Publisher (/muri_picture_data), AMD-Detektor."""
         super().__init__('image_processing')
 
         self.bridge = CvBridge()
@@ -62,20 +43,10 @@ class ImageProcessing(Node):
             10)
 
     def listener_callback(self, msg):
-        """Callback für eingehende Kamerabilder, führt Detektion und Publikation durch.
-        
-        Ablauf:
-        1. ROS Image-Message zu OpenCV-Array konvertieren (Grayscale, mono8)
-        2. pic_to_data() aufrufen (ArUco-Detektion und Filterung)
-        3. PictureData-Message erstellen und mit Ergebnissen befüllen
-        4. Message auf '/muri_picture_data' publishen
+        """Verarbeitet Bild, erkundet Marker, publiziert PictureData.
         
         Args:
-            msg (sensor_msgs.msg.Image): Eingehendes Grayscale-Bild
-        
-        Fehlerbehandlung:
-        - Exception bei Bildkonvertierung wird geloggt, aber fortgesetzt
-        - Gefilterte Distanz wird immer publiziert (auch bei Fehler)
+            msg (sensor_msgs.msg.Image): Grayscale-Bild
         """
         try:
             cv_raw_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='mono8')
@@ -94,21 +65,10 @@ class ImageProcessing(Node):
         #self.get_logger().info('OpenCV-Daten wurden gepublished')
 
     def pic_to_data(self, data_img):
-        """Führt ArUco-Detektion durch, konvertiert Einheiten und filtert Distanz.
-        
-        Ablauf:
-        1. Fehlerüberwachung: Bei data_img=None Error-Counter inkrementieren
-        2. Error-Flag setzen wenn Counter > 10 (permanente Fehler erkennen)
-        3. AMD.aruco_detection() aufrufen (gibt mm, rad, ID zurück)
-        4. Einheitenkonvertierung: Millimeter → Meter (/ 1000)
-        5. filter_distance() aufrufen (3-Wert-Buffer-Filter)
+        """Detektiert Marker, konvertiert Einheiten (mm→m), filtert Distanz.
         
         Args:
-            data_img (numpy.ndarray | None): OpenCV-Grayscale-Bild oder None
-        
-        Fehlerbehandlung:
-        - Auch bei data_img=None wird aruco_detection() aufgerufen
-        - Buffer-Filter sorgt für Stabilität bei kurzzeitigen Ausfällen
+            data_img (numpy.ndarray | None): Grayscale-Bild oder None
         """
         if data_img is None:
             self.get_logger().info('Kein Frame erhalten!')
@@ -122,19 +82,10 @@ class ImageProcessing(Node):
         self.distance_in_meters_filtered = self.filter_distance()
 
     def filter_distance(self):
-        """Buffer-Filter (Last-Valid-Value-Filter) für Distanzstabilität.
-        
-        Ablauf:
-        1. Buffer-Shift: Werte wandern von neu nach alt (first→second→third)
-        2. Finde neuesten gültigen Wert: Iteriere von neu nach alt
-        3. Rückgabe: Ersten Wert ≠ -1.0, oder -1.0 falls alle ungültig
+        """3-Wert Last-Valid-Value-Filter für Distanzstabilität.
         
         Returns:
-            float: Neueste gültige gefilterte Distanz [m] oder -1.0
-        
-        Fehlerbehandlung:
-        - Stabilisierung bei kurzzeitigen Detektionsfehlern (Lichtverhältnisse)
-        - Verhindert abrupte Distanzsprünge in der Robotersteuerung
+            float: Neueste gültige Distanz [m] oder -1.0
         """
         # 1. Buffer aktualisieren
         self.third_data  = self.second_data

@@ -5,23 +5,13 @@ import math
 import config
 
 class AMD():
-    """ArUco-Marker-Detektor für Robotersteuerung.
+    """Detektiert ArUco-Marker und berechnet 3D-Position (Distanz, Winkel)."""
     
-    Detektiert ArUco-Marker (IDs 0, 69) in Graustufenbildern und berechnet
-    deren 3D-Position (Distanz, Winkel) relativ zur Kamera mittels solvePnP().
-    Nutzt vorkalibrierte Kameraparameter aus config.py.
-    Markergröße wird anhand der Marker-ID aus config.MARKER_SIZES geladen.
-    """
     def __init__(self):
-        """Initialisiert den ArUco-Detektor mit Kameraparametern und Markerkonfiguration.
+        """Initialisiert Detektor mit Config-Parametern aus config.py.
         
-        Lädt aus config.py:
-        - MARKER_SIZES: Dict[int, float] mit Marker-IDs und physischen Größen (mm)
-        - CAMERA_MATRIX_RAW: 3x3 Kamera-Intrinsik-Matrix (Brennweite, Hauptpunkt)
-        - DISTANCE_COEFFICIENT: Verzerrungskoeffizienten der Kamera
-        
-        Verwendet DICT_5X5_1000 (5x5-Marker, optimale Balance zwischen
-        Erkennungsrobustheit und ID-Vielfalt) mit DetectorParameters().
+        Lädt: MARKER_SIZES, CAMERA_MATRIX_RAW, DISTANCE_COEFFICIENT
+        Nutzt: DICT_5X5_1000, DetectorParameters()
         """
         # Marker-Größen aus der Konfiguration laden
         self.marker_sizes = config.MARKER_SIZES
@@ -36,24 +26,16 @@ class AMD():
         self.dist_coeffs = np.array(config.DISTANCE_COEFFICIENT, dtype=np.float32)
 
     def aruco_detection(self, img):
-        """Detektiert ArUco-Marker und berechnet Distanz, Winkel und ID.
+        """Detektiert Marker und berechnet Position (Distanz, Winkel, ID).
         
         Args:
-            img (numpy.ndarray): Graustufenbild (single-channel, dtype=uint8)
+            img (numpy.ndarray): Grayscale-Bild
         
         Returns:
-            tuple: (z_distanz_mm, y_winkel_rad, marker_id)
-                - z_distanz_mm (float): Tiefe zum Marker in Millimetern
-                - y_winkel_rad (float): Horizontaler Yaw-Winkel in Rad
-                  (positiv=rechts, negativ=links, ~0=zentriert)
-                - marker_id (int): Erkannte ID (0, 69) oder 9999 bei Fehler
-        
-        Priorität: Wenn beide Marker 0 und 69 erkannt → Marker 69 wird bevorzugt.
-        
-        Fehlerfall (-1000.0, π, 9999) bei:
-        - Keine Marker erkannt
-        - Marker-ID nicht in MARKER_SIZES konfiguriert
-        - solvePnP() schlägt fehl
+            tuple: (distanz_mm, winkel_rad, marker_id)
+            
+        Fehlerfall: (-1000.0, π, 9999) bei Nicht-Detektion/Fehler
+        Priorität: Marker 69 > Marker 0
         """
         frame_gray = img
         corners, ids, _ = self.detector.detectMarkers(frame_gray)
@@ -100,18 +82,11 @@ class AMD():
         return -1000.0, math.pi, 9999
     
     def calculate_angle_to_marker(self):
-        """Berechnet den horizontalen Yaw-Winkel zum erkannten Marker.
-        
-        Nutzt tvec (Translationsvektor aus solvePnP()):
-        - X-Offset: Horizontaler Versatz (positiv=rechts)
-        - Z-Distanz: Entfernung entlang optischer Achse
-        - Berechnung: angle = atan2(x_offset, z_distance)
+        """Berechnet Yaw-Winkel (atan2 von X-Offset und Z-Distanz).
         
         Returns:
-            float: Winkel in Radiant [-π, π]
-                Positiv: Marker rechts vom Kamerazentrum → Roboter muss links drehen
-                Negativ: Marker links vom Kamerazentrum → Roboter muss rechts drehen
-                ≈0: Marker zentriert → keine Drehung nötig
+            float: Winkel in Rad [-π, π]
+                Positiv=rechts, Negativ=links, 0≈zentriert
         """
         distance = self.tvec[2][0]
         x_offset = self.tvec[0][0]

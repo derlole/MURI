@@ -6,27 +6,10 @@ import rclpy
 from rclpy.node import Node
 
 class CameraReadOut(Node):
-    """ROS2-Node für kontinuierliche Kamerabilderfassung.
+    """Liest Kamera (30 Hz) und publiziert Grayscale-Images."""
     
-    Erfasst Kamerabilder (30 Hz) von /dev/video0 und publiziert sie als
-    Grayscale-Images auf '/muri_image_raw' für Bildverarbeitungsprozesse.
-    
-    Komponenten:
-    - Publisher: '/muri_image_raw' (sensor_msgs/Image, Queue=10)
-    - Timer: 30 Hz (1/30 Sekunden) für periodische Bilderfassung
-    - Kamera: /dev/video0 via OpenCV VideoCapture
-    - Encoding: mono8 (Grayscale, 66% weniger Daten als RGB)
-    - Buffer: Size=1 zur Vermeidung veralteter Frames
-    """
     def __init__(self):
-        """Initialisiert den Kamera-Node mit Publisher und Timer.
-        
-        Setzt auf:
-        - ROS2-Publisher für '/muri_image_raw' (sensor_msgs/Image)
-        - Timer mit 30 Hz Frequenz
-        - Kamera-Device /dev/video0
-        - OpenCV-Buffer minimiert auf Größe 1
-        """
+        """Initialisiert Publisher (/muri_image_raw) und 30 Hz Timer."""
         super().__init__('camera_read_out')
         self.publisher = self.create_publisher(Image, '/muri_image_raw', 10)
         timer_time = 1/30   # sek
@@ -46,16 +29,7 @@ class CameraReadOut(Node):
         self.get_logger().info('CameraReadOut-Node gestartet')
 
     def timer_callback(self):
-        """Wird von Timer alle 1/30 Sekunden aufgerufen (30 Hz).
-        
-        Ablauf:
-        1. CvBridge-Instanz erstellen (OpenCV ↔ ROS-Konvertierung)
-        2. Bild lesen via read_camera() und in Image-Message konvertieren
-        3. Message mit Encoding 'mono8' publishen auf '/muri_image_raw'
-        
-        Exceptions:
-            AttributeError: None-Wert von read_camera() ist ROS2-inkompatibel
-        """
+        """Publiziert Bild alle 1/30 Sekunden via CvBridge."""
         try:
             bridge = CvBridge()
             msg = bridge.cv2_to_imgmsg(self.read_camera(), encoding='mono8')
@@ -65,20 +39,10 @@ class CameraReadOut(Node):
             self.get_logger().error("Falscher Wert wurde versucht über die Bridge zu senden")
 
     def read_camera(self):
-        """Liest Frame von Kamera und konvertiert zu Grayscale.
-        
-        Ablauf:
-        1. Frame via cv.VideoCapture.read() erfassen
-        2. Bei Fehler (success=False): Error-Log und None zurückgeben
-        3. BGR → Grayscale konvertieren (cv.COLOR_BGR2GRAY)
+        """Liest Frame und konvertiert BGR → Grayscale.
         
         Returns:
-            numpy.ndarray: Grayscale-Bild (shape=(height,width), dtype=uint8)
-            None: bei Lesefehler (Kamera nicht verfügbar/Verbindung verloren)
-        
-        Fehlerbehandlung:
-        - Kamera-Fehler werden geloggt, None wird zurückgegeben
-        - None führt zu AttributeError im timer_callback()
+            numpy.ndarray: Grayscale-Bild oder None bei Fehler
         """
         success, frame = self.img.read()
 

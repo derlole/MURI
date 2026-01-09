@@ -16,16 +16,17 @@ Design Entscheidungen technische Herleitung
 
 	image_data_processing:
 
-		Filter für die D
+		Der Filter dient zur Hausfüllterung einzelner Fehler, die bei der Direktion bei nicht erkenntnisbildes oder ähnliches entstehen könnten. es wählt dauerhaft den neuesten Wert aus
+		er such hierbei aus 3 Werten raus
 
 
-
-
+	aruco_marker_detection
 
 	Marker-Prioritätslogik: 
 		vor DIstanzberechnugn um unnötige Berechnungen zu vermeiden
+		unterscheidung 
+		Bei der Marker Prioritätslohe ich soll hierbei ein Marker immer dauerhaft durchgereicht werden, wenn wir nächstes hier nicht der andere. Die sollen immer die ermöglichen bieten, dass der Robert, dass sobald ein anderen Robert erkennt, diesen verwendet, auf diesen zufährt und nicht weiter durchs Golf fährt.
 		
-	
 
 	Fehlerbehandlung: Warum gerade diese Werte (-1000.0, math.pi, 9999)?
 		-1000 ist kein Distanz erreichbarer WErt 
@@ -38,6 +39,7 @@ Design Entscheidungen technische Herleitung
 		
 		händische Winkelberechnung
 			für genauere Werte
+			Mit der händischen Berechnung der Winkel haben, bekommen wir auf Akkuarte und genauerer Werte als mit 12PMP. Hierbei können wir jetzt zu meinen besseren Winkel bestimmen.
 	
 
 lessons learned:	
