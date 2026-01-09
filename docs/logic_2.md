@@ -1,3 +1,5 @@
+<!-- Written, maintaniend and owend by Louis Moser -->
+
 # Roboter-Steuerungslogik Dokumentation
 
 ## Übersicht

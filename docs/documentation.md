@@ -13,6 +13,7 @@
 3. [Designentscheidungen](#designentscheidungen)
 4. [Technische Herleitungen](#technische-herleitungen)
 5. [Lessons Learned](#Lessons-Learned)
+5. [Documente und Referenzen](#Dokumente-und-Referenzen)
 
 ---
 
@@ -475,7 +476,7 @@ Mit Negation:
 
 ---
 
-# Technische Herleitungen #TODO kommlett überarbeiten
+# Technische Herleitungen
 
 ## 1. Quaternion zu Yaw-Konversion
 
@@ -500,28 +501,6 @@ Yaw aus Rotation Matrix:
 Vereinfacht (häufig benutzte Formel):
     yaw = atan2(2*w*z + 2*x*y, 1 - 2*y² - 2*z²)
 ```
-
-### 1.3 Implementierung
-
-```python
-import math
-
-def quaternion_to_yaw(quaternion):
-    """Konvertiert Quaternion (x,y,z,w) zu Yaw [rad]"""
-    
-    # Formel
-    siny_cosp = 2.0 * (quaternion.w * quaternion.z + quaternion.x * quaternion.y)
-    cosy_cosp = 1.0 - 2.0 * (quaternion.y * quaternion.y + quaternion.z * quaternion.z)
-
-    yaw = math.atan2(siny_cosp, cosy_cosp)
-    
-    return yaw
-```
-
-**Validierung**:
-- Yaw = 0: Roboter zeigt nach vorne
-- Yaw = π/2: Roboter zeigt nach links
-- Yaw = -π/2: Roboter zeigt nach rechts
 
 ---
 
@@ -550,20 +529,6 @@ Beispiel:
         angle_error -= 2π  (normalisiere)
     elif angle_error < -π:
         angle_error += 2π  (normalisiere)
-```
-
-### 2.3 Implementierung in InitLogic
-
-```python
-def calculate(self):
-    turned_angle = self.__positionTheta - self.__firstTheta
-    
-    # Wrap-Around Handling
-    if abs(turned_angle) > math.pi:
-        turned_angle = turned_angle + 2 * math.pi
-    
-    # Jetzt ist turned_angle im Bereich [-π, π]
-    return angular_velocity, turned_angle
 ```
 
 ---
@@ -696,30 +661,7 @@ DRIVE State
 
 ## 7. Validierungs- und Teststrategien
 
-### 7.1 Unit-Tests pro Modul
-
-```python
-# Beispiel: InitLogic Test
-def test_init_logic_alignment():
-    logic = InitLogic()
-    logic.setActive()
-    
-    # Setze Fehler
-    logic.setCameraData(angle=0.5, distance=2.0)
-    logic.setOdomData(x=0, y=0, t=(0,0,0,1))
-    
-    # Berechne Output
-    logic.calculate()
-    logic.state_machine()
-    
-    # Validiere
-    output = logic.getOut()
-    assert output.isValid == True
-    assert output.values['angular_velocity_z'] != 0
-    assert output.values['turned_angle'] == 0
-```
-
-### 7.2 Integrations-Tests
+### 7.1 Integrations-Tests
 
 ```
 Test: Init → Drive → Turn → Success
@@ -730,7 +672,7 @@ Test: Init → Drive → Turn → Success
 5. Final-Output validieren
 ```
 
-### 7.3 Field-Tests
+### 7.2 Field-Tests
 
 - Verschiedene Lichtverhältnisse
 - Verschiedene Boden-Beschaffenheit
