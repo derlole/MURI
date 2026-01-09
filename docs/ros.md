@@ -1,3 +1,5 @@
+<!-- Written, maintaniend and owend by Benjamin Keppler (MURI DEVELOPMENT TEAM) -->
+
 # ROS2 Action Server Architektur - Dokumentation
 
 ## Überblick
