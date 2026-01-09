@@ -1,8 +1,25 @@
-<!--  Written, maintained and owned by Linus Braunee (MURI DEVELOPMENT TEAM) -->
-
 Design Entscheidungen technische Herleitung
 
-	in camera_read_out konvertiert das BIld vorab in Graustufen zur DAtenminderung
+	Allgemein:
+
+		zwei getrennte Nodes zum Auslesen und Verarbeiten/publishen,
+			---> Ermöglicht es den Berechnungs teil extern auf anderem Gerät zu machen
+
+
+	camera_read_out:
+
+		in camera_read_out konvertiert das BIld vorab in Graustufen zur DAtenminderung
+
+		Publishen mit der maximalen Wiedergabegeschwindkeit der KAmera ---> maximal verwendbare Bilde zu kriegen
+
+		Bilder werden von RGB zu Grayscale konvertiert um die zu übertragende DAtenmenge zu mindern
+
+	image_data_processing:
+
+		Filter für die D
+
+
+
 
 
 	Marker-Prioritätslogik: 
@@ -43,7 +60,7 @@ lessons learned:
 		- BIldauflösung auch so gering halten wie möglich um daten zu mindern		
 	
 		
-		
+	saubere Kalibrierung
 	
 	
 

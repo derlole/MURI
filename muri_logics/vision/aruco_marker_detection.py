@@ -5,13 +5,24 @@ import math
 import config
 
 class AMD():
-    '''
-    ARUCO MARKER DETECTION
-    The class encapsulates an OpenCV ArUco detector, the camera parameters
-    and the logic to obtain the depth (Z-coordinate) and Y-rotation of a
-    detected marker from a single image.
-    '''
+    """ArUco-Marker-Detektor für Robotersteuerung.
+    
+    Detektiert ArUco-Marker (IDs 0, 69) in Graustufenbildern und berechnet
+    deren 3D-Position (Distanz, Winkel) relativ zur Kamera mittels solvePnP().
+    Nutzt vorkalibrierte Kameraparameter aus config.py.
+    Markergröße wird anhand der Marker-ID aus config.MARKER_SIZES geladen.
+    """
     def __init__(self):
+        """Initialisiert den ArUco-Detektor mit Kameraparametern und Markerkonfiguration.
+        
+        Lädt aus config.py:
+        - MARKER_SIZES: Dict[int, float] mit Marker-IDs und physischen Größen (mm)
+        - CAMERA_MATRIX_RAW: 3x3 Kamera-Intrinsik-Matrix (Brennweite, Hauptpunkt)
+        - DISTANCE_COEFFICIENT: Verzerrungskoeffizienten der Kamera
+        
+        Verwendet DICT_5X5_1000 (5x5-Marker, optimale Balance zwischen
+        Erkennungsrobustheit und ID-Vielfalt) mit DetectorParameters().
+        """
         # Marker-Größen aus der Konfiguration laden
         self.marker_sizes = config.MARKER_SIZES
         
@@ -25,21 +36,25 @@ class AMD():
         self.dist_coeffs = np.array(config.DISTANCE_COEFFICIENT, dtype=np.float32)
 
     def aruco_detection(self, img):
-        ''' Detect ArUco marker and return its depth, rotation, and ID.
-        Parameters
-        ----------
-        img : numpy.ndarray
-
-        Returns
-        ----------
-        tuple
-            (z_pos, y_rot, marker_id) where
-            - z_pos is the depth (Z-coordinate) in millimeters,
-            - y_rot is the Y-rotation in radians,
-            - marker_id is the ID of the detected marker.
-            If no marker is detected, returns (-1000.0, math.pi, 9999).
-            If both markers 0 and 69 are detected, returns marker 69.
-        '''
+        """Detektiert ArUco-Marker und berechnet Distanz, Winkel und ID.
+        
+        Args:
+            img (numpy.ndarray): Graustufenbild (single-channel, dtype=uint8)
+        
+        Returns:
+            tuple: (z_distanz_mm, y_winkel_rad, marker_id)
+                - z_distanz_mm (float): Tiefe zum Marker in Millimetern
+                - y_winkel_rad (float): Horizontaler Yaw-Winkel in Rad
+                  (positiv=rechts, negativ=links, ~0=zentriert)
+                - marker_id (int): Erkannte ID (0, 69) oder 9999 bei Fehler
+        
+        Priorität: Wenn beide Marker 0 und 69 erkannt → Marker 69 wird bevorzugt.
+        
+        Fehlerfall (-1000.0, π, 9999) bei:
+        - Keine Marker erkannt
+        - Marker-ID nicht in MARKER_SIZES konfiguriert
+        - solvePnP() schlägt fehl
+        """
         frame_gray = img
         corners, ids, _ = self.detector.detectMarkers(frame_gray)
         
@@ -85,15 +100,19 @@ class AMD():
         return -1000.0, math.pi, 9999
     
     def calculate_angle_to_marker(self):
-        ''' Compute the yaw angle of a detected marker using 3D position data.
-
-        Returns
-        ----------
-        float
-            angle_rad in radians.
-                Positive → marker right of camera,
-                Negative → marker left of camera.
-        '''
+        """Berechnet den horizontalen Yaw-Winkel zum erkannten Marker.
+        
+        Nutzt tvec (Translationsvektor aus solvePnP()):
+        - X-Offset: Horizontaler Versatz (positiv=rechts)
+        - Z-Distanz: Entfernung entlang optischer Achse
+        - Berechnung: angle = atan2(x_offset, z_distance)
+        
+        Returns:
+            float: Winkel in Radiant [-π, π]
+                Positiv: Marker rechts vom Kamerazentrum → Roboter muss links drehen
+                Negativ: Marker links vom Kamerazentrum → Roboter muss rechts drehen
+                ≈0: Marker zentriert → keine Drehung nötig
+        """
         distance = self.tvec[2][0]
         x_offset = self.tvec[0][0]
         
