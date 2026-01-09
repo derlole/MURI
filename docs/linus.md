@@ -1,3 +1,5 @@
+<!--  Written, maintained and owned by Linus Braunee (MURI DEVELOPMENT TEAM) -->
+
 Design Entscheidungen technische Herleitung
 
 	in camera_read_out konvertiert das BIld vorab in Graustufen zur DAtenminderung

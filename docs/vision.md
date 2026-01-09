@@ -1,3 +1,5 @@
+<!-- Written, maintained and owned by Linus Braun (MURI DEVELOPMENT TEAM) -->
+
 # ArUco Marker Detection Dokumentation
 
 ## Übersicht

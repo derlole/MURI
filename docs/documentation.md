@@ -1,3 +1,5 @@
+ <!-- Written, maintained and owned by Louis Moser, Linus Braun, Benjamin Keppler (MURI DEVELOPMENT TEAM) -->
+
 # MURI Projekt - Dokumentations-Grundgerüst
 
 **Projektversion**: 2.0.0  

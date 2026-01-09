@@ -1,4 +1,4 @@
-<!-- Written, maintaniend and owend by Louis Moser -->
+<!--  Written, maintained and owned by Louis Moser (MURI DEVELOPMENT TEAM) -->
 
 # Roboter-Steuerungslogik Dokumentation
 

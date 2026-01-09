@@ -1,3 +1,5 @@
+# Written, maintained and owned by Louis Moser (MURI DEVELOPMENT TEAM)
+
 import math
 
 def quaternion_to_yaw(q):

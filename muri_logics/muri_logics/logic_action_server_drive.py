@@ -1,3 +1,5 @@
+# Written, maintained and owned by Louis Moser (MURI DEVELOPMENT TEAM)
+
 from enum import Enum
 from muri_logics.logic_interface import LogicInterface, Out
 from muri_logics.general_funcs import quaternion_to_yaw, p_regulator

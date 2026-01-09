@@ -1,3 +1,5 @@
+# Written, maintained and owned by Louis Moser (MURI DEVELOPMENT TEAM)
+
 import unittest
 import math
 from types import SimpleNamespace
