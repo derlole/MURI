@@ -478,6 +478,184 @@ Mit Negation:
 
 ---
 
+# Vision-System: Design-Entscheidungen
+
+---
+
+## Architektur-Entscheidungen (Vision)
+
+### 1. Zwei separate ROS2-Nodes + ausgelagerte OpenCV-Logik
+
+**Entscheidung**: CameraReadOut (Bilderfassung) und ImageProcessing (Verarbeitung) als getrennte ROS2-Nodes, mit OpenCV-Logik in separate AMD-Klasse ausgelagert
+
+**Begründung**:
+- **Skalierbarkeit**: Verarbeitungsteil kann auf anderem Rechner ausgeführt werden
+- **Parallelisierung**: Bilderfassung und Verarbeitung laufen asynchron
+- **Code-Trennung**: OpenCV-Logik (AMD) ist unabhängig von ROS2, wiederverwendbar in anderen Kontexten
+- **Wartbarkeit**: Getrennte Zuständigkeiten (Single Responsibility Principle)
+- **Fehlertoleranz**: Ausfall eines Nodes beeinflusst den anderen nicht direkt
+
+
+---
+
+### 2. Grayscale-Konvertierung in CameraReadOut
+
+**Entscheidung**: RGB → Grayscale im CameraReadOut-Node, nicht im ImageProcessing
+
+**Begründung**:
+
+| Aspekt | Benefit |
+|---|---|
+| **Bandbreite** | 66% weniger Daten bei Übertragung |
+| **Bildrate** | Höherer Durchsatz von Bildern möglich (30 Hz vs. mögliche Drosselung bei RGB) |
+| **Speicher** | Weniger RAM-Nutzung |
+| **ArUco-Detektion** | Funktioniert gleichwertig mit Grayscale (Kontraste reichen aus) |
+
+---
+
+### 3. Timer-Frequenz 30 Hz in CameraReadOut
+
+**Entscheidung**: Bilderfassung mit maximaler Kamera-Frequenz (30 Hz)
+
+**Begründung**:
+- **Maximale Aktualität**: Neuste verfügbare Bilder für Detektion
+- **Kamera-Spezifikation**: Roboter-Kamera liefert max. 30 fps
+- **Echtzeit-Anforderung**: Roboter-Steuerung benötigt niedrige Latenz
+- **Pufferoptimierung**: Buffer-Size=1 verhindert veraltete Frames
+
+---
+
+### 3.1 CAP_PROP_BUFFERSIZE = 1 in CameraReadOut
+
+**Entscheidung**: OpenCV-Kamera-Buffer auf Größe 1 setzen
+
+**Begründung**:
+- **Minimale Latenz**: Nur aktuellster Frame wird gepuffert
+- **Echtzeitnavigation**: Roboter reagiert auf aktuelle Sensorposition
+- **Stabilität**: Verhindert veraltete Frames in P-Regler
+
+**Code**: `cap.set(cv.CAP_PROP_BUFFERSIZE, 1)`
+
+---
+
+## Marker-Erkennungs-Entscheidungen
+
+### 4. ArUco-Dictionary DICT_5X5_1000
+
+**Entscheidung**: 5×5-Marker mit bis zu 1000 verschiedenen IDs
+
+**Vergleich mit Alternativen**:
+
+| Dictionary | Marker-Größe | ID-Bereich | Erkennungs-Qualität |
+|---|---|---|---|
+| **4X4_50** | 4×4 Bits | 0-49 | Weniger robust bei Distanz/Bewegungsunschärfe |
+| **5X5_1000** | 5×5 Bits | 0-999 | **Optimal** ✓ |
+| **6X6_250** | 6×6 Bits | 0-249 | Bessere Reichweite, aber weniger IDs verfügbar |
+
+**Begründung für 5X5_1000**:
+- ✓ Bessere Erkennbarkeit aus Distanz/niedriger Auflösung als 4X4
+- ✓ Ausreichend viele IDs für Mehrroboter-Szenarien (nicht begrenzt auf 2-3 Roboter)
+- ✓ Schnellere Verarbeitung als 6X6
+- ✓ Balance zwischen Robustheit und Vielfalt
+
+---
+
+### 5. Marker-Prioritäts-Logik (ID 69 > ID 0)
+
+**Entscheidung**: Marker 69 vor Marker 0 bevorzugen (bei Mehrfach-Erkennung)
+
+**Begründung**:
+- **Performance**: Priorität vor solvePnP entscheiden (spart Berechnungen)
+- **Szenario**: Fokus auf anderen Roboter (ID 69) statt Objekt (ID 0)
+- **Flexibilität**: Leicht konfigurierbar
+---
+
+
+---
+
+## Distanz- und Winkelberechnungen
+
+### 6. solvePnP mit SOLVEPNP_IPPE_SQUARE
+
+**Entscheidung**: Pose-Estimation via `cv.solvePnP()` mit IPPE_SQUARE-Flag
+
+**Begründung**:
+- Nutzt vorkalibrierte Kameraparameter für präzise Pose
+- IPPE_SQUARE spezialisiert auf quadratische, planare Marker (ArUco)
+- OpenCV-Standard, etabliert und optimiert
+
+---
+
+### 7. Manuelle Winkelberechnung statt rvec
+
+**Entscheidung**: Winkel via `atan2(tvec[0], tvec[2])` statt aus `rvec`
+
+**Begründung**:
+- `rvec` liefert sprunghafte Werte bei Grenzfällen (zu instabil für P-Regler)
+- Manuelle Berechnung aus `tvec` ist mathematisch stabil und vorhersagbar
+- Direkt für Regelung nutzbar (Wertebereich [-π, π])
+
+**Visualisierung** (Draufsicht von oben):
+```
+         Kamera
+          *
+         /|
+        / | z_distance (tvec[2])
+  x_off/  |
+      /   |
+     -----+
+    Marker
+    
+tan(angle) = x_offset / z_distance
+angle = atan2(x_offset, z_distance)
+```
+
+**Bereich**: [-π, π] (alle 4 Quadranten)
+
+---
+
+### 8. Last-Valid-Value-Filter (3-Wert-Buffer)
+
+**Entscheidung**: Robustheits-Filter mit 3-Wert-Schiebe-Buffer
+
+**Begründung**: Filtert temporäre Fehler (Lichtwechsel, Verdeckung) aus; gibt neuesten gültigen Wert zurück
+
+
+---
+
+## Fehlerbehandlung-Entscheidungen
+
+### 9. Fehlercodes (-1000.0, π, 9999)
+
+**Entscheidung**: Sentinel-Werte statt Exceptions für robuste Node-Ausführung
+
+**Fehlerwerte**: Distanz=-1000.0 (unmöglich), Winkel=π (unerreichbar), ID=9999 (außerhalb DICT)
+
+**Begründung**: ROS2-Nodes bleiben stabil; Logik-Module können Fehler erkennen und reagieren
+
+---
+
+### 10. Error-Counter & Schwellwert (> 10)
+
+**Entscheidung**: Error-Flag setzen nach 10 aufeinanderfolgenden Fehlern
+
+**Begründung**: Unterscheidet Kurzzeitfehler (Lichtwechsel) von permanenten Ausfällen;
+---
+
+## Kalibrierungs-Entscheidungen
+
+### 11. CharUco statt Chess-Board für Kalibrierung
+
+**Entscheidung**: CharUco-Kalibrierung für Kamera-Matrix
+
+**Begründung**:
+- Funktioniert mit weniger Bildern als Chess-Board
+- Robuster gegen Verzerrungen und Beleuchtung
+- Bessere Ecken-Erkennung → präziserer optischer Mittelpunkt
+
+
+---
+
 # Technische Herleitungen
 
 ## 1. Quaternion zu Yaw-Konversion
@@ -739,7 +917,100 @@ Klare Aufgabentrennung beschleunigt Entwicklung, Debugging und Erweiterung erheb
 - Systematische Testabdeckung aller Übergänge
 
 
-## 2. Camera
+## 2. Camera & ArUco-Tracking
+
+### 2.1 Custom Marker sind zu aufwendig - Standard ArUco ist deutlich besser
+Anfängliche Idee: Eigene Marker zur Position- und Distanz-Verfolgung entwickeln
+
+**Problem**:
+- Insgesamt sehr zeitaufwendig und fehleranfällig
+
+**Lösung**: OpenCV DICT_5X5_1000 ArUco-Marker verwenden
+- Sofort einsatzbereit, dokumentiert und getestet
+- Robuste Erkennung, einfache Implementierung
+
+#### Lesson Learned:  
+**Standard-Lösungen bevorzugen**: Bewährte Marker sparen Wochen an Entwicklungszeit gegenüber Custom-Implementierungen
+
+---
+
+### 2.2 Kreis-Erkennung funktioniert nicht im Rohr
+Versuch: HoughCircles für Rohr-Tracking
+
+**Problem**:
+- Rohr ist mit einem Brett ausgelegt → Halbkreis statt Kreis
+- Keine zuverlässige Verfolgung möglich
+
+#### Lesson Learned:  
+**Feature-Geometrie muss zur Umgebung passen**: Generische Formen (Kreise) funktionieren nicht in nicht eindeutigen Szenarien — eindeutig markierte Positionen (ArUco) sind robust
+
+---
+
+### 2.3 solvePnP rvec-Werte sind zu instabil für die Regelung
+Anfängliche Idee: Rotationsvektor direkt für P-Regler nutzen
+
+**Beobachtung**: rvec springt zwischen Lösungen → keine stabilen Steuerwerte
+
+**Lösung**: Manuelle Berechnung aus tvec: `angle = atan2(tvec[0], tvec[2])`
+- Mathematisch stabil und monoton
+- Direkt verwendbar für P-Regler
+
+#### Lesson Learned:  
+**Physikalische Interpretation vor mathematischer**: Die X-Z-Position des Markers ist robuster als die Rotationsdarstellung — Pose aus Translationsvektor ist praktikabler für Regelung
+
+---
+
+### 2.4 Kalibrierungs-Qualität prägt Pose-Berechnung entscheidend
+Anfängliches Problem: Chess-Board-Kalbrierung lieferte falschen optischen Mittelpunkt (cx, cy)
+
+**Symptom**: Konstante Positions-Fehler ohne erkennbare Ursache
+
+**Lösung**: CharUco-Kalibrierung mit 10–20 hochqualitativen Bildern
+- Bessere Ecken-Detektion → präziser optischer Mittelpunkt
+- Direkter Einfluss auf solvePnP
+
+#### Lesson Learned:  
+**Kalibrierungs-Qualität ist essentiel**: Falscher optischer Mittelpunkt führt zu hartnäckigen systematischen Fehlern — Zeit in saubere Kalibrierung investieren spart Tage beim Debugging
+
+---
+
+### 2.5 OpenCV Camera-Buffer muss auf Größe 1 gesetzt werden
+Anfängliches Problem: Standardmäßig große Buffer → veraltete Frames in Echtzeit-Loop
+
+**Symptom**: Roboter lenkt zu weit aus → P-Regler bekommt verzögerte Sensordaten
+
+**Lösung**: `cap.set(cv.CAP_PROP_BUFFERSIZE, 1)`
+- Nur aktuellster Frame wird gepuffert
+- Minimale Latenz für Regelung
+
+#### Lesson Learned:  
+**Hardware-Puffering ist eine versteckte Latenzquelle**: Standard-OpenCV-Buffer verursachen Navigation-Instabilität — explizit auf Größe 1 setzen ist essentiell für Echtzeit-Systeme
+
+---
+
+### 2.6 Raspberry Pi Performance & Auflösungs-Optimierung
+
+**Problem**: Raspberry Pi zu schwach für Full-HD-Bilder (1920×1080)
+- Kamera liefert theoretisch HD-Qualität
+- Verarbeitung wird CPU-limitiert
+- Bildrate kann nicht gehalten werden
+
+**Experiment**: Verschiedene Auflösungen getestet
+
+
+**Kritische Erkenntnisse**:
+1. **Auflösungs-Reduktion**: 640×480 ist Standard-OpenCV-Größe
+2. **RGB→Grayscale**: Skaliert Performanz erheblich (3 Kanäle → 1 Kanal)
+3. **Timing der Konvertierung**: Je früher die Konvertierung erfolgt, desto besser
+   - Konvertierung im CameraReadOut spart Bandbreite
+   - ImageProcessing kann dann kleinere Frames zu verarbeiten
+
+#### Lesson Learned:
+Bildauswahl muss spezifisch zu dem verwendeten System angepasst werden
+- Niedrige Auflösung wählen (640×480 statt HD)
+- Grayscale früh im Pipeline konvertieren
+
+---
 
 ## 3. ROS
 ### 3.1 Softwarearchitektur vor Implementierung

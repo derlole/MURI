@@ -10,13 +10,14 @@ Diese Dokumentation erläutert die Begründungen für technische Design-Entschei
 
 ## Architektur-Entscheidungen
 
-### 1. Zwei separate ROS2-Nodes
+### 1. Zwei separate ROS2-Nodes + ausgelagerte OpenCV-Logik
 
-**Entscheidung**: CameraReadOut (Bilderfassung) und ImageProcessing (Verarbeitung) als getrennte Nodes
+**Entscheidung**: CameraReadOut (Bilderfassung) und ImageProcessing (Verarbeitung) als getrennte ROS2-Nodes, mit OpenCV-Logik in separate AMD-Klasse ausgelagert
 
 **Begründung**:
 - **Skalierbarkeit**: Verarbeitungsteil kann auf anderem Rechner ausgeführt werden
 - **Parallelisierung**: Bilderfassung und Verarbeitung laufen asynchron
+- **Code-Trennung**: OpenCV-Logik (AMD) ist unabhängig von ROS2, wiederverwendbar in anderen Kontexten
 - **Wartbarkeit**: Getrennte Zuständigkeiten (Single Responsibility Principle)
 - **Fehlertoleranz**: Ausfall eines Nodes beeinflusst den anderen nicht direkt
 
@@ -48,6 +49,28 @@ Diese Dokumentation erläutert die Begründungen für technische Design-Entschei
 - **Echtzeit-Anforderung**: Roboter-Steuerung benötigt niedrige Latenz
 - **Pufferoptimierung**: Buffer-Size=1 verhindert veraltete Frames
 
+---
+
+### 3.1 CAP_PROP_BUFFERSIZE = 1 in CameraReadOut
+
+**Entscheidung**: OpenCV-Kamera-Buffer auf Größe 1 setzen
+
+**Begründung**:
+- **Minimale Latenz**: Nur der aktuellste Frame wird gepuffert, keine veralteten Frames
+- **Echtzeitnavigation**: Roboter-Regler erhält stets die neueste Sensorposition
+- **Konsistente Steuerung**: Verhindert Instabilität durch verzögerte Sensordaten
+
+**Problematik ohne diese Einstellung**:
+- OpenCV speichert standardmäßig mehrere Frames intern
+- Veraltete Frames werden mit Verzögerung ausgegeben
+- Roboter-Regler reagiert auf alte Positionen, nicht auf aktuelle
+- P-Regler wird instabil, Navigation unpräzise
+
+**Implementierung**:
+```python
+cap = cv.VideoCapture(device)
+cap.set(cv.CAP_PROP_BUFFERSIZE, 1)  # Kritisch für Echtzeit!
+```
 
 ---
 
@@ -94,23 +117,12 @@ else:
 ```
 ---
 
-### 6. Dynamische Marker-Größen
 
-**Entscheidung**: Marker-Größe via config.MARKER_SIZES geladen, nicht fest codiert
-
-**Begründung**:
-- **Flexibilität**: Neue Marker hinzufügbar ohne Code-Änderung
-
-**Fehlerfall**:
-```python
-if marker_size is None:
-    return (-1000.0, math.pi, 9999)  # Unbekannte Marker-ID
-```
 ---
 
 ## Distanz- und Winkelberechnungen
 
-### 7. solvePnP mit SOLVEPNP_IPPE_SQUARE
+### 6. solvePnP mit SOLVEPNP_IPPE_SQUARE
 
 **Entscheidung**: Pose-Estimation via `cv.solvePnP(obj_points, img_points, ...)`
 
@@ -137,7 +149,7 @@ tvec[2] = Z-Distanz (Tiefe, mm)
 
 ---
 
-### 8. Manuelle Winkelberechnung statt rvec
+### 7. Manuelle Winkelberechnung statt rvec
 
 **Entscheidung**: Winkel via `atan2(tvec[0], tvec[2])` statt aus Rotations-Matrix (rvec)
 
@@ -178,7 +190,7 @@ angle = atan2(x_offset, z_distance)
 
 ---
 
-### 9. Last-Valid-Value-Filter (3-Wert-Buffer)
+### 8. Last-Valid-Value-Filter (3-Wert-Buffer)
 
 **Entscheidung**: Distanz-Filterung mit 3-Wert-Schiebe-Buffer
 
@@ -198,7 +210,7 @@ angle = atan2(x_offset, z_distance)
 
 ## Fehlerbehandlung-Entscheidungen
 
-### 10. Fehlercodes (-1000.0, π, 9999)
+### 9. Fehlercodes (-1000.0, π, 9999)
 
 **Entscheidung**: Spezifische Fehlerwerte statt Exception werfen, welche extern erkenntlich sind
 
@@ -216,7 +228,7 @@ angle = atan2(x_offset, z_distance)
 
 ---
 
-### 11. Error-Counter & Schwellwert > 10
+### 10. Error-Counter & Schwellwert > 10
 
 **Entscheidung**: After 10 consecutive failed frames → error=True
 
@@ -228,7 +240,7 @@ angle = atan2(x_offset, z_distance)
 
 ## Kalibrierungs-Entscheidungen
 
-### 12. CharUco statt Chess-Board für Kalibrierung
+### 11. CharUco statt Chess-Board für Kalibrierung
 
 **Problem mit Chess-Board-Kalibrierung**:
 - Benötigt sehr saubere, scharfe Bilder
@@ -247,7 +259,7 @@ angle = atan2(x_offset, z_distance)
 
 ## Lessons Learned - Technische Erkenntnisse
 
-### 15. Custom Marker sind zu aufwendig - OpenCV ArUco ist deutlich einfacher
+### 12. Custom Marker sind zu aufwendig - OpenCV ArUco ist deutlich einfacher
 
 **Idee**: Eigene Marker zur Position- und Distanz-Verfolgung zu erstellen
 
@@ -267,7 +279,7 @@ angle = atan2(x_offset, z_distance)
 
 ---
 
-### 16. Kreis-Erkennung funktioniert nicht in der Röhre
+### 13. Kreis-Erkennung funktioniert nicht in der Röhre
 
 **Versuch**: Kreiserkennung zum Tracken des Wegs durch die Röhre
 
@@ -281,7 +293,7 @@ angle = atan2(x_offset, z_distance)
 
 ---
 
-### 17. solvePnP rvec-Werte sind zu sprunghaft für den Roboter
+### 14. solvePnP rvec-Werte sind zu sprunghaft für den Roboter
 
 **Beobachtung**: Bei anfänglichen Tests mit solvePnP springt der ausgegebene Winkel extrem
 - Winkel springt ruckartig von links nach rechts
@@ -296,7 +308,7 @@ angle = atan2(x_offset, z_distance)
 
 ---
 
-### 18. Kalibrierungs-Qualität & Bildmittelpunkt-Präzision
+### 15. Kalibrierungs-Qualität & Bildmittelpunkt-Präzision
 
 **Problem**: Standardkalbrierungen (Chess-Board) lieferten falsche Bildmittelpunkt-Werte
 - Optischer Mittelpunkt (cx, cy) in der Kamera-Matrix war systematisch daneben
@@ -314,7 +326,7 @@ angle = atan2(x_offset, z_distance)
 
 ---
 
-### 19. OpenCV Camera-Buffer-Größe (CAP_PROP_BUFFERSIZE)
+### 16. OpenCV Camera-Buffer-Größe (CAP_PROP_BUFFERSIZE)
 
 **Problem**: OpenCV speichert standardmäßig mehrere Frames intern
 - Zu große Buffer → veraltete Frames werden ausgegeben
@@ -342,7 +354,7 @@ cap.set(cv.CAP_PROP_BUFFERSIZE, 1)  # Kritisch für Echtzeit!
 
 ---
 
-### 20. Raspberry Pi Performance & Auflösungs-Optimierung
+### 17. Raspberry Pi Performance & Auflösungs-Optimierung
 
 **Problem**: Raspberry Pi zu schwach für Full-HD-Bilder (1920×1080)
 - Kamera liefert theoretisch HD-Qualität
