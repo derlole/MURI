@@ -715,7 +715,7 @@ Beispiel:
 
 ## 3. Regler-Auslegung für Multi-Modul-System
 
-### 3.1 Kaskadenregelung (Cascade Control)
+### 3.1 P-Rgler
 
 **Struktur**:
 ```
@@ -796,9 +796,10 @@ Beispiele:
 ### 5.2 GOAL_DISTANCE Herleitungen
 
 **Definition**: Entfernung, die als "Ziel erreicht" zählt
+                    |
+                    └─> vom Benutzer frei wählbar
 
 **Faktoren**:
-- Roboter-Größe: Länge/Breite
 - Kollisionsfreiraum: Mindestens 10cm Abstand
 - Sensor-Genauigkeit: ±5cm
 
