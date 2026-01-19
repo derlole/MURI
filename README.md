@@ -110,7 +110,7 @@ Dieses Projekt ist Teil einer universitären Arbeit und nicht für kommerzielle 
 
 ---
 
-**Letzte Aktualisierung**: Januar 2026  
+**Letzte Aktualisierung**: 15 Januar 2026  
 **ROS2-Version**: Humble Hawksbill  
 **Python-Version**: 3.10.12
 
